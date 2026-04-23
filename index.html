@@ -10,49 +10,50 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
-        
-        /* Container chính */
         .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; padding-bottom: 70px; }
         
         /* Header */
-        .header { background: linear-gradient(135deg, #0a2b3e 0%, #1a4a6f 100%); color: white; padding: 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .header { background: linear-gradient(135deg, #0a2b3e, #1a4a6f); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .logo-area { display: flex; align-items: center; gap: 12px; }
         .logo-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.3); overflow: hidden; }
         .logo-icon img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
         .logo-text { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
         .logo-text small { font-size: 10px; opacity: 0.8; display: block; font-weight: normal; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); transition: 0.2s; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); transition: 0.2s; background-size: cover; background-position: center; }
         .avatar:hover { transform: scale(1.05); }
         
-        /* Thông tin đơn vị */
-        .unit-info { background: rgba(255,255,255,0.1); margin-top: 12px; padding: 8px 12px; border-radius: 12px; font-size: 12px; display: flex; justify-content: space-between; }
+        /* Bottom Tab Bar */
+        .bottom-tab-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0 16px; border-top: 1px solid #eef2f6; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 200; overflow-x: auto; }
+        .tab-item { flex: 1; text-align: center; padding: 6px 0; cursor: pointer; color: #94a3b8; font-size: 11px; transition: 0.2s; border-radius: 12px; margin: 0 2px; position: relative; }
+        .tab-item.active { color: #2d5a8b; background: #eef2f6; }
+        .tab-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+        .tab-badge { position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; min-width: 16px; }
         
-        /* Welcome Banner */
-        .welcome-banner { background: linear-gradient(135deg, #1e3a5f, #2d5a8b); margin: 15px; padding: 20px; border-radius: 20px; color: white; position: relative; overflow: hidden; }
-        .welcome-banner::after { content: ""; position: absolute; right: 10px; bottom: 5px; width: 60px; height: 60px; opacity: 0.15; background: url('logo.png') no-repeat center; background-size: contain; pointer-events: none; }
-        .welcome-banner h3 { font-size: 18px; margin-bottom: 5px; }
-        .welcome-banner p { font-size: 12px; opacity: 0.9; }
+        /* Content */
+        .content { display: none; }
+        .content.active { display: block; }
         
         /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 15px; margin-bottom: 20px; }
-        .stat-card { background: white; border-radius: 16px; padding: 12px 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eef2f6; transition: 0.2s; }
-        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .stat-icon { font-size: 24px; margin-bottom: 6px; }
-        .stat-value { font-size: 22px; font-weight: bold; color: #1e3a5f; }
-        .stat-label { font-size: 11px; color: #6c757d; margin-top: 4px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; background: white; }
+        .stat-card { border-radius: 16px; padding: 12px; text-align: center; color: white; }
+        .stat-card.total { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
+        .stat-card.present { background: linear-gradient(135deg, #059669, #10b981); }
+        .stat-card.absent { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .stat-card.leave { background: linear-gradient(135deg, #d97706, #f59e0b); }
+        .stat-value { font-size: 22px; font-weight: bold; }
+        .stat-label { font-size: 10px; opacity: 0.9; margin-top: 4px; }
         
         /* Section Title */
         .section-title { display: flex; justify-content: space-between; align-items: center; padding: 0 15px; margin: 20px 0 12px; }
         .section-title h3 { font-size: 16px; font-weight: 600; color: #1e3a5f; position: relative; padding-left: 12px; }
         .section-title h3::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 16px; background: #2d5a8b; border-radius: 2px; }
-        .section-title a { font-size: 12px; color: #2d5a8b; text-decoration: none; cursor: pointer; }
         
         /* Module Grid */
         .module-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0 15px; }
@@ -69,30 +70,31 @@
         .list-info { flex: 1; }
         .list-title { font-weight: 600; font-size: 14px; color: #1e293b; }
         .list-desc { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-        .list-badge { background: #e74c3c; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
         
-        /* Bottom Tab Bar */
-        .bottom-tab-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0 16px; border-top: 1px solid #eef2f6; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 200; }
-        .tab-item { flex: 1; text-align: center; padding: 6px 0; cursor: pointer; color: #94a3b8; font-size: 11px; transition: 0.2s; border-radius: 12px; margin: 0 4px; position: relative; }
-        .tab-item.active { color: #2d5a8b; background: #eef2f6; }
-        .tab-icon { font-size: 22px; display: block; margin-bottom: 4px; }
-        .tab-badge { position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; min-width: 16px; }
-        
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: white; margin: 20px; padding: 24px; border-radius: 24px; max-width: 500px; width: 100%; }
-        .modal-content h3 { margin-bottom: 16px; color: #1e3a5f; }
-        .modal-content input, .modal-content textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; }
-        .modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
-        .modal-buttons button { flex: 1; }
+        /* Search Bar */
+        .search-bar { display: flex; gap: 10px; padding: 0 15px 15px; }
+        .search-bar input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 14px; }
+        .search-bar button { width: auto; padding: 10px 20px; border-radius: 25px; }
         
         /* Buttons */
         button { background: #2d5a8b; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s; width: 100%; }
         button:hover { background: #1e3a5f; transform: translateY(-1px); }
         button.danger { background: #e74c3c; }
+        button.danger:hover { background: #c0392b; }
         button.success { background: #27ae60; }
+        button.success:hover { background: #219a52; }
+        button.warning { background: #f39c12; }
+        .flex { display: flex; gap: 10px; }
         
-        /* Login Screen */
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: white; margin: 20px; padding: 24px; border-radius: 24px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto; }
+        .modal-content h3 { margin-bottom: 16px; color: #1e3a5f; }
+        .modal-content input, .modal-content select, .modal-content textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; font-size: 14px; }
+        .modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
+        .modal-buttons button { flex: 1; }
+        
+        /* Login */
         .login-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a2b3e, #1a4a6f); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .login-box { background: white; padding: 35px; border-radius: 28px; width: 85%; max-width: 350px; text-align: center; }
         .login-logo { margin-bottom: 15px; }
@@ -101,18 +103,13 @@
         .login-box p { color: #6c757d; font-size: 13px; margin-bottom: 25px; }
         .login-box input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; margin: 8px 0; font-size: 14px; }
         
-        .hidden { display: none; }
-        .flex { display: flex; gap: 12px; }
-        
         /* Toast */
         .toast { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #1e293b; color: white; padding: 14px; border-radius: 16px; text-align: center; z-index: 1000; animation: fadeOut 2.5s forwards; }
         .toast.success { background: #27ae60; }
         .toast.error { background: #e74c3c; }
         @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
         
-        /* Content */
-        .content { display: block; }
-        .hidden-content { display: none; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -120,7 +117,7 @@
     <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
-            <div class="login-logo"><img src="logo.png" alt="SH13A"></div>
+            <div class="login-logo"><img src="logo.png" alt="SH13A" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2721/2721292.png'"></div>
             <h2>SH13A</h2>
             <p>Hệ Thống Quản Lý Đơn Vị</p>
             <input type="email" id="email" placeholder="Email" value="admin@sh13a.com">
@@ -132,67 +129,23 @@
 
     <!-- Main App -->
     <div id="mainApp" class="hidden">
-        <!-- Header -->
         <div class="header">
-            <div class="header-top">
-                <div class="logo-area">
-                    <div class="logo-icon"><img src="logo.png" alt="SH13A"></div>
-                    <div class="logo-text">SH13A<br><small>QUẢN LÝ ĐƠN VỊ</small></div>
-                </div>
-                <div class="avatar" id="userAvatar" onclick="openAvatarEditor()">A</div>
+            <div class="logo-area">
+                <div class="logo-icon"><img src="logo.png" alt="SH13A" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2721/2721292.png'"></div>
+                <div class="logo-text">SH13A<br><small>QUẢN LÝ ĐƠN VỊ</small></div>
             </div>
-            <div class="unit-info">
-                <span><i class="fas fa-building"></i> Đại đội 1 - Tiểu đoàn 2</span>
-                <span><i class="fas fa-calendar"></i> <span id="currentDate"></span></span>
-            </div>
+            <div class="avatar" id="userAvatar" onclick="openAvatarEditor()">A</div>
         </div>
 
-        <!-- Content Area -->
-        <div id="contentArea">
-            <!-- TRANG CHỦ -->
-            <div id="homeContent">
-                <div class="welcome-banner">
-                    <h3>Xin chào, <span id="userName">Chiến sĩ</span>!</h3>
-                    <p>Chào mừng bạn đến với hệ thống quản lý đơn vị</p>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="totalCount">0</div><div class="stat-label">Tổng quân số</div></div>
-                    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="presentCount">0</div><div class="stat-label">Có mặt</div></div>
-                    <div class="stat-card"><div class="stat-icon">❌</div><div class="stat-value" id="absentCount">0</div><div class="stat-label">Vắng</div></div>
-                    <div class="stat-card"><div class="stat-icon">🏃</div><div class="stat-value" id="leaveCount">0</div><div class="stat-label">Tranh thủ</div></div>
-                </div>
-
-                <div class="section-title"><h3>PHÂN HỆ QUẢN LÝ</h3><a onclick="showToast('Tất cả module đang phát triển', 'success')">Xem tất cả</a></div>
-                <div class="module-grid" id="moduleGrid"></div>
-
-                <div class="section-title"><h3>LỊCH CÔNG TÁC TUẦN</h3><a onclick="showToast('Lịch công tác chi tiết', 'success')">Xem lịch</a></div>
-                <div id="scheduleList"></div>
-
-                <div class="section-title"><h3>THÔNG BÁO</h3><a onclick="openNotificationModal()">Xem tất cả</a></div>
-                <div id="notificationList"></div>
-            </div>
-        </div>
+        <!-- Content Area - Các module sẽ được load vào đây -->
+        <div id="contentArea"></div>
 
         <!-- Bottom Tab Bar -->
-        <div class="bottom-tab-bar">
+        <div class="bottom-tab-bar" id="bottomTabBar">
             <div class="tab-item active" data-tab="home"><span class="tab-icon"><i class="fas fa-home"></i></span><span>Trang chủ</span></div>
-            <div class="tab-item" data-tab="personnel"><span class="tab-icon"><i class="fas fa-users"></i></span><span>Quân số</span></div>
-            <div class="tab-item" data-tab="chat"><span class="tab-icon"><i class="fas fa-comment-dots"></i></span><span>Chat</span></div>
+            <div class="tab-item" data-tab="quanSo"><span class="tab-icon"><i class="fas fa-users"></i></span><span>Quân số</span></div>
+            <div class="tab-item" data-tab="chat"><span class="tab-icon"><i class="fas fa-comment-dots"></i></span><span>Chat</span><span class="tab-badge" id="chatBadge" style="display:none;">0</span></div>
             <div class="tab-item" data-tab="profile"><span class="tab-icon"><i class="fas fa-user"></i></span><span>Cá nhân</span></div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Thông báo -->
-<div id="notificationModal" class="modal">
-    <div class="modal-content">
-        <h3><i class="fas fa-bell"></i> Thông báo mới</h3>
-        <input type="text" id="notiTitle" placeholder="Tiêu đề">
-        <textarea id="notiContent" rows="3" placeholder="Nội dung thông báo..."></textarea>
-        <div class="modal-buttons">
-            <button onclick="sendNotification()" class="success">Gửi</button>
-            <button onclick="closeNotificationModal()" class="danger">Hủy</button>
         </div>
     </div>
 </div>
@@ -211,38 +164,122 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
+    const storage = firebase.storage();
     
     let currentUser = null;
+    let currentTab = 'home';
     
-    // Danh sách module
+    // Danh sách 16 module (hiển thị trên trang chủ)
     const modules = [
-        { name: "Quân số", icon: "👥", action: "showToast('Module Quân số - Đang phát triển', 'success')" },
-        { name: "Học tập", icon: "📚", action: "showToast('Module Học tập - Đang phát triển', 'success')" },
-        { name: "Công tác", icon: "📋", action: "showToast('Module Công tác - Đang phát triển', 'success')" },
-        { name: "Trực gác", icon: "🛡️", action: "showToast('Module Trực gác - Đang phát triển', 'success')" },
-        { name: "Tài chính", icon: "💰", action: "showToast('Module Tài chính - Đang phát triển', 'success')" },
-        { name: "Hậu cần", icon: "📦", action: "showToast('Module Hậu cần - Đang phát triển', 'success')" },
-        { name: "Khen thưởng", icon: "🏆", action: "showToast('Module Khen thưởng - Đang phát triển', 'success')" },
-        { name: "Kỷ luật", icon: "⚠️", action: "showToast('Module Kỷ luật - Đang phát triển', 'success')" },
-        { name: "Vũ khí", icon: "🔫", action: "showToast('Module Vũ khí - Đang phát triển', 'success')" },
-        { name: "Doanh trại", icon: "🏠", action: "showToast('Module Doanh trại - Đang phát triển', 'success')" },
-        { name: "Y tế", icon: "🏥", action: "showToast('Module Y tế - Đang phát triển', 'success')" },
-        { name: "Thể thao", icon: "⚽", action: "showToast('Module Thể thao - Đang phát triển', 'success')" },
-        { name: "Thư viện", icon: "📁", action: "showToast('Module Thư viện - Đang phát triển', 'success')" },
-        { name: "Báo cáo", icon: "📊", action: "showToast('Module Báo cáo - Đang phát triển', 'success')" },
-        { name: "Văn bản", icon: "📄", action: "showToast('Module Văn bản - Đang phát triển', 'success')" },
-        { name: "Cài đặt", icon: "⚙️", action: "showToast('Module Cài đặt - Đang phát triển', 'success')" }
+        { name: "Quân số", icon: "👥", module: "quanSo" },
+        { name: "Học tập", icon: "📚", module: "hocTap" },
+        { name: "Công tác", icon: "📋", module: "congTac" },
+        { name: "Trực gác", icon: "🛡️", module: "trucGac" },
+        { name: "Tài chính", icon: "💰", module: "taiChinh" },
+        { name: "Hậu cần", icon: "📦", module: "hauCan" },
+        { name: "Khen thưởng", icon: "🏆", module: "khenThuong" },
+        { name: "Văn bản", icon: "📄", module: "vanBan" },
+        { name: "Lịch", icon: "📅", module: "lich" },
+        { name: "Thông báo", icon: "📢", module: "thongBao" },
+        { name: "Báo cáo", icon: "📊", module: "baoCao" },
+        { name: "Doanh trại", icon: "🏠", module: "doanhTrai" },
+        { name: "Y tế", icon: "🏥", module: "yTe" },
+        { name: "Thể thao", icon: "⚽", module: "theThao" },
+        { name: "Vũ khí", icon: "🔫", module: "vuKhi" },
+        { name: "Thư viện", icon: "📁", module: "thuVien" }
     ];
     
-    function loadModuleGrid() {
-        let html = '';
+    // ========== AUTHENTICATION ==========
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        try {
+            const result = await auth.signInWithEmailAndPassword(email, password);
+            currentUser = result.user;
+            document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            await loadUserProfile();
+            loadHomePage();
+            startMessageListeners();
+        } catch(error) { showToast(error.message, 'error'); }
+    }
+    
+    function showRegister() {
+        const email = prompt('Nhập email:');
+        const password = prompt('Nhập mật khẩu (6+ ký tự):');
+        if(email && password && password.length >= 6) {
+            auth.createUserWithEmailAndPassword(email, password).then(() => {
+                showToast('Đăng ký thành công! Hãy đăng nhập.', 'success');
+            }).catch(e => showToast(e.message, 'error'));
+        }
+    }
+    
+    async function logout() { await auth.signOut(); location.reload(); }
+    
+    async function loadUserProfile() {
+        const doc = await db.collection('users').doc(currentUser.uid).get();
+        if(doc.exists && doc.data().avatar) {
+            document.getElementById('userAvatar').style.backgroundImage = `url(${doc.data().avatar})`;
+            document.getElementById('userAvatar').innerHTML = '';
+        }
+    }
+    
+    function openAvatarEditor() {
+        const url = prompt('URL ảnh đại diện:');
+        if(url) {
+            document.getElementById('userAvatar').style.backgroundImage = `url(${url})`;
+            document.getElementById('userAvatar').innerHTML = '';
+            db.collection('users').doc(currentUser.uid).set({ avatar: url }, { merge: true });
+        }
+    }
+    
+    // ========== TRANG CHỦ ==========
+    async function loadHomePage() {
+        document.getElementById('contentArea').innerHTML = `
+            <div id="homeContent">
+                <!-- Thống kê nhanh -->
+                <div class="stats-grid">
+                    <div class="stat-card total"><div class="stat-value" id="totalCount">0</div><div class="stat-label">Tổng quân số</div></div>
+                    <div class="stat-card present"><div class="stat-value" id="presentCount">0</div><div class="stat-label">Có mặt</div></div>
+                    <div class="stat-card absent"><div class="stat-value" id="absentCount">0</div><div class="stat-label">Vắng</div></div>
+                    <div class="stat-card leave"><div class="stat-value" id="leaveCount">0</div><div class="stat-label">Tranh thủ</div></div>
+                </div>
+                
+                <!-- 16 Module -->
+                <div class="section-title"><h3>PHÂN HỆ QUẢN LÝ</h3></div>
+                <div class="module-grid" id="moduleGrid"></div>
+                
+                <!-- Lịch công tác -->
+                <div class="section-title"><h3>LỊCH CÔNG TÁC TUẦN</h3></div>
+                <div id="scheduleList"></div>
+                
+                <!-- Thông báo -->
+                <div class="section-title"><h3>THÔNG BÁO MỚI</h3></div>
+                <div id="notificationList"></div>
+            </div>
+        `;
+        
+        // Load module grid
+        let moduleHtml = '';
         modules.forEach(mod => {
-            html += `<div class="module-card" onclick="${mod.action}">
-                        <div class="module-icon">${mod.icon}</div>
-                        <div class="module-name">${mod.name}</div>
-                    </div>`;
+            moduleHtml += `<div class="module-card" onclick="switchToModule('${mod.module}')"><div class="module-icon">${mod.icon}</div><div class="module-name">${mod.name}</div></div>`;
         });
-        document.getElementById('moduleGrid').innerHTML = html;
+        document.getElementById('moduleGrid').innerHTML = moduleHtml;
+        
+        // Load thống kê
+        await loadHomeStats();
+        loadSchedule();
+        loadNotifications();
+    }
+    
+    async function loadHomeStats() {
+        const membersSnap = await db.collection('members').get();
+        const total = membersSnap.size;
+        document.getElementById('totalCount').innerText = total || 0;
+        document.getElementById('presentCount').innerText = total - 3;
+        document.getElementById('absentCount').innerText = 3;
+        document.getElementById('leaveCount').innerText = 2;
     }
     
     function loadSchedule() {
@@ -254,13 +291,7 @@
         ];
         let html = '';
         schedule.forEach(item => {
-            html += `<div class="list-item">
-                        <div class="list-icon"><i class="fas fa-clock"></i></div>
-                        <div class="list-info">
-                            <div class="list-title">${item.time} - ${item.title}</div>
-                            <div class="list-desc"><i class="fas fa-map-marker-alt"></i> ${item.location}</div>
-                        </div>
-                    </div>`;
+            html += `<div class="list-item"><div class="list-icon"><i class="fas fa-clock"></i></div><div class="list-info"><div class="list-title">${item.time} - ${item.title}</div><div class="list-desc"><i class="fas fa-map-marker-alt"></i> ${item.location}</div></div></div>`;
         });
         document.getElementById('scheduleList').innerHTML = html;
     }
@@ -273,36 +304,56 @@
         ];
         let html = '';
         notis.forEach(item => {
-            html += `<div class="list-item">
-                        <div class="list-icon"><i class="fas fa-bullhorn"></i></div>
-                        <div class="list-info">
-                            <div class="list-title">${item.title}</div>
-                            <div class="list-desc">📅 ${item.date}</div>
-                        </div>
-                        ${item.isNew ? '<div class="list-badge">Mới</div>' : ''}
-                    </div>`;
+            html += `<div class="list-item"><div class="list-icon"><i class="fas fa-bullhorn"></i></div><div class="list-info"><div class="list-title">${item.title}</div><div class="list-desc">📅 ${item.date}</div></div>${item.isNew ? '<div class="list-badge" style="background:#e74c3c; color:white; padding:2px 8px; border-radius:20px; font-size:10px;">Mới</div>' : ''}</div>`;
         });
         document.getElementById('notificationList').innerHTML = html;
     }
     
-    function updateCurrentDate() {
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        document.getElementById('currentDate').innerHTML = new Date().toLocaleDateString('vi-VN', options);
+    function switchToModule(moduleName) {
+        // Chuyển sang tab tương ứng hoặc load module
+        if(moduleName === 'quanSo') switchTab('quanSo');
+        else if(moduleName === 'chat') switchTab('chat');
+        else if(moduleName === 'caNhan') switchTab('profile');
+        else showToast(`Module ${moduleName} đang được phát triển`, 'success');
     }
     
-    async function loadStats() {
-        try {
-            const membersSnap = await db.collection('members').get();
-            const total = membersSnap.size;
-            document.getElementById('totalCount').innerText = total || 0;
-            document.getElementById('presentCount').innerText = total - 3;
-            document.getElementById('absentCount').innerText = 3;
-            document.getElementById('leaveCount').innerText = 2;
-        } catch(e) {
-            document.getElementById('totalCount').innerText = '0';
+    // ========== CHAT FUNCTIONS ==========
+    let currentChatRoom = null;
+    let messageListeners = {};
+    
+    function startMessageListeners() {
+        const rooms = ['all', 'team1', 'team2', 'team3'];
+        for(const room of rooms) {
+            if(messageListeners[room]) messageListeners[room]();
+            messageListeners[room] = db.collection('chats').where('room', '==', room).orderBy('timestamp', 'asc').onSnapshot(() => {
+                if(currentChatRoom === room && typeof loadChatMessages === 'function') loadChatMessages(room);
+            });
         }
     }
     
+    function escapeHtml(text) { return text; }
+    
+    // ========== TAB SWITCHING ==========
+    async function switchTab(tabName) {
+        currentTab = tabName;
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.tab-item[data-tab="${tabName}"]`).classList.add('active');
+        
+        if(tabName === 'home') {
+            await loadHomePage();
+        } else if(tabName === 'quanSo') {
+            if(typeof initQuanSo === 'function') initQuanSo();
+            else showToast('Module Quân số đang được tải...', 'success');
+        } else if(tabName === 'chat') {
+            if(typeof initChat === 'function') initChat();
+            else showToast('Module Chat đang được tải...', 'success');
+        } else if(tabName === 'profile') {
+            if(typeof initCaNhan === 'function') initCaNhan();
+            else showToast('Module Cá nhân đang được tải...', 'success');
+        }
+    }
+    
+    // ========== TOAST ==========
     function showToast(msg, type) {
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
@@ -311,68 +362,44 @@
         setTimeout(() => toast.remove(), 2500);
     }
     
-    function openNotificationModal() { document.getElementById('notificationModal').style.display = 'flex'; }
-    function closeNotificationModal() { document.getElementById('notificationModal').style.display = 'none'; }
-    function sendNotification() { showToast('Đã gửi thông báo!', 'success'); closeNotificationModal(); }
-    function openAvatarEditor() { const url = prompt('URL ảnh đại diện:'); if(url) document.getElementById('userAvatar').style.backgroundImage = `url(${url})`; document.getElementById('userAvatar').innerHTML = ''; }
-    
-    function showRegister() {
-        const email = prompt('Nhập email:');
-        const password = prompt('Nhập mật khẩu (6+ ký tự):');
-        if(email && password && password.length >= 6) {
-            auth.createUserWithEmailAndPassword(email, password).then(() => {
-                showToast('Đăng ký thành công! Hãy đăng nhập.', 'success');
-            }).catch(e => showToast(e.message, 'error'));
-        }
-    }
-    
-    async function login() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        try {
-            const result = await auth.signInWithEmailAndPassword(email, password);
-            currentUser = result.user;
-            document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
-            document.getElementById('userName').innerHTML = currentUser.email.split('@')[0];
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            loadAllData();
-        } catch(error) { showToast(error.message, 'error'); }
-    }
-    
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-        document.querySelector(`.tab-item[data-tab="${tabName}"]`).classList.add('active');
-        if(tabName === 'home') {
-            document.getElementById('homeContent').style.display = 'block';
-        } else {
-            document.getElementById('homeContent').style.display = 'none';
-            showToast(`Tab ${tabName === 'personnel' ? 'Quân số' : (tabName === 'chat' ? 'Chat' : 'Cá nhân')} đang phát triển`, 'success');
-        }
-    }
-    
-    async function loadAllData() {
-        updateCurrentDate();
-        loadModuleGrid();
-        loadSchedule();
-        loadNotifications();
-        await loadStats();
-    }
-    
+    // ========== EVENT LISTENERS ==========
     document.querySelectorAll('.tab-item').forEach(tab => {
         tab.addEventListener('click', () => switchTab(tab.getAttribute('data-tab')));
     });
     
+    // ========== AUTH STATE ==========
     auth.onAuthStateChanged(async (user) => {
         if(user) {
             currentUser = user;
             document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
-            document.getElementById('userName').innerHTML = currentUser.email.split('@')[0];
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            loadAllData();
+            await loadUserProfile();
+            await loadHomePage();
+            startMessageListeners();
         }
     });
 </script>
+
+<!-- ========== TẤT CẢ CÁC MODULE ========== -->
+<script src="modules/quanSo.js"></script>
+<script src="modules/hocTap.js"></script>
+<script src="modules/congTac.js"></script>
+<script src="modules/trucGac.js"></script>
+<script src="modules/taiChinh.js"></script>
+<script src="modules/hauCan.js"></script>
+<script src="modules/khenThuong.js"></script>
+<script src="modules/vanBan.js"></script>
+<script src="modules/lich.js"></script>
+<script src="modules/thongBao.js"></script>
+<script src="modules/baoCao.js"></script>
+<script src="modules/doanhTrai.js"></script>
+<script src="modules/yTe.js"></script>
+<script src="modules/theThao.js"></script>
+<script src="modules/vuKhi.js"></script>
+<script src="modules/thuVien.js"></script>
+<script src="modules/chat.js"></script>
+<script src="modules/caNhan.js"></script>
+
 </body>
 </html>
