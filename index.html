@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
@@ -24,9 +25,9 @@
         .logo-area { display: flex; align-items: center; gap: 10px; }
         .logo-img { font-size: 28px; }
         .logo-text { font-size: 18px; font-weight: bold; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; background-size: cover; background-position: center; }
         
-        /* Bottom Taskbar (4 mục) */
+        /* Bottom Taskbar */
         .bottom-taskbar {
             position: fixed;
             bottom: 0;
@@ -42,15 +43,7 @@
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
             z-index: 200;
         }
-        .taskbar-item {
-            flex: 1;
-            text-align: center;
-            padding: 5px;
-            cursor: pointer;
-            color: #6b7280;
-            font-size: 12px;
-            transition: 0.2s;
-        }
+        .taskbar-item { flex: 1; text-align: center; padding: 5px; cursor: pointer; color: #6b7280; font-size: 12px; transition: 0.2s; }
         .taskbar-item.active { color: #3b82f6; }
         .taskbar-icon { font-size: 24px; display: block; margin-bottom: 4px; }
         
@@ -62,7 +55,7 @@
         .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; }
         .card-title { font-weight: 600; font-size: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Stats Grid */
+        /* Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 15px; }
         .stat-card { background: linear-gradient(135deg, #1e3a8a, #3b82f6); border-radius: 12px; padding: 12px; text-align: center; color: white; }
         .stat-card.present { background: linear-gradient(135deg, #059669, #10b981); }
@@ -72,17 +65,12 @@
         
         /* Member List */
         .member-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .member-avatar { width: 45px; height: 45px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+        .member-avatar { width: 45px; height: 45px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; background-size: cover; background-position: center; }
         .member-info { flex: 1; }
         .member-name { font-weight: 600; }
         .member-rank { font-size: 12px; color: #6b7280; }
         
-        /* Schedule & Fund Items */
-        .schedule-item, .fund-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .schedule-date { font-size: 12px; color: #6b7280; }
-        .fund-amount { font-weight: 600; color: #10b981; }
-        
-        /* Chat */
+        /* Chat - Giống Zalo */
         .chat-container { display: flex; flex-direction: column; height: 500px; }
         .chat-rooms { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
         .chat-room-btn { padding: 8px 16px; background: #f3f4f6; border: none; border-radius: 20px; cursor: pointer; font-size: 13px; }
@@ -91,14 +79,18 @@
         .message { margin-bottom: 12px; display: flex; flex-direction: column; }
         .message.sent { align-items: flex-end; }
         .message.received { align-items: flex-start; }
-        .message-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 14px; }
+        .message-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 14px; word-break: break-word; }
         .message.sent .message-bubble { background: #3b82f6; color: white; }
         .message.received .message-bubble { background: white; border: 1px solid #e5e7eb; }
-        .chat-input-area { display: flex; gap: 8px; }
-        .chat-input-area input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 25px; }
-        .chat-input-area button { width: auto; padding: 10px 20px; border-radius: 25px; }
+        .message-img { max-width: 200px; max-height: 200px; border-radius: 12px; margin-top: 5px; cursor: pointer; }
+        .message-file { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.05); padding: 8px 12px; border-radius: 12px; margin-top: 5px; cursor: pointer; }
+        .message-time { font-size: 10px; color: #9ca3af; margin: 4px 12px; }
+        .chat-input-area { display: flex; gap: 8px; align-items: center; background: white; padding: 8px; border-radius: 25px; border: 1px solid #e5e7eb; }
+        .chat-input-area input { flex: 1; padding: 10px; border: none; outline: none; background: transparent; }
+        .chat-input-area button { width: auto; padding: 10px; background: transparent; color: #3b82f6; }
+        .chat-attach-btn { background: transparent; color: #6b7280; width: auto; padding: 10px; }
         
-        /* Form */
+        /* Forms */
         input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 10px; font-size: 14px; }
         button { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; }
         button.danger { background: #ef4444; }
@@ -111,9 +103,9 @@
         .login-box { background: white; padding: 30px; border-radius: 24px; width: 85%; max-width: 350px; text-align: center; }
         .hidden { display: none; }
         
-        /* Badge */
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 500; }
-        .badge-admin { background: #dbeafe; color: #1e40af; }
+        /* Update Toast */
+        .update-toast { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #1e3a8a; color: white; padding: 16px; border-radius: 20px; z-index: 10000; box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; justify-content: space-between; align-items: center; }
+        .update-toast button { background: white; color: #1e3a8a; width: auto; padding: 8px 16px; border-radius: 20px; margin: 0; }
         
         @media (max-width: 480px) {
             .stats-grid { grid-template-columns: repeat(4, 1fr); }
@@ -132,7 +124,21 @@
             <input type="email" id="email" placeholder="Email" value="admin@sh13a.com">
             <input type="password" id="password" placeholder="Mật khẩu" value="123456">
             <button onclick="login()"><i class="fas fa-sign-in-alt"></i> Đăng nhập</button>
-            <button onclick="register()" class="success" style="margin-top: 10px;"><i class="fas fa-user-plus"></i> Đăng ký</button>
+            <button onclick="showRegister()" class="success" style="margin-top: 10px;"><i class="fas fa-user-plus"></i> Đăng ký</button>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1001; align-items:center; justify-content:center;">
+        <div style="background:white; margin:20px; padding:20px; border-radius:24px;">
+            <h3>Đăng ký tài khoản</h3>
+            <input type="email" id="regEmail" placeholder="Email">
+            <input type="password" id="regPassword" placeholder="Mật khẩu (6+ ký tự)">
+            <input type="text" id="regName" placeholder="Họ tên">
+            <div class="flex">
+                <button onclick="register()" class="success">Đăng ký</button>
+                <button onclick="closeRegister()" class="danger">Hủy</button>
+            </div>
         </div>
     </div>
 
@@ -146,66 +152,28 @@
             <div class="avatar" id="userAvatar" onclick="openAvatarEditor()">A</div>
         </div>
 
-        <!-- Trang chủ (Dashboard + Lịch + Quỹ + Thông báo) -->
+        <!-- Home Page -->
         <div class="content active" id="home">
-            <!-- Thống kê nhanh -->
             <div class="stats-grid">
                 <div class="stat-card"><div class="stat-value" id="totalCount">0</div><div class="stat-label">Tổng</div></div>
                 <div class="stat-card present"><div class="stat-value" id="presentCount">0</div><div class="stat-label">Có mặt</div></div>
                 <div class="stat-card absent"><div class="stat-value" id="absentCount">0</div><div class="stat-label">Vắng</div></div>
-                <div class="stat-card"><div class="stat-value" id="fundShort">0</div><div class="stat-label">Quỹ (tr)</div></div>
+                <div class="stat-card"><div class="stat-value" id="fundShort">0</div><div class="stat-label">Quỹ(tr)</div></div>
             </div>
-            
-            <!-- Thông báo -->
-            <div class="card">
-                <div class="card-title"><span><i class="fas fa-bell"></i> Thông báo</span> <button onclick="showNotificationForm()" style="width:auto; padding:5px 10px; font-size:11px;">+</button></div>
-                <div id="announcements"></div>
-            </div>
-            
-            <!-- Lịch công tác -->
-            <div class="card">
-                <div class="card-title"><span><i class="fas fa-calendar"></i> Lịch công tác</span> <button onclick="showScheduleForm()" style="width:auto; padding:5px 10px; font-size:11px;">+</button></div>
-                <div id="scheduleList"></div>
-            </div>
-            
-            <!-- Quỹ lớp -->
-            <div class="card">
-                <div class="card-title"><span><i class="fas fa-coins"></i> Quỹ lớp</span> <button onclick="showFundForm()" style="width:auto; padding:5px 10px; font-size:11px;">+</button></div>
-                <div id="fundSummary"></div>
-            </div>
+            <div class="card"><div class="card-title"><span><i class="fas fa-bell"></i> Thông báo</span><button onclick="showNotificationForm()" style="width:auto; padding:5px 10px;">+</button></div><div id="announcements"></div></div>
+            <div class="card"><div class="card-title"><span><i class="fas fa-calendar"></i> Lịch công tác</span><button onclick="showScheduleForm()" style="width:auto; padding:5px 10px;">+</button></div><div id="scheduleList"></div></div>
+            <div class="card"><div class="card-title"><span><i class="fas fa-coins"></i> Quỹ lớp</span><button onclick="showFundForm()" style="width:auto; padding:5px 10px;">+</button></div><div id="fundSummary"></div></div>
         </div>
 
-        <!-- Thành viên (Danh sách + Điểm danh + Cắt gác) -->
+        <!-- Members Page -->
         <div class="content" id="members">
-            <div class="card">
-                <div class="card-title"><span><i class="fas fa-user-plus"></i> Thêm thành viên</span></div>
-                <div class="flex">
-                    <input type="text" id="newMemberName" placeholder="Họ tên" style="flex:2">
-                    <input type="text" id="newMemberRank" placeholder="Cấp bậc" style="flex:1">
-                </div>
-                <button onclick="addMember()" class="success">Thêm</button>
-            </div>
-            
-            <div class="card">
-                <div class="card-title"><span><i class="fas fa-check-circle"></i> Điểm danh hôm nay</span> <span id="todayDate"></span></div>
-                <div id="attendanceList"></div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title"><span><i class="fas fa-shield-alt"></i> Phân công cắt gác</span></div>
-                <select id="dutyTeam"><option value="Tổ 1">Tổ 1</option><option value="Tổ 2">Tổ 2</option><option value="Tổ 3">Tổ 3</option></select>
-                <div id="dutyMembersList" style="max-height: 200px; overflow-y: auto;"></div>
-                <div class="flex"><input type="date" id="dutyDate" style="flex:1"><select id="dutyShift" style="flex:1"><option value="sáng">Sáng</option><option value="chiều">Chiều</option><option value="tối">Tối</option></select></div>
-                <button onclick="assignDuty()">Phân công</button>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">📋 Danh sách thành viên</div>
-                <div id="membersList"></div>
-            </div>
+            <div class="card"><div class="card-title">➕ Thêm thành viên</div><div class="flex"><input type="text" id="newMemberName" placeholder="Họ tên" style="flex:2"><input type="text" id="newMemberRank" placeholder="Cấp bậc" style="flex:1"></div><button onclick="addMember()" class="success">Thêm</button></div>
+            <div class="card"><div class="card-title">✅ Điểm danh hôm nay <span id="todayDate"></span></div><div id="attendanceList"></div></div>
+            <div class="card"><div class="card-title">🛡️ Phân công cắt gác</div><select id="dutyTeam"><option value="Tổ 1">Tổ 1</option><option value="Tổ 2">Tổ 2</option><option value="Tổ 3">Tổ 3</option></select><div id="dutyMembersList" style="max-height:200px; overflow-y:auto;"></div><div class="flex"><input type="date" id="dutyDate" style="flex:1"><select id="dutyShift" style="flex:1"><option value="sáng">Sáng</option><option value="chiều">Chiều</option><option value="tối">Tối</option></select></div><button onclick="assignDuty()">Phân công</button></div>
+            <div class="card"><div class="card-title">📋 Danh sách thành viên</div><div id="membersList"></div></div>
         </div>
 
-        <!-- Chat -->
+        <!-- Chat Page -->
         <div class="content" id="chat">
             <div class="card">
                 <div class="chat-rooms">
@@ -215,46 +183,22 @@
                 </div>
                 <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-input-area">
+                    <button class="chat-attach-btn" onclick="openAttachMenu()"><i class="fas fa-paperclip"></i></button>
                     <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
                     <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
 
-        <!-- Cá nhân (Profile + Cài đặt + Phân quyền + Đăng ký nghỉ) -->
+        <!-- Profile Page -->
         <div class="content" id="profile">
-            <div class="card">
-                <div class="card-title">👤 Thông tin cá nhân</div>
-                <div id="profileInfo"></div>
-                <button onclick="toggleEditProfile()" class="warning">✏️ Chỉnh sửa</button>
-                <div id="editProfileForm" style="display:none; margin-top:10px;">
-                    <input type="text" id="editName" placeholder="Họ tên">
-                    <input type="text" id="editRank" placeholder="Cấp bậc">
-                    <input type="text" id="editPosition" placeholder="Chức vụ">
-                    <button onclick="saveProfile()" class="success">Lưu</button>
-                </div>
-            </div>
-            
-            <!-- Cài đặt phân quyền (Chỉ hiển thị với cấp có quyền) -->
-            <div class="card" id="roleCard" style="display:none;">
-                <div class="card-title">🔐 Phân quyền hệ thống</div>
-                <div id="roleManagement"></div>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">🏃 Đăng ký nghỉ phép</div>
-                <div class="flex"><input type="datetime-local" id="leaveStart" style="flex:1"><input type="datetime-local" id="leaveEnd" style="flex:1"></div>
-                <input type="text" id="leaveReason" placeholder="Lý do">
-                <button onclick="registerLeave()" class="warning">Gửi đơn</button>
-            </div>
-            
-            <div class="card">
-                <div class="card-title">📋 Đơn chờ duyệt</div>
-                <div id="pendingLeaves"></div>
-            </div>
+            <div class="card"><div class="card-title">👤 Thông tin cá nhân</div><div id="profileInfo"></div><button onclick="toggleEditProfile()" class="warning">✏️ Chỉnh sửa</button><div id="editProfileForm" style="display:none; margin-top:10px;"><input type="text" id="editName" placeholder="Họ tên"><input type="text" id="editRank" placeholder="Cấp bậc"><input type="text" id="editPosition" placeholder="Chức vụ"><button onclick="saveProfile()" class="success">Lưu</button></div></div>
+            <div class="card" id="roleCard" style="display:none;"><div class="card-title">🔐 Phân quyền</div><div id="roleManagement"></div></div>
+            <div class="card"><div class="card-title">🏃 Đăng ký nghỉ phép</div><div class="flex"><input type="datetime-local" id="leaveStart" style="flex:1"><input type="datetime-local" id="leaveEnd" style="flex:1"></div><input type="text" id="leaveReason" placeholder="Lý do"><button onclick="registerLeave()" class="warning">Gửi đơn</button></div>
+            <div class="card"><div class="card-title">📋 Đơn chờ duyệt</div><div id="pendingLeaves"></div></div>
+            <div class="card"><button onclick="logout()" class="danger"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button></div>
         </div>
 
-        <!-- Bottom Taskbar (4 mục) -->
         <div class="bottom-taskbar">
             <div class="taskbar-item active" data-page="home"><span class="taskbar-icon"><i class="fas fa-home"></i></span><span>Trang chủ</span></div>
             <div class="taskbar-item" data-page="members"><span class="taskbar-icon"><i class="fas fa-users"></i></span><span>Thành viên</span></div>
@@ -278,62 +222,189 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
+    const storage = firebase.storage();
     
     let currentUser = null;
     let selectedDutyMembers = [];
     let currentChatRoom = 'class';
+    let pendingUpdate = null;
     
-    // LOGIN
+    // ========== PWA TỰ ĐỘNG CẬP NHẬT ==========
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            reg.addEventListener('updatefound', () => {
+                pendingUpdate = reg.installing;
+                pendingUpdate.addEventListener('statechange', () => {
+                    if (pendingUpdate.state === 'installed' && navigator.serviceWorker.controller) {
+                        showUpdateToast();
+                    }
+                });
+            });
+        });
+    }
+    
+    function showUpdateToast() {
+        const toast = document.createElement('div');
+        toast.className = 'update-toast';
+        toast.innerHTML = `<div><strong>🔄 Cập nhật mới!</strong><div style="font-size:12px;">Có phiên bản mới, vui lòng cập nhật</div></div><button onclick="updateApp()">Cập nhật</button>`;
+        document.body.appendChild(toast);
+    }
+    
+    function updateApp() {
+        if (pendingUpdate) {
+            pendingUpdate.postMessage({ action: 'skipWaiting' });
+            window.location.reload();
+        }
+    }
+    
+    // ========== AUTHENTICATION ==========
     async function login() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         try {
             const userCredential = await auth.signInWithEmailAndPassword(email, password);
             currentUser = userCredential.user;
-            document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
+            await loadUserProfile();
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             loadAllData();
         } catch(error) { alert('Lỗi: ' + error.message); }
     }
     
+    function showRegister() { document.getElementById('registerModal').style.display = 'flex'; }
+    function closeRegister() { document.getElementById('registerModal').style.display = 'none'; }
+    
     async function register() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const name = document.getElementById('regName').value;
         if(password.length < 6) { alert('Mật khẩu tối thiểu 6 ký tự'); return; }
         try {
-            await auth.createUserWithEmailAndPassword(email, password);
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            await db.collection('users').doc(userCredential.user.uid).set({ name: name || email.split('@')[0], rank: 'Chiến sĩ', position: 'Thành viên', email: email, createdAt: new Date().toISOString() });
             alert('Đăng ký thành công! Hãy đăng nhập.');
+            closeRegister();
         } catch(error) { alert('Lỗi: ' + error.message); }
     }
     
-    // NAVIGATION
+    async function logout() { await auth.signOut(); location.reload(); }
+    
+    async function loadUserProfile() {
+        const doc = await db.collection('users').doc(currentUser.uid).get();
+        if(doc.exists) {
+            const data = doc.data();
+            document.getElementById('userAvatar').innerHTML = data.name ? data.name.charAt(0).toUpperCase() : currentUser.email.charAt(0).toUpperCase();
+            if(data.avatar) document.getElementById('userAvatar').style.backgroundImage = `url(${data.avatar})`;
+        }
+    }
+    
+    // ========== CHAT NHƯ ZALO (GỬI ẢNH, FILE) ==========
+    async function sendMessage() {
+        const text = document.getElementById('messageInput').value.trim();
+        if(!text) return;
+        await db.collection('chats').add({
+            room: currentChatRoom,
+            text: text,
+            type: 'text',
+            user: currentUser.uid,
+            userName: currentUser.email.split('@')[0],
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById('messageInput').value = '';
+        loadChatMessages();
+    }
+    
+    async function uploadAndSendFile(file, type) {
+        const fileId = Date.now() + '_' + file.name;
+        const storageRef = storage.ref(`chat_files/${fileId}`);
+        await storageRef.put(file);
+        const downloadURL = await storageRef.getDownloadURL();
+        
+        // Lên lịch xóa file sau 5 ngày
+        setTimeout(async () => {
+            await storageRef.delete();
+            await db.collection('chats').where('fileId', '==', fileId).get().then(snapshot => {
+                snapshot.forEach(doc => doc.ref.update({ expired: true }));
+            });
+        }, 5 * 24 * 60 * 60 * 1000);
+        
+        await db.collection('chats').add({
+            room: currentChatRoom,
+            fileUrl: downloadURL,
+            fileName: file.name,
+            fileType: type,
+            type: type,
+            fileId: fileId,
+            user: currentUser.uid,
+            userName: currentUser.email.split('@')[0],
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        loadChatMessages();
+    }
+    
+    function openAttachMenu() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*,application/pdf,application/msword,.txt,.xlsx';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if(file.type.startsWith('image/')) uploadAndSendFile(file, 'image');
+            else uploadAndSendFile(file, 'file');
+        };
+        input.click();
+    }
+    
+    function downloadFile(url, fileName) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+    }
+    
+    async function loadChatMessages() {
+        const snapshot = await db.collection('chats').where('room', '==', currentChatRoom).orderBy('timestamp', 'asc').limit(200).get();
+        let html = '';
+        for(const doc of snapshot.docs) {
+            const m = doc.data();
+            const isSent = m.user === currentUser.uid;
+            const time = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString() : '';
+            if(m.type === 'text') {
+                html += `<div class="message ${isSent ? 'sent' : 'received'}"><div class="message-bubble"><strong>${m.userName}</strong><br>${m.text}</div><div class="message-time">${time}</div></div>`;
+            } else if(m.type === 'image') {
+                html += `<div class="message ${isSent ? 'sent' : 'received'}"><div class="message-bubble"><strong>${m.userName}</strong><br><img src="${m.fileUrl}" class="message-img" onclick="window.open('${m.fileUrl}')"><div class="message-time">${time}</div></div></div>`;
+            } else if(m.type === 'file') {
+                html += `<div class="message ${isSent ? 'sent' : 'received'}"><div class="message-bubble"><strong>${m.userName}</strong><br><div class="message-file" onclick="downloadFile('${m.fileUrl}', '${m.fileName}')"><i class="fas fa-file"></i> ${m.fileName}</div><div class="message-time">${time}</div></div></div>`;
+            }
+        }
+        document.getElementById('chatMessages').innerHTML = html || '<div style="text-align:center;color:#999;">Chưa có tin nhắn</div>';
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+    }
+    
+    function switchChatRoom(room) {
+        currentChatRoom = room;
+        document.querySelectorAll('.chat-room-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        loadChatMessages();
+    }
+    
+    // ========== CÁC HÀM KHÁC ==========
     function switchPage(page) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
         document.getElementById(page).classList.add('active');
         document.querySelectorAll('.taskbar-item').forEach(t => t.classList.remove('active'));
         document.querySelector(`.taskbar-item[data-page="${page}"]`).classList.add('active');
-        if(page === 'home') { loadHomeData(); }
+        if(page === 'home') loadHomeData();
         if(page === 'members') { loadMembers(); loadAttendance(); loadDutyMembers(); }
-        if(page === 'chat') { loadChatMessages(); }
+        if(page === 'chat') loadChatMessages();
         if(page === 'profile') { loadProfile(); loadRoleManagement(); loadPendingLeaves(); }
     }
     
     async function loadAllData() {
         document.getElementById('todayDate').innerText = new Date().toLocaleDateString('vi-VN');
-        loadHomeData();
-        loadMembers();
-        loadAttendance();
-        loadDutyMembers();
-        loadProfile();
-        loadRoleManagement();
-        loadPendingLeaves();
-        loadChatMessages();
+        loadHomeData(); loadMembers(); loadAttendance(); loadDutyMembers(); loadProfile(); loadRoleManagement(); loadPendingLeaves(); loadChatMessages();
     }
     
-    // HOME DATA (Dashboard + Lịch + Quỹ + Thông báo)
     async function loadHomeData() {
-        // Thống kê
         const membersSnap = await db.collection('members').get();
         const today = new Date().toISOString().split('T')[0];
         const attendanceSnap = await db.collection('attendance').doc(today).get();
@@ -348,26 +419,22 @@
         document.getElementById('absentCount').innerText = total - present;
         document.getElementById('fundShort').innerText = Math.round(totalFund / 1000000);
         
-        // Thông báo
         const notiSnap = await db.collection('announcements').orderBy('createdAt', 'desc').limit(5).get();
         let notiHtml = '';
-        notiSnap.forEach(doc => { const n = doc.data(); notiHtml += `<div style="padding:8px 0; border-bottom:1px solid #eee;"><i class="fas fa-bullhorn"></i> ${n.content}<br><small style="color:#999;">${new Date(n.createdAt).toLocaleDateString()}</small></div>`; });
+        notiSnap.forEach(doc => { const n = doc.data(); notiHtml += `<div style="padding:8px 0; border-bottom:1px solid #eee;"><i class="fas fa-bullhorn"></i> ${n.content}<br><small>${new Date(n.createdAt).toLocaleDateString()}</small></div>`; });
         document.getElementById('announcements').innerHTML = notiHtml || '<p>Chưa có thông báo</p>';
         
-        // Lịch
         const scheduleSnap = await db.collection('schedules').orderBy('date').limit(5).get();
         let scheduleHtml = '';
-        scheduleSnap.forEach(doc => { const s = doc.data(); scheduleHtml += `<div class="schedule-item"><span>📅 ${s.date}: ${s.title}</span></div>`; });
+        scheduleSnap.forEach(doc => { const s = doc.data(); scheduleHtml += `<div style="padding:8px 0;">📅 ${s.date}: ${s.title}</div>`; });
         document.getElementById('scheduleList').innerHTML = scheduleHtml || '<p>Chưa có lịch</p>';
         
-        // Quỹ
         const recentFunds = await db.collection('funds').orderBy('date', 'desc').limit(3).get();
         let fundHtml = '';
-        recentFunds.forEach(doc => { const f = doc.data(); fundHtml += `<div class="fund-item"><span>${f.reason}</span><span class="fund-amount">${f.type === 'income' ? '+' : '-'}${f.amount.toLocaleString()}đ</span></div>`; });
+        recentFunds.forEach(doc => { const f = doc.data(); fundHtml += `<div style="display:flex; justify-content:space-between; padding:8px 0;"><span>${f.reason}</span><span style="color:#10b981;">${f.type === 'income' ? '+' : '-'}${f.amount.toLocaleString()}đ</span></div>`; });
         document.getElementById('fundSummary').innerHTML = fundHtml || '<p>Chưa có giao dịch</p>';
     }
     
-    // MEMBERS
     async function loadMembers() {
         const snapshot = await db.collection('members').orderBy('name').get();
         let html = '';
@@ -384,13 +451,11 @@
         await db.collection('members').add({ name, rank: document.getElementById('newMemberRank').value || 'Chiến sĩ', position: 'Thành viên', team: 'Tổ 1', dutyCount: 0, createdAt: new Date().toISOString() });
         alert('Đã thêm!');
         document.getElementById('newMemberName').value = '';
-        loadMembers();
-        loadHomeData();
+        loadMembers(); loadHomeData();
     }
     
     async function deleteMember(id) { if(confirm('Xóa?')) { await db.collection('members').doc(id).delete(); loadMembers(); loadHomeData(); } }
     
-    // ATTENDANCE
     async function loadAttendance() {
         const snapshot = await db.collection('members').orderBy('name').get();
         const today = new Date().toISOString().split('T')[0];
@@ -412,11 +477,9 @@
         const data = doc.exists ? doc.data() : {};
         data[id] = isPresent;
         await ref.set(data);
-        loadAttendance();
-        loadHomeData();
+        loadAttendance(); loadHomeData();
     }
     
-    // DUTY
     async function loadDutyMembers() {
         const team = document.getElementById('dutyTeam').value;
         const snapshot = await db.collection('members').where('team', '==', team).get();
@@ -435,7 +498,7 @@
         document.querySelectorAll('#dutyMembersList input:checked').forEach(cb => { selected.push(cb.value); });
         if(!date || selected.length === 0) { alert('Chọn ngày và thành viên!'); return; }
         for(const id of selected) {
-            await db.collection('duty').add({ memberId: id, date, shift, assignedBy: currentUser.email, assignedAt: new Date().toISOString() });
+            await db.collection('duty').add({ memberId: id, date, shift, assignedBy: currentUser.uid, assignedAt: new Date().toISOString() });
             const memberRef = db.collection('members').doc(id);
             const memberDoc = await memberRef.get();
             await memberRef.update({ dutyCount: (memberDoc.data().dutyCount || 0) + 1 });
@@ -445,28 +508,6 @@
         document.getElementById('dutyDate').value = '';
     }
     
-    // CHAT
-    function switchChatRoom(room) { currentChatRoom = room; document.querySelectorAll('.chat-room-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active'); loadChatMessages(); }
-    async function loadChatMessages() {
-        const snapshot = await db.collection('chats').where('room', '==', currentChatRoom).orderBy('timestamp', 'asc').limit(100).get();
-        let html = '';
-        snapshot.forEach(doc => {
-            const m = doc.data();
-            const isSent = m.user === currentUser.email;
-            html += `<div class="message ${isSent ? 'sent' : 'received'}"><div class="message-bubble"><strong>${m.userName || m.user.split('@')[0]}</strong><br>${m.text}</div><div class="message-info">${new Date(m.timestamp).toLocaleTimeString()}</div></div>`;
-        });
-        document.getElementById('chatMessages').innerHTML = html || '<div style="text-align:center;color:#999;">Chưa có tin nhắn</div>';
-        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
-    }
-    async function sendMessage() {
-        const text = document.getElementById('messageInput').value.trim();
-        if(!text) return;
-        await db.collection('chats').add({ room: currentChatRoom, text, user: currentUser.email, userName: currentUser.email.split('@')[0], timestamp: new Date().toISOString() });
-        document.getElementById('messageInput').value = '';
-        loadChatMessages();
-    }
-    
-    // PROFILE
     async function loadProfile() {
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
         const data = userDoc.exists ? userDoc.data() : { name: currentUser.email.split('@')[0], rank: 'Thành viên', position: 'Chiến sĩ' };
@@ -475,6 +516,7 @@
         document.getElementById('editRank').value = data.rank;
         document.getElementById('editPosition').value = data.position;
     }
+    
     function toggleEditProfile() { const f = document.getElementById('editProfileForm'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
     async function saveProfile() {
         await db.collection('users').doc(currentUser.uid).set({
@@ -484,15 +526,14 @@
             updatedAt: new Date().toISOString()
         }, { merge: true });
         alert('Đã lưu!');
-        loadProfile();
-        toggleEditProfile();
+        loadProfile(); toggleEditProfile();
     }
-    function openAvatarEditor() { const url = prompt('URL ảnh đại diện:'); if(url) document.getElementById('userAvatar').innerHTML = `<img src="${url}" style="width:100%;height:100%;border-radius:50%;">`; }
     
-    // ROLE MANAGEMENT (Chỉ hiển thị với Lớp trưởng)
+    function openAvatarEditor() { const url = prompt('URL ảnh đại diện:'); if(url) { document.getElementById('userAvatar').style.backgroundImage = `url(${url})`; document.getElementById('userAvatar').innerHTML = ''; db.collection('users').doc(currentUser.uid).update({ avatar: url }); } }
+    
     async function loadRoleManagement() {
         const userDoc = await db.collection('users').doc(currentUser.uid).get();
-        const isAdmin = userDoc.exists && (userDoc.data().position === 'Lớp trưởng' || userDoc.data().role === 'lop_truong');
+        const isAdmin = userDoc.exists && (userDoc.data().position === 'Lớp trưởng');
         if(!isAdmin) { document.getElementById('roleCard').style.display = 'none'; return; }
         document.getElementById('roleCard').style.display = 'block';
         const membersSnap = await db.collection('members').get();
@@ -503,9 +544,9 @@
         });
         document.getElementById('roleManagement').innerHTML = html;
     }
+    
     async function updateRole(id, newRole) { await db.collection('members').doc(id).update({ position: newRole }); alert('Đã cập nhật'); loadRoleManagement(); }
     
-    // LEAVE REQUEST
     async function registerLeave() {
         const start = document.getElementById('leaveStart').value;
         const end = document.getElementById('leaveEnd').value;
@@ -513,11 +554,10 @@
         if(!start || !end || !reason) { alert('Nhập đủ thông tin!'); return; }
         await db.collection('leaveRequests').add({ userId: currentUser.uid, userEmail: currentUser.email, start, end, reason, status: 'pending', createdAt: new Date().toISOString() });
         alert('Đã gửi đơn!');
-        document.getElementById('leaveStart').value = '';
-        document.getElementById('leaveEnd').value = '';
-        document.getElementById('leaveReason').value = '';
+        document.getElementById('leaveStart').value = ''; document.getElementById('leaveEnd').value = ''; document.getElementById('leaveReason').value = '';
         loadPendingLeaves();
     }
+    
     async function loadPendingLeaves() {
         const snapshot = await db.collection('leaveRequests').where('status', '==', 'pending').orderBy('createdAt', 'desc').get();
         let html = '';
@@ -529,17 +569,25 @@
         }
         document.getElementById('pendingLeaves').innerHTML = html || '<p>Không có đơn chờ duyệt</p>';
     }
+    
     async function approveLeave(id) { await db.collection('leaveRequests').doc(id).update({ status: 'approved' }); loadPendingLeaves(); }
     async function rejectLeave(id) { await db.collection('leaveRequests').doc(id).update({ status: 'rejected' }); loadPendingLeaves(); }
     
-    // MODAL FORMS (Thêm nhanh)
     function showNotificationForm() { const content = prompt('Nội dung thông báo:'); if(content) db.collection('announcements').add({ content, createdBy: currentUser.email, createdAt: new Date().toISOString() }).then(() => loadHomeData()); }
     function showScheduleForm() { const title = prompt('Tiêu đề lịch:'); const date = prompt('Ngày (YYYY-MM-DD):'); if(title && date) db.collection('schedules').add({ title, date, createdBy: currentUser.email, createdAt: new Date().toISOString() }).then(() => loadHomeData()); }
     function showFundForm() { const type = confirm('Thu tiền? (OK = Thu, Cancel = Chi)') ? 'income' : 'expense'; const amount = parseInt(prompt('Số tiền:')); const reason = prompt('Lý do:'); if(amount && reason) db.collection('funds').add({ type, amount, reason, user: currentUser.email, date: new Date().toISOString() }).then(() => loadHomeData()); }
     
     document.querySelectorAll('.taskbar-item').forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-page'))));
     
-    auth.onAuthStateChanged((user) => { if(user) { currentUser = user; document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase(); document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('mainApp').classList.remove('hidden'); loadAllData(); } });
+    auth.onAuthStateChanged(async (user) => {
+        if(user) {
+            currentUser = user;
+            await loadUserProfile();
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            loadAllData();
+        }
+    });
 </script>
 </body>
 </html>
