@@ -4,305 +4,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#1e3a8a">
-    <title>SH13A - Quản Lý Đơn Vị</title>
+    <title>SH13A - Hệ Thống Quản Lý Đơn Vị</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-    
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
+        
+        /* Container chính */
         .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; padding-bottom: 70px; }
         
         /* Header */
-        .header { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-img { font-size: 28px; }
-        .logo-text { font-size: 18px; font-weight: bold; }
-        .logo-text small { font-size: 11px; opacity: 0.9; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; background-size: cover; background-position: center; }
+        .header { background: linear-gradient(135deg, #0a2b3e 0%, #1a4a6f 100%); color: white; padding: 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.3); overflow: hidden; }
+        .logo-icon img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+        .logo-text { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
+        .logo-text small { font-size: 10px; opacity: 0.8; display: block; font-weight: normal; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); transition: 0.2s; }
+        .avatar:hover { transform: scale(1.05); }
         
-        /* Content */
-        .content { padding: 15px; display: none; }
-        .content.active { display: block; }
+        /* Thông tin đơn vị */
+        .unit-info { background: rgba(255,255,255,0.1); margin-top: 12px; padding: 8px 12px; border-radius: 12px; font-size: 12px; display: flex; justify-content: space-between; }
+        
+        /* Welcome Banner */
+        .welcome-banner { background: linear-gradient(135deg, #1e3a5f, #2d5a8b); margin: 15px; padding: 20px; border-radius: 20px; color: white; position: relative; overflow: hidden; }
+        .welcome-banner::after { content: ""; position: absolute; right: 10px; bottom: 5px; width: 60px; height: 60px; opacity: 0.15; background: url('logo.png') no-repeat center; background-size: contain; pointer-events: none; }
+        .welcome-banner h3 { font-size: 18px; margin-bottom: 5px; }
+        .welcome-banner p { font-size: 12px; opacity: 0.9; }
         
         /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-card { border-radius: 12px; padding: 12px; text-align: center; color: white; }
-        .stat-card.total { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
-        .stat-card.present { background: linear-gradient(135deg, #059669, #10b981); }
-        .stat-card.absent { background: linear-gradient(135deg, #dc2626, #ef4444); }
-        .stat-card.leave { background: linear-gradient(135deg, #d97706, #f59e0b); }
-        .stat-value { font-size: 22px; font-weight: bold; }
-        .stat-label { font-size: 10px; opacity: 0.9; margin-top: 4px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 15px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: 16px; padding: 12px 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eef2f6; transition: 0.2s; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .stat-icon { font-size: 24px; margin-bottom: 6px; }
+        .stat-value { font-size: 22px; font-weight: bold; color: #1e3a5f; }
+        .stat-label { font-size: 11px; color: #6c757d; margin-top: 4px; }
         
         /* Section Title */
-        .section-title { font-size: 16px; font-weight: 600; margin: 15px 0 10px; color: #374151; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { display: flex; justify-content: space-between; align-items: center; padding: 0 15px; margin: 20px 0 12px; }
+        .section-title h3 { font-size: 16px; font-weight: 600; color: #1e3a5f; position: relative; padding-left: 12px; }
+        .section-title h3::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 16px; background: #2d5a8b; border-radius: 2px; }
+        .section-title a { font-size: 12px; color: #2d5a8b; text-decoration: none; cursor: pointer; }
         
-        /* Module Grid - 4 cột */
-        .module-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-        .module-card { background: white; border-radius: 16px; padding: 12px 8px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; cursor: pointer; transition: 0.2s; }
-        .module-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .module-icon { font-size: 28px; margin-bottom: 6px; }
-        .module-name { font-size: 11px; color: #4b5563; font-weight: 500; }
+        /* Module Grid */
+        .module-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0 15px; }
+        .module-card { background: white; border-radius: 16px; padding: 14px 8px; text-align: center; cursor: pointer; transition: all 0.2s; border: 1px solid #eef2f6; }
+        .module-card:hover { transform: translateY(-3px); background: linear-gradient(135deg, #1e3a5f, #2d5a8b); color: white; }
+        .module-card:hover .module-icon, .module-card:hover .module-name { color: white; }
+        .module-icon { font-size: 28px; margin-bottom: 8px; color: #2d5a8b; }
+        .module-name { font-size: 11px; color: #4a5568; font-weight: 500; }
         
-        /* Schedule & News */
-        .schedule-item, .news-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .schedule-date, .news-date { font-size: 12px; color: #6b7280; min-width: 60px; }
-        .schedule-title, .news-title { flex: 1; font-size: 14px; }
-        .news-badge { background: #ef4444; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+        /* List Item */
+        .list-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid #eef2f6; background: white; transition: 0.2s; }
+        .list-item:hover { background: #f8fafc; }
+        .list-icon { width: 40px; height: 40px; background: #eef2f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #2d5a8b; }
+        .list-info { flex: 1; }
+        .list-title { font-weight: 600; font-size: 14px; color: #1e293b; }
+        .list-desc { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+        .list-badge { background: #e74c3c; color: white; font-size: 10px; padding: 2px 8px; border-radius: 20px; }
         
         /* Bottom Tab Bar */
-        .bottom-tab-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 10px 0 15px;
-            border-top: 1px solid #e5e7eb;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 200;
-        }
-        .tab-item {
-            flex: 1;
-            text-align: center;
-            padding: 5px;
-            cursor: pointer;
-            color: #6b7280;
-            font-size: 12px;
-            transition: 0.2s;
-        }
-        .tab-item.active { color: #3b82f6; }
-        .tab-icon { font-size: 24px; display: block; margin-bottom: 4px; }
-        .tab-badge { position: absolute; top: -5px; right: 20px; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; min-width: 18px; }
+        .bottom-tab-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0 16px; border-top: 1px solid #eef2f6; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 200; }
+        .tab-item { flex: 1; text-align: center; padding: 6px 0; cursor: pointer; color: #94a3b8; font-size: 11px; transition: 0.2s; border-radius: 12px; margin: 0 4px; position: relative; }
+        .tab-item.active { color: #2d5a8b; background: #eef2f6; }
+        .tab-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+        .tab-badge { position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; min-width: 16px; }
         
-        /* Contact List */
-        .contact-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .contact-avatar { width: 50px; height: 50px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; background-size: cover; background-position: center; }
-        .contact-info { flex: 1; }
-        .contact-name { font-weight: 600; }
-        .contact-rank { font-size: 12px; color: #6b7280; }
-        .contact-phone { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: white; margin: 20px; padding: 24px; border-radius: 24px; max-width: 500px; width: 100%; }
+        .modal-content h3 { margin-bottom: 16px; color: #1e3a5f; }
+        .modal-content input, .modal-content textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; }
+        .modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
+        .modal-buttons button { flex: 1; }
         
-        /* Chat */
-        .chat-room { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-        .chat-avatar { width: 50px; height: 50px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
-        .chat-info { flex: 1; }
-        .chat-name { font-weight: 600; }
-        .chat-last-msg { font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
-        .chat-time { font-size: 10px; color: #9ca3af; }
-        .chat-unread { background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+        /* Buttons */
+        button { background: #2d5a8b; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s; width: 100%; }
+        button:hover { background: #1e3a5f; transform: translateY(-1px); }
+        button.danger { background: #e74c3c; }
+        button.success { background: #27ae60; }
         
-        /* Chat Room Detail */
-        .chat-detail { display: none; flex-direction: column; height: calc(100vh - 120px); }
-        .chat-detail.active { display: flex; }
-        .chat-header { background: white; padding: 12px 15px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; gap: 12px; }
-        .chat-header .back-btn { background: none; border: none; font-size: 20px; cursor: pointer; width: auto; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; background: #f9fafb; }
-        .message { margin-bottom: 12px; display: flex; flex-direction: column; }
-        .message.sent { align-items: flex-end; }
-        .message.received { align-items: flex-start; }
-        .message-bubble { max-width: 80%; padding: 10px 14px; border-radius: 18px; font-size: 14px; }
-        .message.sent .message-bubble { background: #3b82f6; color: white; }
-        .message.received .message-bubble { background: white; border: 1px solid #e5e7eb; }
-        .message-img { max-width: 200px; max-height: 200px; border-radius: 12px; cursor: pointer; }
-        .chat-input-area { display: flex; gap: 8px; padding: 10px; background: white; border-top: 1px solid #e5e7eb; }
-        .chat-input-area input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
-        .chat-input-area button { width: auto; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 25px; cursor: pointer; }
+        /* Login Screen */
+        .login-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a2b3e, #1a4a6f); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .login-box { background: white; padding: 35px; border-radius: 28px; width: 85%; max-width: 350px; text-align: center; }
+        .login-logo { margin-bottom: 15px; }
+        .login-logo img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; }
+        .login-box h2 { color: #1e3a5f; margin-bottom: 5px; }
+        .login-box p { color: #6c757d; font-size: 13px; margin-bottom: 25px; }
+        .login-box input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; margin: 8px 0; font-size: 14px; }
         
-        /* Profile */
-        .info-row { padding: 12px 0; border-bottom: 1px solid #f0f0f0; display: flex; }
-        .info-label { width: 100px; font-weight: 600; color: #374151; }
-        .info-value { flex: 1; color: #6b7280; }
-        .edit-btn { background: #f59e0b; margin-top: 15px; }
-        
-        /* Login */
-        .login-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .login-box { background: white; padding: 30px; border-radius: 24px; width: 85%; max-width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin: 8px 0; }
-        button { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; margin: 5px 0; cursor: pointer; }
-        button.success { background: #10b981; }
-        button.danger { background: #ef4444; }
-        button.warning { background: #f59e0b; }
         .hidden { display: none; }
+        .flex { display: flex; gap: 12px; }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #1e293b; color: white; padding: 14px; border-radius: 16px; text-align: center; z-index: 1000; animation: fadeOut 2.5s forwards; }
+        .toast.success { background: #27ae60; }
+        .toast.error { background: #e74c3c; }
+        @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+        
+        /* Content */
+        .content { display: block; }
+        .hidden-content { display: none; }
     </style>
 </head>
 <body>
-<div class="app-container" id="app">
+<div class="app-container">
     <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
-            <div style="font-size: 50px; margin-bottom: 10px;">🕊️</div>
+            <div class="login-logo"><img src="logo.png" alt="SH13A"></div>
             <h2>SH13A</h2>
-            <p style="color: #6b7280; margin-bottom: 20px;">Quản Lý Đơn Vị</p>
+            <p>Hệ Thống Quản Lý Đơn Vị</p>
             <input type="email" id="email" placeholder="Email" value="admin@sh13a.com">
             <input type="password" id="password" placeholder="Mật khẩu" value="123456">
             <button onclick="login()">Đăng nhập</button>
-            <button onclick="showRegister()" class="success">Đăng ký</button>
+            <button onclick="showRegister()" class="success" style="margin-top: 12px;">Đăng ký tài khoản</button>
         </div>
     </div>
 
     <!-- Main App -->
     <div id="mainApp" class="hidden">
+        <!-- Header -->
         <div class="header">
-            <div class="logo-area">
-                <div class="logo-img">🕊️</div>
-                <div class="logo-text">SH13A<br><small>Quản Lý Đơn Vị</small></div>
+            <div class="header-top">
+                <div class="logo-area">
+                    <div class="logo-icon"><img src="logo.png" alt="SH13A"></div>
+                    <div class="logo-text">SH13A<br><small>QUẢN LÝ ĐƠN VỊ</small></div>
+                </div>
+                <div class="avatar" id="userAvatar" onclick="openAvatarEditor()">A</div>
             </div>
-            <div class="avatar" id="userAvatar" onclick="openAvatarEditor()">A</div>
-        </div>
-
-        <!-- Tab Content: Trang chủ -->
-        <div class="content active" id="homeTab">
-            <!-- Thống kê nhanh -->
-            <div class="stats-grid">
-                <div class="stat-card total"><div class="stat-value" id="totalCount">0</div><div class="stat-label">Tổng quân số</div></div>
-                <div class="stat-card present"><div class="stat-value" id="presentCount">0</div><div class="stat-label">Có mặt</div></div>
-                <div class="stat-card absent"><div class="stat-value" id="absentCount">0</div><div class="stat-label">Vắng</div></div>
-                <div class="stat-card leave"><div class="stat-value" id="leaveCount">0</div><div class="stat-label">Tranh thủ</div></div>
-            </div>
-
-            <!-- 16 Module Quản Lý -->
-            <div class="section-title">🗂️ PHÂN HỆ QUẢN LÝ</div>
-            <div class="module-grid">
-                <div class="module-card" onclick="alert('Quân số - Đang phát triển')"><div class="module-icon">👥</div><div class="module-name">Quân số</div></div>
-                <div class="module-card" onclick="alert('Học tập - Đang phát triển')"><div class="module-icon">📚</div><div class="module-name">Học tập</div></div>
-                <div class="module-card" onclick="alert('Công tác - Đang phát triển')"><div class="module-icon">📋</div><div class="module-name">Công tác</div></div>
-                <div class="module-card" onclick="alert('Trực gác - Đang phát triển')"><div class="module-icon">🛡️</div><div class="module-name">Trực gác</div></div>
-                <div class="module-card" onclick="alert('Tài chính - Đang phát triển')"><div class="module-icon">💰</div><div class="module-name">Tài chính</div></div>
-                <div class="module-card" onclick="alert('Hậu cần - Đang phát triển')"><div class="module-icon">📦</div><div class="module-name">Hậu cần</div></div>
-                <div class="module-card" onclick="alert('Khen thưởng - Đang phát triển')"><div class="module-icon">🏆</div><div class="module-name">Khen thưởng</div></div>
-                <div class="module-card" onclick="alert('Lịch công tác - Đang phát triển')"><div class="module-icon">📅</div><div class="module-name">Lịch công tác</div></div>
-                <div class="module-card" onclick="alert('Thông báo - Đang phát triển')"><div class="module-icon">📢</div><div class="module-name">Thông báo</div></div>
-                <div class="module-card" onclick="alert('Báo cáo - Đang phát triển')"><div class="module-icon">📊</div><div class="module-name">Báo cáo</div></div>
-                <div class="module-card" onclick="alert('Thư viện - Đang phát triển')"><div class="module-icon">📁</div><div class="module-name">Thư viện</div></div>
-                <div class="module-card" onclick="alert('Cài đặt - Đang phát triển')"><div class="module-icon">⚙️</div><div class="module-name">Cài đặt</div></div>
-                <div class="module-card" onclick="alert('Vũ khí - Đang phát triển')"><div class="module-icon">🔫</div><div class="module-name">Vũ khí</div></div>
-                <div class="module-card" onclick="alert('Doanh trại - Đang phát triển')"><div class="module-icon">🏠</div><div class="module-name">Doanh trại</div></div>
-                <div class="module-card" onclick="alert('Y tế - Đang phát triển')"><div class="module-icon">🏥</div><div class="module-name">Y tế</div></div>
-                <div class="module-card" onclick="alert('Thể thao - Đang phát triển')"><div class="module-icon">⚽</div><div class="module-name">Thể thao</div></div>
-            </div>
-
-            <!-- Lịch công tác tuần -->
-            <div class="section-title">📅 LỊCH CÔNG TÁC TUẦN</div>
-            <div id="weeklySchedule"></div>
-
-            <!-- Thông báo mới -->
-            <div class="section-title">📢 THÔNG BÁO MỚI</div>
-            <div id="announcements"></div>
-        </div>
-
-        <!-- Tab Content: Danh bạ -->
-        <div class="content" id="contactsTab">
-            <div class="section-title">👥 DANH BẠ ĐƠN VỊ</div>
-            <input type="text" id="searchContact" placeholder="🔍 Tìm kiếm thành viên..." style="margin-bottom: 15px;">
-            <div id="contactsList"></div>
-        </div>
-
-        <!-- Tab Content: Chat -->
-        <div class="content" id="chatTab">
-            <!-- Danh sách phòng chat -->
-            <div id="chatRoomList">
-                <div class="chat-room" onclick="openChatRoom('class')">
-                    <div class="chat-avatar">🏛️</div>
-                    <div class="chat-info">
-                        <div class="chat-name">Toàn đơn vị</div>
-                        <div class="chat-last-msg" id="lastMsg_class">Nhấn để chat</div>
-                    </div>
-                    <div class="chat-time" id="time_class"></div>
-                    <div class="chat-unread" id="unread_class" style="display:none;">0</div>
-                </div>
-                <div class="chat-room" onclick="openChatRoom('team1')">
-                    <div class="chat-avatar">👥</div>
-                    <div class="chat-info">
-                        <div class="chat-name">Trung đội 1</div>
-                        <div class="chat-last-msg" id="lastMsg_team1">Nhấn để chat</div>
-                    </div>
-                    <div class="chat-time" id="time_team1"></div>
-                    <div class="chat-unread" id="unread_team1" style="display:none;">0</div>
-                </div>
-                <div class="chat-room" onclick="openChatRoom('team2')">
-                    <div class="chat-avatar">👥</div>
-                    <div class="chat-info">
-                        <div class="chat-name">Trung đội 2</div>
-                        <div class="chat-last-msg" id="lastMsg_team2">Nhấn để chat</div>
-                    </div>
-                    <div class="chat-time" id="time_team2"></div>
-                    <div class="chat-unread" id="unread_team2" style="display:none;">0</div>
-                </div>
-            </div>
-
-            <!-- Màn hình chat chi tiết -->
-            <div id="chatDetail" class="chat-detail">
-                <div class="chat-header">
-                    <button class="back-btn" onclick="closeChatRoom()"><i class="fas fa-arrow-left"></i></button>
-                    <div class="chat-name" id="currentChatName">Toàn đơn vị</div>
-                </div>
-                <div class="chat-messages" id="chatMessages"></div>
-                <div class="chat-input-area">
-                    <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
-                    <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-                </div>
+            <div class="unit-info">
+                <span><i class="fas fa-building"></i> Đại đội 1 - Tiểu đoàn 2</span>
+                <span><i class="fas fa-calendar"></i> <span id="currentDate"></span></span>
             </div>
         </div>
 
-        <!-- Tab Content: Cá nhân -->
-        <div class="content" id="profileTab">
-            <div class="section-title">👤 THÔNG TIN CÁ NHÂN</div>
-            <div id="profileInfo"></div>
-            <button class="edit-btn" onclick="toggleEditProfile()">✏️ Chỉnh sửa thông tin</button>
-            <div id="editProfileForm" style="display:none; margin-top: 15px;">
-                <input type="text" id="editName" placeholder="Họ tên">
-                <input type="text" id="editRank" placeholder="Cấp bậc">
-                <input type="text" id="editPosition" placeholder="Chức vụ">
-                <input type="text" id="editPhone" placeholder="Số điện thoại">
-                <button onclick="saveProfile()" class="success">Lưu thay đổi</button>
+        <!-- Content Area -->
+        <div id="contentArea">
+            <!-- TRANG CHỦ -->
+            <div id="homeContent">
+                <div class="welcome-banner">
+                    <h3>Xin chào, <span id="userName">Chiến sĩ</span>!</h3>
+                    <p>Chào mừng bạn đến với hệ thống quản lý đơn vị</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="totalCount">0</div><div class="stat-label">Tổng quân số</div></div>
+                    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="presentCount">0</div><div class="stat-label">Có mặt</div></div>
+                    <div class="stat-card"><div class="stat-icon">❌</div><div class="stat-value" id="absentCount">0</div><div class="stat-label">Vắng</div></div>
+                    <div class="stat-card"><div class="stat-icon">🏃</div><div class="stat-value" id="leaveCount">0</div><div class="stat-label">Tranh thủ</div></div>
+                </div>
+
+                <div class="section-title"><h3>PHÂN HỆ QUẢN LÝ</h3><a onclick="showToast('Tất cả module đang phát triển', 'success')">Xem tất cả</a></div>
+                <div class="module-grid" id="moduleGrid"></div>
+
+                <div class="section-title"><h3>LỊCH CÔNG TÁC TUẦN</h3><a onclick="showToast('Lịch công tác chi tiết', 'success')">Xem lịch</a></div>
+                <div id="scheduleList"></div>
+
+                <div class="section-title"><h3>THÔNG BÁO</h3><a onclick="openNotificationModal()">Xem tất cả</a></div>
+                <div id="notificationList"></div>
             </div>
-            
-            <div class="section-title" style="margin-top: 20px;">🔐 PHÂN QUYỀN (Chỉ huy)</div>
-            <div id="roleManagement"></div>
-            
-            <div class="section-title" style="margin-top: 20px;">🏃 ĐĂNG KÝ NGHỈ PHÉP</div>
-            <input type="datetime-local" id="leaveStart" placeholder="Từ ngày">
-            <input type="datetime-local" id="leaveEnd" placeholder="Đến ngày">
-            <input type="text" id="leaveReason" placeholder="Lý do">
-            <button onclick="registerLeave()" class="warning">Gửi đơn đăng ký</button>
-            
-            <div class="section-title" style="margin-top: 20px;">📋 ĐƠN CHỜ DUYỆT</div>
-            <div id="pendingLeaves"></div>
-            
-            <button onclick="logout()" class="danger" style="margin-top: 20px;">🚪 Đăng xuất</button>
         </div>
 
         <!-- Bottom Tab Bar -->
         <div class="bottom-tab-bar">
-            <div class="tab-item active" data-tab="home">
-                <span class="tab-icon"><i class="fas fa-home"></i></span>
-                <span>Trang chủ</span>
-            </div>
-            <div class="tab-item" data-tab="contacts">
-                <span class="tab-icon"><i class="fas fa-address-book"></i></span>
-                <span>Danh bạ</span>
-            </div>
-            <div class="tab-item" data-tab="chat">
-                <span class="tab-icon"><i class="fas fa-comment-dots"></i></span>
-                <span>Chat</span>
-                <span class="tab-badge" id="totalUnreadBadge" style="display:none;">0</span>
-            </div>
-            <div class="tab-item" data-tab="profile">
-                <span class="tab-icon"><i class="fas fa-user"></i></span>
-                <span>Cá nhân</span>
-            </div>
+            <div class="tab-item active" data-tab="home"><span class="tab-icon"><i class="fas fa-home"></i></span><span>Trang chủ</span></div>
+            <div class="tab-item" data-tab="personnel"><span class="tab-icon"><i class="fas fa-users"></i></span><span>Quân số</span></div>
+            <div class="tab-item" data-tab="chat"><span class="tab-icon"><i class="fas fa-comment-dots"></i></span><span>Chat</span></div>
+            <div class="tab-item" data-tab="profile"><span class="tab-icon"><i class="fas fa-user"></i></span><span>Cá nhân</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thông báo -->
+<div id="notificationModal" class="modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-bell"></i> Thông báo mới</h3>
+        <input type="text" id="notiTitle" placeholder="Tiêu đề">
+        <textarea id="notiContent" rows="3" placeholder="Nội dung thông báo..."></textarea>
+        <div class="modal-buttons">
+            <button onclick="sendNotification()" class="success">Gửi</button>
+            <button onclick="closeNotificationModal()" class="danger">Hủy</button>
         </div>
     </div>
 </div>
@@ -323,11 +213,119 @@
     const auth = firebase.auth();
     
     let currentUser = null;
-    let currentChatRoom = null;
-    let unreadCounts = { class: 0, team1: 0, team2: 0 };
-    let messageListeners = {};
     
-    // ========== AUTHENTICATION ==========
+    // Danh sách module
+    const modules = [
+        { name: "Quân số", icon: "👥", action: "showToast('Module Quân số - Đang phát triển', 'success')" },
+        { name: "Học tập", icon: "📚", action: "showToast('Module Học tập - Đang phát triển', 'success')" },
+        { name: "Công tác", icon: "📋", action: "showToast('Module Công tác - Đang phát triển', 'success')" },
+        { name: "Trực gác", icon: "🛡️", action: "showToast('Module Trực gác - Đang phát triển', 'success')" },
+        { name: "Tài chính", icon: "💰", action: "showToast('Module Tài chính - Đang phát triển', 'success')" },
+        { name: "Hậu cần", icon: "📦", action: "showToast('Module Hậu cần - Đang phát triển', 'success')" },
+        { name: "Khen thưởng", icon: "🏆", action: "showToast('Module Khen thưởng - Đang phát triển', 'success')" },
+        { name: "Kỷ luật", icon: "⚠️", action: "showToast('Module Kỷ luật - Đang phát triển', 'success')" },
+        { name: "Vũ khí", icon: "🔫", action: "showToast('Module Vũ khí - Đang phát triển', 'success')" },
+        { name: "Doanh trại", icon: "🏠", action: "showToast('Module Doanh trại - Đang phát triển', 'success')" },
+        { name: "Y tế", icon: "🏥", action: "showToast('Module Y tế - Đang phát triển', 'success')" },
+        { name: "Thể thao", icon: "⚽", action: "showToast('Module Thể thao - Đang phát triển', 'success')" },
+        { name: "Thư viện", icon: "📁", action: "showToast('Module Thư viện - Đang phát triển', 'success')" },
+        { name: "Báo cáo", icon: "📊", action: "showToast('Module Báo cáo - Đang phát triển', 'success')" },
+        { name: "Văn bản", icon: "📄", action: "showToast('Module Văn bản - Đang phát triển', 'success')" },
+        { name: "Cài đặt", icon: "⚙️", action: "showToast('Module Cài đặt - Đang phát triển', 'success')" }
+    ];
+    
+    function loadModuleGrid() {
+        let html = '';
+        modules.forEach(mod => {
+            html += `<div class="module-card" onclick="${mod.action}">
+                        <div class="module-icon">${mod.icon}</div>
+                        <div class="module-name">${mod.name}</div>
+                    </div>`;
+        });
+        document.getElementById('moduleGrid').innerHTML = html;
+    }
+    
+    function loadSchedule() {
+        const schedule = [
+            { time: "07:30", title: "Chào cờ đầu tuần", location: "Sân doanh trại" },
+            { time: "08:00", title: "Học tập chính trị", location: "Phòng học" },
+            { time: "14:00", title: "Huấn luyện điều lệnh", location: "Sân tập" },
+            { time: "19:00", title: "Sinh hoạt Đoàn", location: "Hội trường" }
+        ];
+        let html = '';
+        schedule.forEach(item => {
+            html += `<div class="list-item">
+                        <div class="list-icon"><i class="fas fa-clock"></i></div>
+                        <div class="list-info">
+                            <div class="list-title">${item.time} - ${item.title}</div>
+                            <div class="list-desc"><i class="fas fa-map-marker-alt"></i> ${item.location}</div>
+                        </div>
+                    </div>`;
+        });
+        document.getElementById('scheduleList').innerHTML = html;
+    }
+    
+    function loadNotifications() {
+        const notis = [
+            { title: "Kiểm tra quân số", date: "20/04/2026", isNew: true },
+            { title: "Họp giao ban tuần", date: "22/04/2026", isNew: false },
+            { title: "Nộp báo cáo tháng", date: "25/04/2026", isNew: false }
+        ];
+        let html = '';
+        notis.forEach(item => {
+            html += `<div class="list-item">
+                        <div class="list-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div class="list-info">
+                            <div class="list-title">${item.title}</div>
+                            <div class="list-desc">📅 ${item.date}</div>
+                        </div>
+                        ${item.isNew ? '<div class="list-badge">Mới</div>' : ''}
+                    </div>`;
+        });
+        document.getElementById('notificationList').innerHTML = html;
+    }
+    
+    function updateCurrentDate() {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').innerHTML = new Date().toLocaleDateString('vi-VN', options);
+    }
+    
+    async function loadStats() {
+        try {
+            const membersSnap = await db.collection('members').get();
+            const total = membersSnap.size;
+            document.getElementById('totalCount').innerText = total || 0;
+            document.getElementById('presentCount').innerText = total - 3;
+            document.getElementById('absentCount').innerText = 3;
+            document.getElementById('leaveCount').innerText = 2;
+        } catch(e) {
+            document.getElementById('totalCount').innerText = '0';
+        }
+    }
+    
+    function showToast(msg, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2500);
+    }
+    
+    function openNotificationModal() { document.getElementById('notificationModal').style.display = 'flex'; }
+    function closeNotificationModal() { document.getElementById('notificationModal').style.display = 'none'; }
+    function sendNotification() { showToast('Đã gửi thông báo!', 'success'); closeNotificationModal(); }
+    function openAvatarEditor() { const url = prompt('URL ảnh đại diện:'); if(url) document.getElementById('userAvatar').style.backgroundImage = `url(${url})`; document.getElementById('userAvatar').innerHTML = ''; }
+    
+    function showRegister() {
+        const email = prompt('Nhập email:');
+        const password = prompt('Nhập mật khẩu (6+ ký tự):');
+        if(email && password && password.length >= 6) {
+            auth.createUserWithEmailAndPassword(email, password).then(() => {
+                showToast('Đăng ký thành công! Hãy đăng nhập.', 'success');
+            }).catch(e => showToast(e.message, 'error'));
+        }
+    }
+    
     async function login() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -335,269 +333,30 @@
             const result = await auth.signInWithEmailAndPassword(email, password);
             currentUser = result.user;
             document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
+            document.getElementById('userName').innerHTML = currentUser.email.split('@')[0];
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             loadAllData();
-            startMessageListeners();
-        } catch(error) { alert('Lỗi: ' + error.message); }
+        } catch(error) { showToast(error.message, 'error'); }
     }
     
-    function showRegister() {
-        const email = prompt('Nhập email:', 'user@sh13a.com');
-        const password = prompt('Nhập mật khẩu (6+ ký tự):');
-        if(email && password && password.length >= 6) {
-            auth.createUserWithEmailAndPassword(email, password).then(() => {
-                alert('Đăng ký thành công! Hãy đăng nhập.');
-            }).catch(e => alert('Lỗi: ' + e.message));
-        } else { alert('Mật khẩu phải có ít nhất 6 ký tự!'); }
-    }
-    
-    async function logout() { await auth.signOut(); location.reload(); }
-    
-    // ========== LOAD DATA ==========
-    async function loadAllData() {
-        loadStats();
-        loadWeeklySchedule();
-        loadAnnouncements();
-        loadContacts();
-        loadProfile();
-        loadRoleManagement();
-        loadPendingLeaves();
-        loadLastMessages();
-        loadUnreadCounts();
-    }
-    
-    async function loadStats() {
-        const membersSnap = await db.collection('members').get();
-        const today = new Date().toISOString().split('T')[0];
-        const attendanceSnap = await db.collection('attendance').doc(today).get();
-        const total = membersSnap.size;
-        const attendanceData = attendanceSnap.exists ? attendanceSnap.data() : {};
-        const present = Object.values(attendanceData).filter(v => v === true).length;
-        document.getElementById('totalCount').innerText = total;
-        document.getElementById('presentCount').innerText = present;
-        document.getElementById('absentCount').innerText = total - present;
-        document.getElementById('leaveCount').innerText = membersSnap.docs.filter(d => d.data().status === 'leave').length;
-    }
-    
-    async function loadWeeklySchedule() {
-        const scheduleHtml = `
-            <div class="schedule-item"><div class="schedule-date">Thứ 2</div><div class="schedule-title">07:30 - Chào cờ đầu tuần</div></div>
-            <div class="schedule-item"><div class="schedule-date">Thứ 3</div><div class="schedule-title">08:00 - Học tập chính trị</div></div>
-            <div class="schedule-item"><div class="schedule-date">Thứ 4</div><div class="schedule-title">14:00 - Huấn luyện điều lệnh</div></div>
-            <div class="schedule-item"><div class="schedule-date">Thứ 5</div><div class="schedule-title">19:00 - Sinh hoạt Đoàn</div></div>
-            <div class="schedule-item"><div class="schedule-date">Thứ 6</div><div class="schedule-title">15:00 - Tổng kết tuần</div></div>
-        `;
-        document.getElementById('weeklySchedule').innerHTML = scheduleHtml;
-    }
-    
-    async function loadAnnouncements() {
-        const newsHtml = `
-            <div class="news-item"><div class="news-date">20/04</div><div class="news-title">Kiểm tra quân số đột xuất</div><div class="news-badge">Mới</div></div>
-            <div class="news-item"><div class="news-date">22/04</div><div class="news-title">Họp giao ban tuần</div></div>
-            <div class="news-item"><div class="news-date">25/04</div><div class="news-title">Nộp báo cáo tháng</div></div>
-        `;
-        document.getElementById('announcements').innerHTML = newsHtml;
-    }
-    
-    async function loadContacts() {
-        const membersSnap = await db.collection('members').limit(20).get();
-        let html = '';
-        membersSnap.forEach(doc => {
-            const m = doc.data();
-            html += `<div class="contact-item">
-                        <div class="contact-avatar">${m.name.charAt(0)}</div>
-                        <div class="contact-info">
-                            <div class="contact-name">${m.name}</div>
-                            <div class="contact-rank">${m.rank || 'Chiến sĩ'} - ${m.position || 'Thành viên'}</div>
-                            <div class="contact-phone">${m.phone || 'Chưa có SĐT'}</div>
-                        </div>
-                    </div>`;
-        });
-        document.getElementById('contactsList').innerHTML = html || '<p>Chưa có dữ liệu</p>';
-    }
-    
-    // ========== PROFILE ==========
-    async function loadProfile() {
-        const userDoc = await db.collection('users').doc(currentUser.uid).get();
-        const data = userDoc.exists ? userDoc.data() : { name: currentUser.email.split('@')[0], rank: 'Chiến sĩ', position: 'Thành viên', phone: '' };
-        document.getElementById('profileInfo').innerHTML = `
-            <div class="info-row"><div class="info-label">Họ tên</div><div class="info-value">${data.name}</div></div>
-            <div class="info-row"><div class="info-label">Cấp bậc</div><div class="info-value">${data.rank}</div></div>
-            <div class="info-row"><div class="info-label">Chức vụ</div><div class="info-value">${data.position}</div></div>
-            <div class="info-row"><div class="info-label">Email</div><div class="info-value">${currentUser.email}</div></div>
-            <div class="info-row"><div class="info-label">SĐT</div><div class="info-value">${data.phone || 'Chưa cập nhật'}</div></div>
-        `;
-        document.getElementById('editName').value = data.name;
-        document.getElementById('editRank').value = data.rank;
-        document.getElementById('editPosition').value = data.position;
-        document.getElementById('editPhone').value = data.phone || '';
-    }
-    
-    function toggleEditProfile() { const f = document.getElementById('editProfileForm'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
-    async function saveProfile() {
-        await db.collection('users').doc(currentUser.uid).set({
-            name: document.getElementById('editName').value,
-            rank: document.getElementById('editRank').value,
-            position: document.getElementById('editPosition').value,
-            phone: document.getElementById('editPhone').value,
-            updatedAt: new Date().toISOString()
-        }, { merge: true });
-        alert('Đã lưu!');
-        loadProfile();
-        toggleEditProfile();
-    }
-    
-    function openAvatarEditor() { const url = prompt('URL ảnh đại diện:'); if(url) document.getElementById('userAvatar').style.backgroundImage = `url(${url})`; }
-    
-    // ========== ROLE MANAGEMENT ==========
-    async function loadRoleManagement() {
-        const userDoc = await db.collection('users').doc(currentUser.uid).get();
-        const isAdmin = userDoc.exists && userDoc.data().position === 'Lớp trưởng';
-        if(!isAdmin) { document.getElementById('roleManagement').innerHTML = '<p>🔒 Chỉ Lớp trưởng mới có quyền phân quyền</p>'; return; }
-        const membersSnap = await db.collection('members').get();
-        let html = '';
-        membersSnap.forEach(doc => {
-            const m = doc.data();
-            html += `<div class="contact-item"><span style="flex:1">${m.name}</span><select onchange="updateRole('${doc.id}', this.value)"><option ${m.position === 'Lớp trưởng' ? 'selected' : ''}>Lớp trưởng</option><option ${m.position === 'Thủ quỹ' ? 'selected' : ''}>Thủ quỹ</option><option ${m.position === 'Tổ trưởng' ? 'selected' : ''}>Tổ trưởng</option><option ${m.position === 'Chiến sĩ' ? 'selected' : ''}>Chiến sĩ</option></select></div>`;
-        });
-        document.getElementById('roleManagement').innerHTML = html;
-    }
-    async function updateRole(id, newRole) { await db.collection('members').doc(id).update({ position: newRole }); alert('Đã cập nhật'); loadRoleManagement(); }
-    
-    // ========== LEAVE REQUEST ==========
-    async function registerLeave() {
-        const start = document.getElementById('leaveStart').value;
-        const end = document.getElementById('leaveEnd').value;
-        const reason = document.getElementById('leaveReason').value;
-        if(!start || !end || !reason) { alert('Nhập đủ thông tin!'); return; }
-        await db.collection('leaveRequests').add({ userId: currentUser.uid, userEmail: currentUser.email, start, end, reason, status: 'pending', createdAt: new Date().toISOString() });
-        alert('Đã gửi đơn!');
-        document.getElementById('leaveStart').value = ''; document.getElementById('leaveEnd').value = ''; document.getElementById('leaveReason').value = '';
-        loadPendingLeaves();
-    }
-    async function loadPendingLeaves() {
-        const snapshot = await db.collection('leaveRequests').where('status', '==', 'pending').orderBy('createdAt', 'desc').get();
-        let html = '';
-        for(const doc of snapshot.docs) {
-            const l = doc.data();
-            const userDoc = await db.collection('users').doc(l.userId).get();
-            const userName = userDoc.exists ? userDoc.data().name : l.userEmail;
-            html += `<div class="contact-item"><div><strong>${userName}</strong><br>📅 ${new Date(l.start).toLocaleString()} → ${new Date(l.end).toLocaleString()}<br>📝 ${l.reason}</div><div><button onclick="approveLeave('${doc.id}')" style="width:auto; background:#10b981;">Duyệt</button><button onclick="rejectLeave('${doc.id}')" style="width:auto; background:#ef4444;">Từ chối</button></div></div>`;
-        }
-        document.getElementById('pendingLeaves').innerHTML = html || '<p>Không có đơn chờ duyệt</p>';
-    }
-    async function approveLeave(id) { await db.collection('leaveRequests').doc(id).update({ status: 'approved' }); loadPendingLeaves(); }
-    async function rejectLeave(id) { await db.collection('leaveRequests').doc(id).update({ status: 'rejected' }); loadPendingLeaves(); }
-    
-    // ========== CHAT FUNCTIONS ==========
-    function startMessageListeners() {
-        const rooms = ['class', 'team1', 'team2'];
-        for(const room of rooms) {
-            if(messageListeners[room]) messageListeners[room]();
-            messageListeners[room] = db.collection('chats').where('room', '==', room).orderBy('timestamp', 'asc').onSnapshot(() => {
-                loadLastMessages();
-                loadUnreadCounts();
-                if(currentChatRoom === room) loadChatMessages(room);
-            });
-        }
-    }
-    
-    async function loadLastMessages() {
-        const rooms = ['class', 'team1', 'team2'];
-        for(const room of rooms) {
-            const snapshot = await db.collection('chats').where('room', '==', room).orderBy('timestamp', 'desc').limit(1).get();
-            if(!snapshot.empty) {
-                const msg = snapshot.docs[0].data();
-                let lastText = msg.text || (msg.type === 'image' ? '📷 Hình ảnh' : '📎 File');
-                document.getElementById(`lastMsg_${room}`).innerHTML = lastText.substring(0, 40);
-                if(msg.timestamp) {
-                    const time = msg.timestamp.toDate();
-                    document.getElementById(`time_${room}`).innerHTML = `${time.getHours()}:${time.getMinutes().toString().padStart(2,'0')}`;
-                }
-            }
-        }
-    }
-    
-    async function loadUnreadCounts() {
-        let totalUnread = 0;
-        const rooms = ['class', 'team1', 'team2'];
-        for(const room of rooms) {
-            const lastReadKey = `lastRead_${room}_${currentUser.uid}`;
-            const lastReadDoc = await db.collection('readReceipts').doc(lastReadKey).get();
-            const lastReadTime = lastReadDoc.exists ? lastReadDoc.data().timestamp : 0;
-            const snapshot = await db.collection('chats').where('room', '==', room).where('timestamp', '>', lastReadTime).get();
-            let unread = 0;
-            snapshot.forEach(doc => { if(doc.data().userId !== currentUser.uid) unread++; });
-            unreadCounts[room] = unread;
-            totalUnread += unread;
-            const unreadElem = document.getElementById(`unread_${room}`);
-            if(unread > 0) { unreadElem.style.display = 'inline-block'; unreadElem.innerText = unread > 99 ? '99+' : unread; }
-            else { unreadElem.style.display = 'none'; }
-        }
-        const badge = document.getElementById('totalUnreadBadge');
-        if(totalUnread > 0) { badge.style.display = 'inline-block'; badge.innerText = totalUnread > 99 ? '99+' : totalUnread; }
-        else { badge.style.display = 'none'; }
-    }
-    
-    function openChatRoom(room) {
-        currentChatRoom = room;
-        const roomNames = { class: 'Toàn đơn vị', team1: 'Trung đội 1', team2: 'Trung đội 2' };
-        document.getElementById('currentChatName').innerHTML = roomNames[room];
-        document.getElementById('chatRoomList').style.display = 'none';
-        document.getElementById('chatDetail').classList.add('active');
-        loadChatMessages(room);
-        markAsRead(room);
-    }
-    
-    function closeChatRoom() {
-        currentChatRoom = null;
-        document.getElementById('chatRoomList').style.display = 'block';
-        document.getElementById('chatDetail').classList.remove('active');
-        loadUnreadCounts();
-    }
-    
-    async function loadChatMessages(room) {
-        const snapshot = await db.collection('chats').where('room', '==', room).orderBy('timestamp', 'asc').limit(200).get();
-        let html = '';
-        for(const doc of snapshot.docs) {
-            const m = doc.data();
-            const isSent = m.userId === currentUser.uid;
-            const time = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString() : '';
-            if(m.type === 'text') {
-                html += `<div class="message ${isSent ? 'sent' : 'received'}"><div class="message-bubble">${m.text}</div><div class="message-info">${m.userName} • ${time}</div></div>`;
-            }
-        }
-        document.getElementById('chatMessages').innerHTML = html || '<div style="text-align:center;color:#999;">Chưa có tin nhắn</div>';
-        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
-    }
-    
-    async function sendMessage() {
-        const text = document.getElementById('messageInput').value.trim();
-        if(!text || !currentChatRoom) return;
-        await db.collection('chats').add({
-            room: currentChatRoom, text, type: 'text', userId: currentUser.uid,
-            userName: currentUser.email.split('@')[0], timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        document.getElementById('messageInput').value = '';
-        loadChatMessages(currentChatRoom);
-    }
-    
-    async function markAsRead(room) {
-        const lastReadKey = `lastRead_${room}_${currentUser.uid}`;
-        await db.collection('readReceipts').doc(lastReadKey).set({ timestamp: new Date().toISOString(), userId: currentUser.uid, room: room });
-        loadUnreadCounts();
-    }
-    
-    // ========== TAB SWITCHING ==========
     function switchTab(tabName) {
-        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-        document.getElementById(tabName + 'Tab').classList.add('active');
         document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
         document.querySelector(`.tab-item[data-tab="${tabName}"]`).classList.add('active');
-        if(tabName === 'contacts') loadContacts();
-        if(tabName === 'profile') { loadProfile(); loadRoleManagement(); loadPendingLeaves(); }
-        if(tabName === 'chat') { loadLastMessages(); loadUnreadCounts(); }
+        if(tabName === 'home') {
+            document.getElementById('homeContent').style.display = 'block';
+        } else {
+            document.getElementById('homeContent').style.display = 'none';
+            showToast(`Tab ${tabName === 'personnel' ? 'Quân số' : (tabName === 'chat' ? 'Chat' : 'Cá nhân')} đang phát triển`, 'success');
+        }
+    }
+    
+    async function loadAllData() {
+        updateCurrentDate();
+        loadModuleGrid();
+        loadSchedule();
+        loadNotifications();
+        await loadStats();
     }
     
     document.querySelectorAll('.tab-item').forEach(tab => {
@@ -608,10 +367,10 @@
         if(user) {
             currentUser = user;
             document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
+            document.getElementById('userName').innerHTML = currentUser.email.split('@')[0];
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             loadAllData();
-            startMessageListeners();
         }
     });
 </script>
