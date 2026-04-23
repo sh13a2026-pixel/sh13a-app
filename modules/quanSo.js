@@ -1,47 +1,227 @@
-// ========== MODULE QUÂN SỐ ==========
-// Module này quản lý: Danh sách, thêm/sửa/xóa, điểm danh, xuất Excel
+// modules/quanSo.js - BẢN HOÀN CHỈNH
 
+let quanSoData = [];
 let currentEditId = null;
-let allMembers = [];
+let currentAttendanceDate = new Date().toISOString().split('T')[0];
 
-// Khởi tạo module
 function initQuanSo() {
-    const contentArea = document.getElementById('contentArea');
-    contentArea.innerHTML = `
-        <div id="quanSoModule">
-            <!-- Thống kê -->
-            <div class="stats-grid">
-                <div class="stat-card total"><div class="stat-icon">👥</div><div class="stat-value" id="qsTotalCount">0</div><div class="stat-label">Tổng quân số</div></div>
-                <div class="stat-card present"><div class="stat-icon">✅</div><div class="stat-value" id="qsPresentCount">0</div><div class="stat-label">Có mặt</div></div>
-                <div class="stat-card absent"><div class="stat-icon">❌</div><div class="stat-value" id="qsAbsentCount">0</div><div class="stat-label">Vắng</div></div>
-                <div class="stat-card leave"><div class="stat-icon">🏃</div><div class="stat-value" id="qsLeaveCount">0</div><div class="stat-label">Tranh thủ</div></div>
-            </div>
-
-            <!-- Thanh công cụ -->
-            <div class="search-bar" style="padding: 0 15px 15px; display: flex; gap: 10px;">
-                <input type="text" id="searchQuanSo" placeholder="🔍 Tìm kiếm theo tên, cấp bậc..." style="flex: 1;">
-                <button onclick="showAddMemberModal()" class="success" style="width: auto; padding: 10px 20px;"><i class="fas fa-plus"></i> Thêm</button>
-                <button onclick="exportQuanSoToExcel()" class="success" style="width: auto; padding: 10px 20px; background: #27ae60;"><i class="fas fa-file-excel"></i> Excel</button>
-            </div>
-
-            <!-- Danh sách quân số -->
-            <div id="quanSoList" style="padding: 0 15px;"></div>
+    document.getElementById('contentArea').innerHTML = `
+        <div class="section-title"><h3>👥 QUẢN LÝ QUÂN SỐ</h3></div>
+        
+        <!-- Tab chuyển đổi -->
+        <div style="display: flex; gap: 10px; padding: 0 15px 15px;">
+            <button id="tabDS" onclick="showQuanSoList()" class="active-tab" style="flex:1; background:#2c3e50;">📋 Danh sách</button>
+            <button id="tabDD" onclick="showDiemDanh()" style="flex:1; background:#95a5a6;">✅ Điểm danh</button>
+            <button id="tabTK" onclick="showThongKe()" style="flex:1; background:#95a5a6;">📊 Thống kê</button>
         </div>
+        
+        <!-- Nội dung -->
+        <div id="quanSoContent"></div>
+    `;
+    
+    loadQuanSoData();
+    showQuanSoList();
+}
 
-        <!-- Modal Thêm/Sửa -->
-        <div id="memberModal" class="modal" style="display:none;">
+// Load dữ liệu từ Firestore
+async function loadQuanSoData() {
+    showToast('Đang tải dữ liệu...', 'success');
+    try {
+        const snapshot = await db.collection('members').orderBy('name').get();
+        quanSoData = [];
+        snapshot.forEach(doc => {
+            quanSoData.push({ id: doc.id, ...doc.data() });
+        });
+        updateThongKe();
+    } catch(error) {
+        showToast('Lỗi tải dữ liệu: ' + error.message, 'error');
+    }
+}
+
+// Hiển thị danh sách
+function showQuanSoList() {
+    const container = document.getElementById('quanSoContent');
+    if(!container) return;
+    
+    // Cập nhật active tab
+    document.getElementById('tabDS').style.background = '#2c3e50';
+    document.getElementById('tabDD').style.background = '#95a5a6';
+    document.getElementById('tabTK').style.background = '#95a5a6';
+    
+    let html = `
+        <div class="search-bar">
+            <input type="text" id="searchQS" placeholder="🔍 Tìm kiếm theo tên...">
+            <button onclick="showAddMemberModal()" class="success"><i class="fas fa-plus"></i> Thêm</button>
+            <button onclick="exportQuanSoExcel()" class="success" style="background:#27ae60;"><i class="fas fa-file-excel"></i> Excel</button>
+        </div>
+        <div id="quanSoList"></div>
+    `;
+    container.innerHTML = html;
+    
+    displayQuanSoList(quanSoData);
+    
+    document.getElementById('searchQS').addEventListener('input', function(e) {
+        const keyword = e.target.value.toLowerCase();
+        const filtered = quanSoData.filter(m => m.name.toLowerCase().includes(keyword));
+        displayQuanSoList(filtered);
+    });
+}
+
+function displayQuanSoList(data) {
+    const listDiv = document.getElementById('quanSoList');
+    if(data.length === 0) {
+        listDiv.innerHTML = '<div style="text-align:center; padding:40px;">Chưa có dữ liệu. Nhấn "Thêm" để thêm quân nhân.</div>';
+        return;
+    }
+    
+    let html = '';
+    data.forEach(m => {
+        html += `
+            <div class="list-item">
+                <div class="list-icon">👤</div>
+                <div class="list-info">
+                    <div class="list-title">${m.name}</div>
+                    <div class="list-desc">${m.rank || 'Chiến sĩ'} - ${m.position || 'Thành viên'} | 📞 ${m.phone || '---'}</div>
+                </div>
+                <div>
+                    <button onclick="editMember('${m.id}')" style="width:auto; padding:6px 12px; background:#f59e0b;"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteMember('${m.id}')" style="width:auto; padding:6px 12px; background:#e74c3c;"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `;
+    });
+    listDiv.innerHTML = html;
+}
+
+// Hiển thị điểm danh
+async function showDiemDanh() {
+    const container = document.getElementById('quanSoContent');
+    if(!container) return;
+    
+    document.getElementById('tabDS').style.background = '#95a5a6';
+    document.getElementById('tabDD').style.background = '#2c3e50';
+    document.getElementById('tabTK').style.background = '#95a5a6';
+    
+    const today = new Date().toISOString().split('T')[0];
+    const attendanceDoc = await db.collection('attendance').doc(today).get();
+    const attendanceData = attendanceDoc.exists ? attendanceDoc.data() : {};
+    
+    let html = `
+        <div class="stats-grid">
+            <div class="stat-card total"><div class="stat-value" id="ddTotal">0</div><div class="stat-label">Tổng số</div></div>
+            <div class="stat-card present"><div class="stat-value" id="ddPresent">0</div><div class="stat-label">Có mặt</div></div>
+            <div class="stat-card absent"><div class="stat-value" id="ddAbsent">0</div><div class="stat-label">Vắng</div></div>
+        </div>
+        <div style="padding: 0 15px 15px;">
+            <input type="date" id="attendanceDate" value="${today}" onchange="loadDiemDanhByDate()">
+            <button onclick="saveAttendance()" class="success" style="margin-top:10px;"><i class="fas fa-save"></i> Lưu điểm danh</button>
+        </div>
+        <div id="attendanceList"></div>
+    `;
+    container.innerHTML = html;
+    
+    await loadDiemDanhByDate();
+}
+
+async function loadDiemDanhByDate() {
+    const date = document.getElementById('attendanceDate').value;
+    const attendanceDoc = await db.collection('attendance').doc(date).get();
+    const attendanceData = attendanceDoc.exists ? attendanceDoc.data() : {};
+    
+    let presentCount = 0;
+    let html = '';
+    quanSoData.forEach(m => {
+        const isPresent = attendanceData[m.id] === true;
+        if(isPresent) presentCount++;
+        html += `
+            <div class="list-item">
+                <div class="list-icon">${isPresent ? '✅' : '⬜'}</div>
+                <div class="list-info">
+                    <div class="list-title">${m.name}</div>
+                    <div class="list-desc">${m.rank || 'Chiến sĩ'}</div>
+                </div>
+                <button onclick="markAttendance('${m.id}', ${!isPresent})" style="width:auto; padding:8px 20px; background:${isPresent ? '#27ae60' : '#6c757d'}">
+                    ${isPresent ? 'Đã điểm' : 'Điểm danh'}
+                </button>
+            </div>
+        `;
+    });
+    
+    document.getElementById('attendanceList').innerHTML = html;
+    document.getElementById('ddTotal').innerText = quanSoData.length;
+    document.getElementById('ddPresent').innerText = presentCount;
+    document.getElementById('ddAbsent').innerText = quanSoData.length - presentCount;
+}
+
+async function markAttendance(id, isPresent) {
+    const date = document.getElementById('attendanceDate').value;
+    const ref = db.collection('attendance').doc(date);
+    const doc = await ref.get();
+    const data = doc.exists ? doc.data() : {};
+    data[id] = isPresent;
+    await ref.set(data);
+    await loadDiemDanhByDate();
+    showToast('Đã cập nhật điểm danh!', 'success');
+}
+
+async function saveAttendance() {
+    showToast('Đã lưu điểm danh!', 'success');
+}
+
+// Hiển thị thống kê
+function showThongKe() {
+    const container = document.getElementById('quanSoContent');
+    if(!container) return;
+    
+    document.getElementById('tabDS').style.background = '#95a5a6';
+    document.getElementById('tabDD').style.background = '#95a5a6';
+    document.getElementById('tabTK').style.background = '#2c3e50';
+    
+    const total = quanSoData.length;
+    const nam = quanSoData.filter(m => m.gender === 'Nam').length;
+    const nu = total - nam;
+    const siQuan = quanSoData.filter(m => m.rank?.includes('úy') || m.position === 'Sĩ quan').length;
+    
+    let html = `
+        <div class="stats-grid">
+            <div class="stat-card total"><div class="stat-value">${total}</div><div class="stat-label">Tổng quân số</div></div>
+            <div class="stat-card present"><div class="stat-value">${nam}</div><div class="stat-label">Nam</div></div>
+            <div class="stat-card absent"><div class="stat-value">${nu}</div><div class="stat-label">Nữ</div></div>
+            <div class="stat-card leave"><div class="stat-value">${siQuan}</div><div class="stat-label">Sĩ quan</div></div>
+        </div>
+        <div class="section-title"><h3>CHI TIẾT THEO CẤP BẬC</h3></div>
+        <div id="rankStats"></div>
+    `;
+    container.innerHTML = html;
+    
+    // Thống kê theo cấp bậc
+    const rankCount = {};
+    quanSoData.forEach(m => {
+        const rank = m.rank || 'Chiến sĩ';
+        rankCount[rank] = (rankCount[rank] || 0) + 1;
+    });
+    
+    let rankHtml = '';
+    for(const [rank, count] of Object.entries(rankCount)) {
+        rankHtml += `<div class="list-item"><div class="list-info"><div class="list-title">${rank}</div></div><div>${count} người</div></div>`;
+    }
+    document.getElementById('rankStats').innerHTML = rankHtml;
+}
+
+function updateThongKe() {
+    // Cập nhật thống kê khi có thay đổi
+}
+
+// CRUD Members
+function showAddMemberModal() {
+    currentEditId = null;
+    document.getElementById('quanSoContent').innerHTML += `
+        <div id="memberModal" class="modal" style="display:flex;">
             <div class="modal-content">
-                <h3 id="modalTitle">Thêm quân nhân mới</h3>
-                <input type="text" id="memberName" placeholder="Họ và tên *">
-                <input type="text" id="memberRank" placeholder="Cấp bậc (VD: Thiếu úy)">
-                <input type="text" id="memberPosition" placeholder="Chức vụ (VD: Trung đội trưởng)">
-                <select id="memberGender">
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                </select>
-                <input type="date" id="memberDoB" placeholder="Ngày sinh">
-                <input type="text" id="memberHometown" placeholder="Quê quán">
-                <input type="date" id="memberEnlistDate" placeholder="Ngày nhập ngũ">
+                <h3>Thêm quân nhân mới</h3>
+                <input type="text" id="memberName" placeholder="Họ tên *">
+                <input type="text" id="memberRank" placeholder="Cấp bậc">
+                <input type="text" id="memberPosition" placeholder="Chức vụ">
                 <input type="text" id="memberPhone" placeholder="Số điện thoại">
                 <div class="modal-buttons">
                     <button onclick="saveMember()" class="success">Lưu</button>
@@ -50,181 +230,106 @@ function initQuanSo() {
             </div>
         </div>
     `;
-    
-    // Load dữ liệu
-    loadQuanSoData();
-    
-    // Tìm kiếm realtime
-    document.getElementById('searchQuanSo').addEventListener('input', function(e) {
-        searchQuanSo(e.target.value);
-    });
 }
 
-// Load dữ liệu từ Firestore
-async function loadQuanSoData() {
-    showToast('Đang tải dữ liệu...', 'success');
-    try {
-        const snapshot = await db.collection('members').orderBy('name').get();
-        allMembers = [];
-        snapshot.forEach(doc => {
-            allMembers.push({ id: doc.id, ...doc.data() });
-        });
-        displayQuanSoList(allMembers);
-        updateQuanSoStats();
-    } catch(error) {
-        console.error('Lỗi tải dữ liệu:', error);
-        showToast('Lỗi tải dữ liệu: ' + error.message, 'error');
-    }
+function closeMemberModal() {
+    const modal = document.getElementById('memberModal');
+    if(modal) modal.remove();
 }
 
-// Hiển thị danh sách
-function displayQuanSoList(members) {
-    const container = document.getElementById('quanSoList');
-    if(!container) return;
-    
-    if(members.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:40px; color:#94a3b8;">Chưa có dữ liệu. Nhấn "Thêm" để thêm quân nhân.</div>';
-        return;
-    }
-    
-    let html = '';
-    members.forEach(m => {
-        const statusClass = m.status === 'present' ? 'status-present' : (m.status === 'leave' ? 'status-leave' : 'status-mission');
-        const statusText = m.status === 'present' ? 'Có mặt' : (m.status === 'leave' ? 'Tranh thủ' : 'Công tác');
-        html += `
-            <div class="list-item">
-                <div class="list-icon" style="background: #2d5a8b; color: white;">${m.name.charAt(0)}</div>
-                <div class="list-info">
-                    <div class="list-title">${m.name}</div>
-                    <div class="list-desc">${m.rank || 'Chiến sĩ'} - ${m.position || 'Thành viên'}</div>
-                    <div class="list-desc">📅 ${m.enlistDate || 'Chưa có'} | 📍 ${m.hometown || 'Chưa có'}</div>
-                </div>
-                <div>
-                    <span class="member-status ${statusClass}" style="display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px;">${statusText}</span>
-                    <button onclick="editMember('${m.id}')" style="width: auto; padding: 6px 12px; margin-top: 5px; background: #f59e0b; font-size: 12px;"><i class="fas fa-edit"></i> Sửa</button>
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-// Cập nhật thống kê
-async function updateQuanSoStats() {
-    const total = allMembers.length;
-    const present = allMembers.filter(m => m.status === 'present').length;
-    const leave = allMembers.filter(m => m.status === 'leave').length;
-    
-    document.getElementById('qsTotalCount').innerText = total;
-    document.getElementById('qsPresentCount').innerText = present;
-    document.getElementById('qsAbsentCount').innerText = total - present;
-    document.getElementById('qsLeaveCount').innerText = leave;
-}
-
-// Tìm kiếm
-function searchQuanSo(keyword) {
-    if(!keyword.trim()) {
-        displayQuanSoList(allMembers);
-        return;
-    }
-    const filtered = allMembers.filter(m => 
-        m.name.toLowerCase().includes(keyword.toLowerCase()) || 
-        (m.rank || '').toLowerCase().includes(keyword.toLowerCase()) ||
-        (m.position || '').toLowerCase().includes(keyword.toLowerCase())
-    );
-    displayQuanSoList(filtered);
-}
-
-// Hiển thị modal thêm
-function showAddMemberModal() {
-    currentEditId = null;
-    document.getElementById('modalTitle').innerText = 'Thêm quân nhân mới';
-    document.getElementById('memberName').value = '';
-    document.getElementById('memberRank').value = '';
-    document.getElementById('memberPosition').value = '';
-    document.getElementById('memberGender').value = 'Nam';
-    document.getElementById('memberDoB').value = '';
-    document.getElementById('memberHometown').value = '';
-    document.getElementById('memberEnlistDate').value = '';
-    document.getElementById('memberPhone').value = '';
-    document.getElementById('memberModal').style.display = 'flex';
-}
-
-// Sửa thành viên
-function editMember(id) {
-    const member = allMembers.find(m => m.id === id);
-    if(!member) return;
-    currentEditId = id;
-    document.getElementById('modalTitle').innerText = 'Sửa thông tin quân nhân';
-    document.getElementById('memberName').value = member.name || '';
-    document.getElementById('memberRank').value = member.rank || '';
-    document.getElementById('memberPosition').value = member.position || '';
-    document.getElementById('memberGender').value = member.gender || 'Nam';
-    document.getElementById('memberDoB').value = member.dob || '';
-    document.getElementById('memberHometown').value = member.hometown || '';
-    document.getElementById('memberEnlistDate').value = member.enlistDate || '';
-    document.getElementById('memberPhone').value = member.phone || '';
-    document.getElementById('memberModal').style.display = 'flex';
-}
-
-// Lưu thành viên
 async function saveMember() {
     const name = document.getElementById('memberName').value.trim();
-    if(!name) {
-        showToast('Vui lòng nhập họ tên!', 'error');
-        return;
-    }
+    if(!name) { showToast('Vui lòng nhập họ tên!', 'error'); return; }
     
     const data = {
         name: name,
         rank: document.getElementById('memberRank').value || 'Chiến sĩ',
         position: document.getElementById('memberPosition').value || 'Thành viên',
-        gender: document.getElementById('memberGender').value,
-        dob: document.getElementById('memberDoB').value,
-        hometown: document.getElementById('memberHometown').value,
-        enlistDate: document.getElementById('memberEnlistDate').value,
-        phone: document.getElementById('memberPhone').value,
+        phone: document.getElementById('memberPhone').value || '',
         status: 'present',
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
     
     try {
-        if(currentEditId) {
-            await db.collection('members').doc(currentEditId).update(data);
-            showToast('Đã cập nhật thông tin!', 'success');
-        } else {
-            data.createdAt = new Date().toISOString();
-            await db.collection('members').add(data);
-            showToast('Đã thêm quân nhân mới!', 'success');
-        }
+        await db.collection('members').add(data);
+        showToast('Đã thêm quân nhân!', 'success');
         closeMemberModal();
         await loadQuanSoData();
+        showQuanSoList();
     } catch(error) {
         showToast('Lỗi: ' + error.message, 'error');
     }
 }
 
-// Đóng modal
-function closeMemberModal() {
-    document.getElementById('memberModal').style.display = 'none';
-    currentEditId = null;
+async function editMember(id) {
+    const member = quanSoData.find(m => m.id === id);
+    if(!member) return;
+    
+    currentEditId = id;
+    document.getElementById('quanSoContent').innerHTML += `
+        <div id="memberModal" class="modal" style="display:flex;">
+            <div class="modal-content">
+                <h3>Sửa thông tin quân nhân</h3>
+                <input type="text" id="memberName" value="${member.name}" placeholder="Họ tên *">
+                <input type="text" id="memberRank" value="${member.rank || ''}" placeholder="Cấp bậc">
+                <input type="text" id="memberPosition" value="${member.position || ''}" placeholder="Chức vụ">
+                <input type="text" id="memberPhone" value="${member.phone || ''}" placeholder="Số điện thoại">
+                <div class="modal-buttons">
+                    <button onclick="updateMember()" class="success">Cập nhật</button>
+                    <button onclick="closeMemberModal()" class="danger">Hủy</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function updateMember() {
+    const name = document.getElementById('memberName').value.trim();
+    if(!name) { showToast('Vui lòng nhập họ tên!', 'error'); return; }
+    
+    const data = {
+        name: name,
+        rank: document.getElementById('memberRank').value || 'Chiến sĩ',
+        position: document.getElementById('memberPosition').value || 'Thành viên',
+        phone: document.getElementById('memberPhone').value || '',
+        updatedAt: new Date().toISOString()
+    };
+    
+    try {
+        await db.collection('members').doc(currentEditId).update(data);
+        showToast('Đã cập nhật!', 'success');
+        closeMemberModal();
+        await loadQuanSoData();
+        showQuanSoList();
+    } catch(error) {
+        showToast('Lỗi: ' + error.message, 'error');
+    }
+}
+
+async function deleteMember(id) {
+    if(confirm('Bạn có chắc muốn xóa quân nhân này?')) {
+        try {
+            await db.collection('members').doc(id).delete();
+            showToast('Đã xóa!', 'success');
+            await loadQuanSoData();
+            showQuanSoList();
+        } catch(error) {
+            showToast('Lỗi: ' + error.message, 'error');
+        }
+    }
 }
 
 // Xuất Excel
-async function exportQuanSoToExcel() {
-    const data = allMembers.map((m, i) => ({
-        'STT': i + 1,
+async function exportQuanSoExcel() {
+    const data = quanSoData.map((m, i) => ({
+        'STT': i+1,
         'Họ tên': m.name,
         'Cấp bậc': m.rank,
         'Chức vụ': m.position,
-        'Giới tính': m.gender,
-        'Ngày sinh': m.dob,
-        'Quê quán': m.hometown,
-        'Ngày nhập ngũ': m.enlistDate,
         'Số điện thoại': m.phone,
-        'Trạng thái': m.status === 'present' ? 'Có mặt' : (m.status === 'leave' ? 'Tranh thủ' : 'Công tác')
+        'Ngày tạo': m.createdAt ? new Date(m.createdAt).toLocaleDateString() : ''
     }));
-    
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Danh sách quân số');
@@ -232,7 +337,6 @@ async function exportQuanSoToExcel() {
     showToast('Đã xuất file Excel!', 'success');
 }
 
-// Thông báo
 function showToast(msg, type) {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
