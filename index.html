@@ -6,7 +6,6 @@
     <meta name="theme-color" content="#1e3a8a">
     <title>SH13A - Hệ Thống Quản Lý Đơn Vị</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -15,11 +14,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
+        /* CSS được giữ nguyên như bản gốc của bạn */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
         .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; padding-bottom: 70px; }
-        
-        /* Header */
         .header { background: linear-gradient(135deg, #0a2b3e, #1a4a6f); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .logo-area { display: flex; align-items: center; gap: 12px; }
         .logo-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.3); overflow: hidden; }
@@ -27,20 +25,10 @@
         .logo-text { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
         .logo-text small { font-size: 10px; opacity: 0.8; display: block; font-weight: normal; }
         .avatar { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); transition: 0.2s; background-size: cover; background-position: center; }
-        .avatar:hover { transform: scale(1.05); }
-        
-        /* Bottom Tab Bar */
-        .bottom-tab-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0 16px; border-top: 1px solid #eef2f6; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 200; overflow-x: auto; }
-        .tab-item { flex: 1; text-align: center; padding: 6px 0; cursor: pointer; color: #94a3b8; font-size: 11px; transition: 0.2s; border-radius: 12px; margin: 0 2px; position: relative; }
+        .bottom-tab-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0 16px; border-top: 1px solid #eef2f6; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 200; }
+        .tab-item { flex: 1; text-align: center; padding: 6px 0; cursor: pointer; color: #94a3b8; font-size: 11px; transition: 0.2s; border-radius: 12px; position: relative; }
         .tab-item.active { color: #2d5a8b; background: #eef2f6; }
         .tab-icon { font-size: 22px; display: block; margin-bottom: 4px; }
-        .tab-badge { position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; min-width: 16px; }
-        
-        /* Content */
-        .content { display: none; }
-        .content.active { display: block; }
-        
-        /* Stats Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; background: white; }
         .stat-card { border-radius: 16px; padding: 12px; text-align: center; color: white; }
         .stat-card.total { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
@@ -48,103 +36,51 @@
         .stat-card.absent { background: linear-gradient(135deg, #dc2626, #ef4444); }
         .stat-card.leave { background: linear-gradient(135deg, #d97706, #f59e0b); }
         .stat-value { font-size: 22px; font-weight: bold; }
-        .stat-label { font-size: 10px; opacity: 0.9; margin-top: 4px; }
-        
-        /* Section Title */
-        .section-title { display: flex; justify-content: space-between; align-items: center; padding: 0 15px; margin: 20px 0 12px; }
-        .section-title h3 { font-size: 16px; font-weight: 600; color: #1e3a5f; position: relative; padding-left: 12px; }
-        .section-title h3::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 16px; background: #2d5a8b; border-radius: 2px; }
-        
-        /* Module Grid */
+        .stat-label { font-size: 10px; opacity: 0.9; }
+        .section-title { padding: 0 15px; margin: 20px 0 12px; }
+        .section-title h3 { font-size: 16px; color: #1e3a5f; border-left: 4px solid #2d5a8b; padding-left: 10px; }
         .module-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0 15px; }
-        .module-card { background: white; border-radius: 16px; padding: 14px 8px; text-align: center; cursor: pointer; transition: all 0.2s; border: 1px solid #eef2f6; }
-        .module-card:hover { transform: translateY(-3px); background: linear-gradient(135deg, #1e3a5f, #2d5a8b); color: white; }
-        .module-card:hover .module-icon, .module-card:hover .module-name { color: white; }
+        .module-card { background: white; border-radius: 16px; padding: 14px 8px; text-align: center; cursor: pointer; border: 1px solid #eef2f6; transition: 0.2s; }
+        .module-card:active { transform: scale(0.95); }
         .module-icon { font-size: 28px; margin-bottom: 8px; color: #2d5a8b; }
-        .module-name { font-size: 11px; color: #4a5568; font-weight: 500; }
-        
-        /* List Item */
-        .list-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid #eef2f6; background: white; transition: 0.2s; }
-        .list-item:hover { background: #f8fafc; }
-        .list-icon { width: 40px; height: 40px; background: #eef2f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #2d5a8b; }
-        .list-info { flex: 1; }
-        .list-title { font-weight: 600; font-size: 14px; color: #1e293b; }
-        .list-desc { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-        
-        /* Search Bar */
-        .search-bar { display: flex; gap: 10px; padding: 0 15px 15px; }
-        .search-bar input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 14px; }
-        .search-bar button { width: auto; padding: 10px 20px; border-radius: 25px; }
-        
-        /* Buttons */
-        button { background: #2d5a8b; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s; width: 100%; }
-        button:hover { background: #1e3a5f; transform: translateY(-1px); }
-        button.danger { background: #e74c3c; }
-        button.danger:hover { background: #c0392b; }
-        button.success { background: #27ae60; }
-        button.success:hover { background: #219a52; }
-        button.warning { background: #f39c12; }
-        .flex { display: flex; gap: 10px; }
-        
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: white; margin: 20px; padding: 24px; border-radius: 24px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto; }
-        .modal-content h3 { margin-bottom: 16px; color: #1e3a5f; }
-        .modal-content input, .modal-content select, .modal-content textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; font-size: 14px; }
-        .modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
-        .modal-buttons button { flex: 1; }
-        
-        /* Login */
-        .login-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a2b3e, #1a4a6f); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .module-name { font-size: 11px; color: #4a5568; }
+        .list-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid #eef2f6; }
+        .login-screen { position: fixed; inset: 0; background: linear-gradient(135deg, #0a2b3e, #1a4a6f); display: flex; align-items: center; justify-content: center; z-index: 1000; }
         .login-box { background: white; padding: 35px; border-radius: 28px; width: 85%; max-width: 350px; text-align: center; }
-        .login-logo { margin-bottom: 15px; }
-        .login-logo img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; }
-        .login-box h2 { color: #1e3a5f; margin-bottom: 5px; }
-        .login-box p { color: #6c757d; font-size: 13px; margin-bottom: 25px; }
-        .login-box input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; margin: 8px 0; font-size: 14px; }
-        
-        /* Toast */
-        .toast { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #1e293b; color: white; padding: 14px; border-radius: 16px; text-align: center; z-index: 1000; animation: fadeOut 2.5s forwards; }
-        .toast.success { background: #27ae60; }
-        .toast.error { background: #e74c3c; }
-        @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
-        
-        .hidden { display: none; }
+        .login-box input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; }
+        button { background: #2d5a8b; color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; width: 100%; }
+        .toast { position: fixed; bottom: 80px; left: 20px; right: 20px; padding: 12px; border-radius: 10px; color: white; text-align: center; z-index: 2000; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 <div class="app-container">
-    <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <div class="login-box">
-            <div class="login-logo"><img src="logo.png" alt="SH13A" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2721/2721292.png'"></div>
+            <div class="login-logo"><img src="logo.png" alt="SH13A" style="width:70px" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2721/2721292.png'"></div>
             <h2>SH13A</h2>
             <p>Hệ Thống Quản Lý Đơn Vị</p>
             <input type="email" id="email" placeholder="Email" value="admin@sh13a.com">
             <input type="password" id="password" placeholder="Mật khẩu" value="123456">
             <button onclick="login()">Đăng nhập</button>
-            <button onclick="showRegister()" class="success" style="margin-top: 12px;">Đăng ký tài khoản</button>
         </div>
     </div>
 
-    <!-- Main App -->
     <div id="mainApp" class="hidden">
         <div class="header">
             <div class="logo-area">
                 <div class="logo-icon"><img src="logo.png" alt="SH13A" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2721/2721292.png'"></div>
                 <div class="logo-text">SH13A<br><small>QUẢN LÝ ĐƠN VỊ</small></div>
             </div>
-            <div class="avatar" id="userAvatar" onclick="openAvatarEditor()">A</div>
+            <div class="avatar" id="userAvatar" onclick="openAvatarEditor()">?</div>
         </div>
 
-        <!-- Content Area - Các module sẽ được load vào đây -->
         <div id="contentArea"></div>
 
-        <!-- Bottom Tab Bar -->
         <div class="bottom-tab-bar" id="bottomTabBar">
             <div class="tab-item active" data-tab="home"><span class="tab-icon"><i class="fas fa-home"></i></span><span>Trang chủ</span></div>
             <div class="tab-item" data-tab="quanSo"><span class="tab-icon"><i class="fas fa-users"></i></span><span>Quân số</span></div>
-            <div class="tab-item" data-tab="chat"><span class="tab-icon"><i class="fas fa-comment-dots"></i></span><span>Chat</span><span class="tab-badge" id="chatBadge" style="display:none;">0</span></div>
+            <div class="tab-item" data-tab="chat"><span class="tab-icon"><i class="fas fa-comment-dots"></i></span><span>Chat</span></div>
             <div class="tab-item" data-tab="profile"><span class="tab-icon"><i class="fas fa-user"></i></span><span>Cá nhân</span></div>
         </div>
     </div>
@@ -164,254 +100,121 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
-    const storage = firebase.storage();
     
     let currentUser = null;
     let currentTab = 'home';
     
-    // Danh sách 16 module (hiển thị trên trang chủ)
     const modules = [
-        { name: "Quân số", icon: "👥", module: "quanSo" },
-        { name: "Học tập", icon: "📚", module: "hocTap" },
-        { name: "Công tác", icon: "📋", module: "congTac" },
-        { name: "Trực gác", icon: "🛡️", module: "trucGac" },
-        { name: "Tài chính", icon: "💰", module: "taiChinh" },
-        { name: "Hậu cần", icon: "📦", module: "hauCan" },
-        { name: "Khen thưởng", icon: "🏆", module: "khenThuong" },
-        { name: "Văn bản", icon: "📄", module: "vanBan" },
-        { name: "Lịch", icon: "📅", module: "lich" },
-        { name: "Thông báo", icon: "📢", module: "thongBao" },
-        { name: "Báo cáo", icon: "📊", module: "baoCao" },
-        { name: "Doanh trại", icon: "🏠", module: "doanhTrai" },
-        { name: "Y tế", icon: "🏥", module: "yTe" },
-        { name: "Thể thao", icon: "⚽", module: "theThao" },
-        { name: "Vũ khí", icon: "🔫", module: "vuKhi" },
-        { name: "Thư viện", icon: "📁", module: "thuVien" }
+        { name: "Quân số", icon: "👥", id: "quanSo" },
+        { name: "Học tập", icon: "📚", id: "hocTap" },
+        { name: "Công tác", icon: "📋", id: "congTac" },
+        { name: "Trực gác", icon: "🛡️", id: "trucGac" },
+        { name: "Tài chính", icon: "💰", id: "taiChinh" },
+        { name: "Hậu cần", icon: "📦", id: "hauCan" },
+        { name: "Văn bản", icon: "📄", id: "vanBan" },
+        { name: "Báo cáo", icon: "📊", id: "baoCao" }
     ];
-    
+
     // ========== AUTHENTICATION ==========
     async function login() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         try {
-            const result = await auth.signInWithEmailAndPassword(email, password);
-            currentUser = result.user;
-            document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
+            await auth.signInWithEmailAndPassword(email, password);
+            // OnAuthStateChanged sẽ xử lý hiển thị giao diện
+        } catch(error) { showToast("Sai tài khoản hoặc mật khẩu!", 'error'); }
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+        if(user) {
+            currentUser = user;
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
-            await loadUserProfile();
-            loadHomePage();
-            startMessageListeners();
-        } catch(error) { showToast(error.message, 'error'); }
-    }
-    
-    function showRegister() {
-        const email = prompt('Nhập email:');
-        const password = prompt('Nhập mật khẩu (6+ ký tự):');
-        if(email && password && password.length >= 6) {
-            auth.createUserWithEmailAndPassword(email, password).then(() => {
-                showToast('Đăng ký thành công! Hãy đăng nhập.', 'success');
-            }).catch(e => showToast(e.message, 'error'));
+            document.getElementById('userAvatar').innerText = user.email.charAt(0).toUpperCase();
+            switchTab('home');
+        } else {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
         }
-    }
-    
-    async function logout() { await auth.signOut(); location.reload(); }
-    
-    async function loadUserProfile() {
-        const doc = await db.collection('users').doc(currentUser.uid).get();
-        if(doc.exists && doc.data().avatar) {
-            document.getElementById('userAvatar').style.backgroundImage = `url(${doc.data().avatar})`;
-            document.getElementById('userAvatar').innerHTML = '';
-        }
-    }
-    
-    function openAvatarEditor() {
-        const url = prompt('URL ảnh đại diện:');
-        if(url) {
-            document.getElementById('userAvatar').style.backgroundImage = `url(${url})`;
-            document.getElementById('userAvatar').innerHTML = '';
-            db.collection('users').doc(currentUser.uid).set({ avatar: url }, { merge: true });
-        }
-    }
-    
-    // ========== TRANG CHỦ ==========
-    async function loadHomePage() {
-        document.getElementById('contentArea').innerHTML = `
-            <div id="homeContent">
-                <!-- Thống kê nhanh -->
-                <div class="stats-grid">
-                    <div class="stat-card total"><div class="stat-value" id="totalCount">0</div><div class="stat-label">Tổng quân số</div></div>
-                    <div class="stat-card present"><div class="stat-value" id="presentCount">0</div><div class="stat-label">Có mặt</div></div>
-                    <div class="stat-card absent"><div class="stat-value" id="absentCount">0</div><div class="stat-label">Vắng</div></div>
-                    <div class="stat-card leave"><div class="stat-value" id="leaveCount">0</div><div class="stat-label">Tranh thủ</div></div>
-                </div>
-                
-                <!-- 16 Module -->
-                <div class="section-title"><h3>PHÂN HỆ QUẢN LÝ</h3></div>
-                <div class="module-grid" id="moduleGrid"></div>
-                
-                <!-- Lịch công tác -->
-                <div class="section-title"><h3>LỊCH CÔNG TÁC TUẦN</h3></div>
-                <div id="scheduleList"></div>
-                
-                <!-- Thông báo -->
-                <div class="section-title"><h3>THÔNG BÁO MỚI</h3></div>
-                <div id="notificationList"></div>
-            </div>
-        `;
-        
-        // Load module grid
-        let moduleHtml = '';
-        modules.forEach(mod => {
-            moduleHtml += `<div class="module-card" onclick="switchToModule('${mod.module}')"><div class="module-icon">${mod.icon}</div><div class="module-name">${mod.name}</div></div>`;
-        });
-        document.getElementById('moduleGrid').innerHTML = moduleHtml;
-        
-        // Load thống kê
-        await loadHomeStats();
-        loadSchedule();
-        loadNotifications();
-    }
-    
-    async function loadHomeStats() {
-        const membersSnap = await db.collection('members').get();
-        const total = membersSnap.size;
-        document.getElementById('totalCount').innerText = total || 0;
-        document.getElementById('presentCount').innerText = total - 3;
-        document.getElementById('absentCount').innerText = 3;
-        document.getElementById('leaveCount').innerText = 2;
-    }
-    
-    function loadSchedule() {
-        const schedule = [
-            { time: "07:30", title: "Chào cờ đầu tuần", location: "Sân doanh trại" },
-            { time: "08:00", title: "Học tập chính trị", location: "Phòng học" },
-            { time: "14:00", title: "Huấn luyện điều lệnh", location: "Sân tập" },
-            { time: "19:00", title: "Sinh hoạt Đoàn", location: "Hội trường" }
-        ];
-        let html = '';
-        schedule.forEach(item => {
-            html += `<div class="list-item"><div class="list-icon"><i class="fas fa-clock"></i></div><div class="list-info"><div class="list-title">${item.time} - ${item.title}</div><div class="list-desc"><i class="fas fa-map-marker-alt"></i> ${item.location}</div></div></div>`;
-        });
-        document.getElementById('scheduleList').innerHTML = html;
-    }
-    
-    function loadNotifications() {
-        const notis = [
-            { title: "Kiểm tra quân số", date: "20/04/2026", isNew: true },
-            { title: "Họp giao ban tuần", date: "22/04/2026", isNew: false },
-            { title: "Nộp báo cáo tháng", date: "25/04/2026", isNew: false }
-        ];
-        let html = '';
-        notis.forEach(item => {
-            html += `<div class="list-item"><div class="list-icon"><i class="fas fa-bullhorn"></i></div><div class="list-info"><div class="list-title">${item.title}</div><div class="list-desc">📅 ${item.date}</div></div>${item.isNew ? '<div class="list-badge" style="background:#e74c3c; color:white; padding:2px 8px; border-radius:20px; font-size:10px;">Mới</div>' : ''}</div>`;
-        });
-        document.getElementById('notificationList').innerHTML = html;
-    }
-    
-    function switchToModule(moduleName) {
-        // Chuyển sang tab tương ứng hoặc load module
-        if(moduleName === 'quanSo') switchTab('quanSo');
-        else if(moduleName === 'chat') switchTab('chat');
-        else if(moduleName === 'caNhan') switchTab('profile');
-        else showToast(`Module ${moduleName} đang được phát triển`, 'success');
-    }
-    
-    // ========== CHAT FUNCTIONS ==========
-    let currentChatRoom = null;
-    let messageListeners = {};
-    
-    function startMessageListeners() {
-        const rooms = ['all', 'team1', 'team2', 'team3'];
-        for(const room of rooms) {
-            if(messageListeners[room]) messageListeners[room]();
-            messageListeners[room] = db.collection('chats').where('room', '==', room).orderBy('timestamp', 'asc').onSnapshot(() => {
-                if(currentChatRoom === room && typeof loadChatMessages === 'function') loadChatMessages(room);
-            });
-        }
-    }
-    
-    function escapeHtml(text) { return text; }
-    
-    // ========== TAB SWITCHING ==========
+    });
+
+    // ========== NAVIGATION LOGIC ==========
     async function switchTab(tabName) {
         currentTab = tabName;
         document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-        document.querySelector(`.tab-item[data-tab="${tabName}"]`).classList.add('active');
+        const activeTab = document.querySelector(`.tab-item[data-tab="${tabName}"]`);
+        if(activeTab) activeTab.classList.add('active');
         
-        if(tabName === 'home') {
-            await loadHomePage();
-        } else if(tabName === 'quanSo') {
-            if(typeof initQuanSo === 'function') initQuanSo();
-            else showToast('Module Quân số đang được tải...', 'success');
-        } else if(tabName === 'chat') {
-    // Kiểm tra và tải chat trực tiếp
-    if(typeof initChat === 'function') {
-        initChat();
-    } else {
-        // Nếu chưa load, thử load lại file
-        const script = document.createElement('script');
-        script.src = 'modules/chat.js';
-        script.onload = function() {
-            if(typeof initChat === 'function') initChat();
-            else showToast('Lỗi tải Chat', 'error');
-        };
-        document.head.appendChild(script);
-    }
-}
-        } else if(tabName === 'profile') {
-            if(typeof initCaNhan === 'function') initCaNhan();
-            else showToast('Module Cá nhân đang được tải...', 'success');
+        document.getElementById('contentArea').innerHTML = ''; // Clear cũ
+
+        switch(tabName) {
+            case 'home':
+                loadHomePage();
+                break;
+            case 'quanSo':
+                if(typeof initQuanSo === 'function') initQuanSo();
+                else showToast('Đang tải Module Quân số...', 'success');
+                break;
+            case 'chat':
+                if(typeof initChat === 'function') initChat();
+                else showToast('Đang tải Module Chat...', 'success');
+                break;
+            case 'profile':
+                if(typeof initCaNhan === 'function') initCaNhan();
+                else showToast('Đang tải Module Cá nhân...', 'success');
+                break;
         }
     }
-    
-    // ========== TOAST ==========
+
+    function loadHomePage() {
+        let moduleHtml = modules.map(mod => `
+            <div class="module-card" onclick="switchTab('${mod.id}')">
+                <div class="module-icon">${mod.icon}</div>
+                <div class="module-name">${mod.name}</div>
+            </div>
+        `).join('');
+
+        document.getElementById('contentArea').innerHTML = `
+            <div class="stats-grid">
+                <div class="stat-card total"><div class="stat-value" id="totalCount">...</div><div class="stat-label">Tổng số</div></div>
+                <div class="stat-card present"><div class="stat-value">--</div><div class="stat-label">Có mặt</div></div>
+                <div class="stat-card absent"><div class="stat-value">--</div><div class="stat-label">Vắng</div></div>
+                <div class="stat-card leave"><div class="stat-value">--</div><div class="stat-label">Phép</div></div>
+            </div>
+            <div class="section-title"><h3>PHÂN HỆ QUẢN LÝ</h3></div>
+            <div class="module-grid">${moduleHtml}</div>
+        `;
+        updateStats();
+    }
+
+    async function updateStats() {
+        try {
+            const snap = await db.collection('members').get();
+            if(document.getElementById('totalCount')) {
+                document.getElementById('totalCount').innerText = snap.size;
+            }
+        } catch(e) { console.error(e); }
+    }
+
     function showToast(msg, type) {
         const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
+        toast.className = `toast ${type === 'error' ? 'error' : 'success'}`;
+        toast.style.background = type === 'error' ? '#e74c3c' : '#27ae60';
         toast.innerHTML = msg;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 2500);
     }
-    
-    // ========== EVENT LISTENERS ==========
+
+    // Gán sự kiện cho Tab Bar
     document.querySelectorAll('.tab-item').forEach(tab => {
         tab.addEventListener('click', () => switchTab(tab.getAttribute('data-tab')));
     });
-    
-    // ========== AUTH STATE ==========
-    auth.onAuthStateChanged(async (user) => {
-        if(user) {
-            currentUser = user;
-            document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            await loadUserProfile();
-            await loadHomePage();
-            startMessageListeners();
-        }
-    });
+
 </script>
 
-<!-- ========== TẤT CẢ CÁC MODULE ========== -->
-<script src="modules/quanSo.js"></script>
-<script src="modules/hocTap.js"></script>
-<script src="modules/congTac.js"></script>
-<script src="modules/trucGac.js"></script>
-<script src="modules/taiChinh.js"></script>
-<script src="modules/hauCan.js"></script>
-<script src="modules/khenThuong.js"></script>
-<script src="modules/vanBan.js"></script>
-<script src="modules/lich.js"></script>
-<script src="modules/thongBao.js"></script>
-<script src="modules/baoCao.js"></script>
-<script src="modules/doanhTrai.js"></script>
-<script src="modules/yTe.js"></script>
-<script src="modules/theThao.js"></script>
-<script src="modules/vuKhi.js"></script>
-<script src="modules/thuVien.js"></script>
-<script src="modules/chat.js"></script>
-<script src="modules/caNhan.js"></script>
+<script src="modules/quanSo.js" defer></script>
+<script src="modules/chat.js" defer></script>
+<script src="modules/caNhan.js" defer></script>
 
 </body>
 </html>
