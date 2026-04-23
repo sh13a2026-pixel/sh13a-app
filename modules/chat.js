@@ -1,22 +1,137 @@
-// ========== MODULE CHAT - NHẮN TIN NỘI BỘ HOÀN CHỈNH ==========
+// ========== MODULE CHAT - HOÀN CHỈNH ==========
 
 let currentChatRoom = null;
 let messageListeners = {};
 let unreadCounts = {};
 
-// Danh sách phòng chat
 const chatRooms = [
-    { id: 'all', name: '🏛️ Toàn đơn vị', icon: '🏛️', type: 'group' },
-    { id: 'team1', name: '👥 Trung đội 1', icon: '👥', type: 'group' },
-    { id: 'team2', name: '👥 Trung đội 2', icon: '👥', type: 'group' },
-    { id: 'team3', name: '👥 Trung đội 3', icon: '👥', type: 'group' }
+    { id: 'all', name: '🏛️ Toàn đơn vị', icon: '🏛️' },
+    { id: 'team1', name: '👥 Trung đội 1', icon: '👥' },
+    { id: 'team2', name: '👥 Trung đội 2', icon: '👥' },
+    { id: 'team3', name: '👥 Trung đội 3', icon: '👥' }
 ];
 
-// Khởi tạo module Chat
+// HÀM KHỞI TẠO CHÍNH - PHẢI CÓ TÊN NÀY
 function initChat() {
+    console.log('initChat called');
+    
     document.getElementById('contentArea').innerHTML = `
+        <style>
+            .chat-room-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 15px;
+                border-bottom: 1px solid #eef2f6;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .chat-room-item:hover { background: #f8fafc; }
+            .chat-room-avatar {
+                width: 50px;
+                height: 50px;
+                background: #2c3e50;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                color: white;
+            }
+            .chat-room-info { flex: 1; }
+            .chat-room-name { font-weight: 600; font-size: 16px; color: #1e293b; }
+            .chat-room-lastmsg { font-size: 12px; color: #94a3b8; }
+            .chat-room-time { font-size: 10px; color: #94a3b8; }
+            .chat-room-unread {
+                background: #e74c3c;
+                color: white;
+                font-size: 10px;
+                padding: 2px 6px;
+                border-radius: 20px;
+            }
+            .chat-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 15px;
+                background: white;
+                border-bottom: 1px solid #eef2f6;
+            }
+            .chat-back-btn {
+                background: none;
+                border: none;
+                font-size: 20px;
+                cursor: pointer;
+                width: auto;
+                color: #2c3e50;
+            }
+            .chat-header-info { flex: 1; }
+            .chat-header-name { font-weight: 600; font-size: 16px; }
+            .chat-header-status { font-size: 11px; color: #27ae60; }
+            .chat-messages {
+                height: 400px;
+                overflow-y: auto;
+                padding: 15px;
+                background: #f8fafc;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .message {
+                display: flex;
+                flex-direction: column;
+                max-width: 80%;
+            }
+            .message.sent { align-self: flex-end; }
+            .message.received { align-self: flex-start; }
+            .message-bubble {
+                padding: 10px 14px;
+                border-radius: 18px;
+                font-size: 14px;
+            }
+            .message.sent .message-bubble {
+                background: #3b82f6;
+                color: white;
+                border-bottom-right-radius: 4px;
+            }
+            .message.received .message-bubble {
+                background: white;
+                border: 1px solid #eef2f6;
+                border-bottom-left-radius: 4px;
+            }
+            .message-info {
+                font-size: 10px;
+                color: #94a3b8;
+                margin-top: 4px;
+                display: flex;
+                gap: 8px;
+            }
+            .chat-input-area {
+                display: flex;
+                gap: 10px;
+                padding: 12px;
+                background: white;
+                border-top: 1px solid #eef2f6;
+            }
+            .chat-input {
+                flex: 1;
+                padding: 10px 15px;
+                border: 1px solid #ddd;
+                border-radius: 25px;
+                outline: none;
+            }
+            .chat-send-btn {
+                background: #3b82f6;
+                border: none;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                color: white;
+                cursor: pointer;
+            }
+        </style>
+        
         <div id="chatContainer">
-            <!-- Danh sách phòng chat -->
             <div id="chatRoomList">
                 ${chatRooms.map(room => `
                     <div class="chat-room-item" onclick="openChatRoom('${room.id}')">
@@ -30,8 +145,7 @@ function initChat() {
                     </div>
                 `).join('')}
             </div>
-
-            <!-- Màn hình chat chi tiết -->
+            
             <div id="chatDetailPanel" style="display:none;">
                 <div class="chat-header">
                     <button class="chat-back-btn" onclick="closeChatRoom()"><i class="fas fa-arrow-left"></i></button>
@@ -49,146 +163,12 @@ function initChat() {
         </div>
     `;
     
-    // Thêm CSS cho chat
-    addChatStyles();
-    
-    // Bắt đầu lắng nghe tin nhắn
     startMessageListeners();
     loadLastMessages();
     loadUnreadCounts();
 }
 
-// Thêm CSS
-function addChatStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .chat-room-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            border-bottom: 1px solid #eef2f6;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .chat-room-item:hover { background: #f8fafc; }
-        .chat-room-avatar {
-            width: 50px;
-            height: 50px;
-            background: #2c3e50;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-        }
-        .chat-room-info { flex: 1; }
-        .chat-room-name { font-weight: 600; font-size: 16px; color: #1e293b; }
-        .chat-room-lastmsg { font-size: 12px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-        .chat-room-time { font-size: 10px; color: #94a3b8; }
-        .chat-room-unread {
-            background: #e74c3c;
-            color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 20px;
-            min-width: 18px;
-            text-align: center;
-        }
-        
-        .chat-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            background: white;
-            border-bottom: 1px solid #eef2f6;
-        }
-        .chat-back-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            width: auto;
-            color: #2c3e50;
-        }
-        .chat-header-info { flex: 1; }
-        .chat-header-name { font-weight: 600; font-size: 16px; }
-        .chat-header-status { font-size: 11px; color: #27ae60; }
-        
-        .chat-messages {
-            height: 400px;
-            overflow-y: auto;
-            padding: 15px;
-            background: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .message {
-            display: flex;
-            flex-direction: column;
-            max-width: 80%;
-        }
-        .message.sent { align-self: flex-end; }
-        .message.received { align-self: flex-start; }
-        .message-bubble {
-            padding: 10px 14px;
-            border-radius: 18px;
-            font-size: 14px;
-            word-break: break-word;
-        }
-        .message.sent .message-bubble {
-            background: #3b82f6;
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        .message.received .message-bubble {
-            background: white;
-            border: 1px solid #eef2f6;
-            border-bottom-left-radius: 4px;
-        }
-        .message-info {
-            font-size: 10px;
-            color: #94a3b8;
-            margin-top: 4px;
-            display: flex;
-            gap: 8px;
-        }
-        
-        .chat-input-area {
-            display: flex;
-            gap: 10px;
-            padding: 12px;
-            background: white;
-            border-top: 1px solid #eef2f6;
-        }
-        .chat-input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #e2e8f0;
-            border-radius: 25px;
-            outline: none;
-            font-size: 14px;
-        }
-        .chat-send-btn {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-// Bắt đầu lắng nghe tin nhắn realtime
+// Bắt đầu lắng nghe tin nhắn
 function startMessageListeners() {
     for(const room of chatRooms) {
         if(messageListeners[room.id]) messageListeners[room.id]();
@@ -206,18 +186,20 @@ function startMessageListeners() {
 // Load tin nhắn cuối
 async function loadLastMessages() {
     for(const room of chatRooms) {
-        const snapshot = await db.collection('chats').where('room', '==', room.id).orderBy('timestamp', 'desc').limit(1).get();
-        if(!snapshot.empty) {
-            const msg = snapshot.docs[0].data();
-            let lastText = msg.text || (msg.type === 'image' ? '📷 Hình ảnh' : (msg.type === 'file' ? `📎 ${msg.fileName}` : ''));
-            const lastMsgElem = document.getElementById(`lastMsg_${room.id}`);
-            if(lastMsgElem) lastMsgElem.innerHTML = lastText.substring(0, 50);
-            if(msg.timestamp) {
-                const time = msg.timestamp.toDate();
-                const timeElem = document.getElementById(`time_${room.id}`);
-                if(timeElem) timeElem.innerHTML = `${time.getHours()}:${time.getMinutes().toString().padStart(2,'0')}`;
+        try {
+            const snapshot = await db.collection('chats').where('room', '==', room.id).orderBy('timestamp', 'desc').limit(1).get();
+            if(!snapshot.empty) {
+                const msg = snapshot.docs[0].data();
+                let lastText = msg.text || '';
+                const lastMsgElem = document.getElementById(`lastMsg_${room.id}`);
+                if(lastMsgElem) lastMsgElem.innerHTML = lastText.substring(0, 50) || 'Nhấn để chat';
+                if(msg.timestamp) {
+                    const time = msg.timestamp.toDate();
+                    const timeElem = document.getElementById(`time_${room.id}`);
+                    if(timeElem) timeElem.innerHTML = `${time.getHours()}:${time.getMinutes().toString().padStart(2,'0')}`;
+                }
             }
-        }
+        } catch(e) { console.log(e); }
     }
 }
 
@@ -225,27 +207,29 @@ async function loadLastMessages() {
 async function loadUnreadCounts() {
     let totalUnread = 0;
     for(const room of chatRooms) {
-        const lastReadKey = `lastRead_${room.id}_${currentUser?.uid}`;
-        const lastReadDoc = await db.collection('readReceipts').doc(lastReadKey).get();
-        const lastReadTime = lastReadDoc.exists ? lastReadDoc.data().timestamp : 0;
-        
-        const snapshot = await db.collection('chats').where('room', '==', room.id).where('timestamp', '>', lastReadTime).get();
-        let unread = 0;
-        snapshot.forEach(doc => {
-            if(doc.data().userId !== currentUser?.uid) unread++;
-        });
-        unreadCounts[room.id] = unread;
-        totalUnread += unread;
-        
-        const unreadElem = document.getElementById(`unread_${room.id}`);
-        if(unreadElem) {
-            if(unread > 0) {
-                unreadElem.style.display = 'inline-block';
-                unreadElem.innerText = unread > 99 ? '99+' : unread;
-            } else {
-                unreadElem.style.display = 'none';
+        try {
+            const lastReadKey = `lastRead_${room.id}_${currentUser?.uid}`;
+            const lastReadDoc = await db.collection('readReceipts').doc(lastReadKey).get();
+            const lastReadTime = lastReadDoc.exists ? lastReadDoc.data().timestamp : 0;
+            
+            const snapshot = await db.collection('chats').where('room', '==', room.id).where('timestamp', '>', lastReadTime).get();
+            let unread = 0;
+            snapshot.forEach(doc => {
+                if(doc.data().userId !== currentUser?.uid) unread++;
+            });
+            unreadCounts[room.id] = unread;
+            totalUnread += unread;
+            
+            const unreadElem = document.getElementById(`unread_${room.id}`);
+            if(unreadElem) {
+                if(unread > 0) {
+                    unreadElem.style.display = 'inline-block';
+                    unreadElem.innerText = unread > 99 ? '99+' : unread;
+                } else {
+                    unreadElem.style.display = 'none';
+                }
             }
-        }
+        } catch(e) { console.log(e); }
     }
     
     const badge = document.getElementById('chatBadge');
@@ -278,34 +262,31 @@ function closeChatRoom() {
     loadUnreadCounts();
 }
 
-// Load tin nhắn trong phòng
+// Load tin nhắn
 async function loadChatMessages() {
     if(!currentChatRoom) return;
-    const snapshot = await db.collection('chats').where('room', '==', currentChatRoom).orderBy('timestamp', 'asc').limit(200).get();
-    let html = '';
-    for(const doc of snapshot.docs) {
-        const m = doc.data();
-        const isSent = m.userId === currentUser?.uid;
-        const time = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString() : '';
-        const userName = m.userName || m.userEmail?.split('@')[0] || 'Thành viên';
-        
-        html += `
-            <div class="message ${isSent ? 'sent' : 'received'}">
-                <div class="message-bubble">
-                    ${m.text || ''}
+    try {
+        const snapshot = await db.collection('chats').where('room', '==', currentChatRoom).orderBy('timestamp', 'asc').limit(200).get();
+        let html = '';
+        for(const doc of snapshot.docs) {
+            const m = doc.data();
+            const isSent = m.userId === currentUser?.uid;
+            const time = m.timestamp ? new Date(m.timestamp.toDate()).toLocaleTimeString() : '';
+            const userName = m.userName || m.userEmail?.split('@')[0] || 'Thành viên';
+            
+            html += `
+                <div class="message ${isSent ? 'sent' : 'received'}">
+                    <div class="message-bubble">${escapeHtml(m.text || '')}</div>
+                    <div class="message-info"><span>${userName}</span><span>${time}</span></div>
                 </div>
-                <div class="message-info">
-                    <span>${userName}</span>
-                    <span>${time}</span>
-                </div>
-            </div>
-        `;
-    }
-    const messagesDiv = document.getElementById('chatMessages');
-    if(messagesDiv) {
-        messagesDiv.innerHTML = html || '<div style="text-align:center;color:#94a3b8;padding:40px;">Chưa có tin nhắn nào. Hãy gửi tin nhắn đầu tiên!</div>';
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
+            `;
+        }
+        const messagesDiv = document.getElementById('chatMessages');
+        if(messagesDiv) {
+            messagesDiv.innerHTML = html || '<div style="text-align:center;padding:40px;">Chưa có tin nhắn</div>';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    } catch(e) { console.log(e); }
 }
 
 // Gửi tin nhắn
@@ -326,30 +307,31 @@ async function sendMessage() {
         document.getElementById('messageInput').value = '';
         loadChatMessages();
     } catch(error) {
-        showToast('Lỗi gửi tin nhắn: ' + error.message, 'error');
+        alert('Lỗi: ' + error.message);
     }
 }
 
 // Đánh dấu đã đọc
 async function markAsRead(roomId) {
-    const lastReadKey = `lastRead_${roomId}_${currentUser?.uid}`;
-    await db.collection('readReceipts').doc(lastReadKey).set({
-        timestamp: new Date().toISOString(),
-        userId: currentUser?.uid,
-        roomId: roomId
-    });
-    loadUnreadCounts();
+    try {
+        const lastReadKey = `lastRead_${roomId}_${currentUser?.uid}`;
+        await db.collection('readReceipts').doc(lastReadKey).set({
+            timestamp: new Date().toISOString(),
+            userId: currentUser?.uid,
+            roomId: roomId
+        });
+        loadUnreadCounts();
+    } catch(e) { console.log(e); }
 }
 
-// Gửi tin nhắn mẫu khi chưa có dữ liệu
+// Gửi tin nhắn mẫu
 async function sendSampleMessages() {
-    const rooms = ['all', 'team1', 'team2', 'team3'];
-    for(const room of rooms) {
-        const snapshot = await db.collection('chats').where('room', '==', room).limit(1).get();
+    for(const room of chatRooms) {
+        const snapshot = await db.collection('chats').where('room', '==', room.id).limit(1).get();
         if(snapshot.empty) {
             await db.collection('chats').add({
-                room: room,
-                text: `Chào mừng bạn đến với ${room === 'all' ? 'Toàn đơn vị' : room} !`,
+                room: room.id,
+                text: `Chào mừng bạn đến với ${room.name}!`,
                 type: 'text',
                 userId: 'system',
                 userName: 'Hệ thống',
@@ -360,9 +342,18 @@ async function sendSampleMessages() {
     }
 }
 
-// Khởi tạo khi có user
-if(currentUser) {
-    sendSampleMessages();
+function escapeHtml(text) {
+    return text.replace(/[&<>]/g, function(m) {
+        if(m === '&') return '&amp;';
+        if(m === '<') return '&lt;';
+        if(m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// Tự động gửi tin nhắn mẫu khi có user
+if(typeof currentUser !== 'undefined' && currentUser) {
+    setTimeout(() => sendSampleMessages(), 1000);
 }
 
 function showToast(msg, type) {
