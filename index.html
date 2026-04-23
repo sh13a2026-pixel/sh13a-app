@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#1e3a8a">
+    <title>SH13A - Quản Lý Lớp Quân Đội Premium</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; }
+        .app-container { max-width: 1200px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        
+        /* Header */
+        .header { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .logo-area { display: flex; align-items: center; gap: 12px; }
+        .logo-img { width: 50px; height: 50px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .logo-text { font-size: 22px; font-weight: bold; }
+        .logo-text small { font-size: 12px; opacity: 0.9; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; cursor: pointer; }
+        
+        /* Navigation */
+        .desktop-nav { display: flex; background: white; border-bottom: 1px solid #e5e7eb; padding: 0 20px; gap: 5px; overflow-x: auto; }
+        .nav-item { padding: 15px 24px; cursor: pointer; color: #6b7280; font-weight: 500; border-bottom: 3px solid transparent; white-space: nowrap; }
+        .nav-item:hover { color: #3b82f6; background: #f9fafb; }
+        .nav-item.active { color: #3b82f6; border-bottom-color: #3b82f6; }
+        
+        /* Content */
+        .content { padding: 20px; display: none; }
+        .content.active { display: block; }
+        
+        /* Cards */
+        .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; }
+        .card-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { border-radius: 16px; padding: 20px; text-align: center; color: white; transition: transform 0.3s; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-card.total { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
+        .stat-card.present { background: linear-gradient(135deg, #059669, #10b981); }
+        .stat-card.absent { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        .stat-card.leave { background: linear-gradient(135deg, #d97706, #f59e0b); }
+        .stat-card.duty { background: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+        .stat-card.fund { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+        .stat-value { font-size: 32px; font-weight: bold; }
+        .stat-label { font-size: 14px; margin-top: 8px; opacity: 0.95; }
+        
+        /* Forms */
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; margin-bottom: 12px; font-size: 14px; }
+        input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        button { background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; transition: 0.3s; }
+        button:hover { background: #2563eb; transform: translateY(-1px); }
+        button.danger { background: #ef4444; }
+        button.danger:hover { background: #dc2626; }
+        button.success { background: #10b981; }
+        button.success:hover { background: #059669; }
+        button.warning { background: #f59e0b; }
+        
+        /* Member List */
+        .member-item { padding: 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 15px; transition: background 0.2s; }
+        .member-item:hover { background: #f9fafb; }
+        .member-avatar { width: 50px; height: 50px; border-radius: 50%; background: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; }
+        .member-info { flex: 1; }
+        .member-name { font-weight: 600; font-size: 16px; }
+        .member-rank { font-size: 13px; color: #6b7280; }
+        .member-status { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+        .status-present { background: #d1fae5; color: #065f46; }
+        .status-leave { background: #fed7aa; color: #92400e; }
+        .status-duty { background: #e9d5ff; color: #6b21a5; }
+        .status-mission { background: #dbeafe; color: #1e40af; }
+        .status-late { background: #fee2e2; color: #991b1b; }
+        
+        /* Duty Assignment */
+        .duty-member-select { display: flex; align-items: center; gap: 15px; padding: 12px; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .duty-member-select:hover { background: #f9fafb; }
+        .duty-member-select.selected { background: #dbeafe; border-color: #3b82f6; }
+        
+        /* Chat */
+        .chat-container { display: flex; flex-direction: column; height: 500px; }
+        .chat-rooms { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .chat-room-btn { padding: 10px 20px; background: #f3f4f6; border: none; border-radius: 25px; cursor: pointer; }
+        .chat-room-btn.active { background: #3b82f6; color: white; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; background: #f9fafb; border-radius: 16px; margin-bottom: 15px; height: 350px; }
+        .message { margin-bottom: 15px; display: flex; flex-direction: column; }
+        .message.sent { align-items: flex-end; }
+        .message.received { align-items: flex-start; }
+        .message-bubble { max-width: 75%; padding: 10px 16px; border-radius: 20px; }
+        .message.sent .message-bubble { background: #3b82f6; color: white; border-bottom-right-radius: 4px; }
+        .message.received .message-bubble { background: white; border: 1px solid #e5e7eb; border-bottom-left-radius: 4px; }
+        .message-info { font-size: 11px; color: #9ca3af; margin: 4px 12px; }
+        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input-area input { flex: 1; margin: 0; }
+        
+        /* Table */
+        .data-table { width: 100%; border-collapse: collapse; overflow-x: auto; display: block; }
+        .data-table th, .data-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        .data-table th { background: #f9fafb; font-weight: 600; }
+        
+        /* Bottom Taskbar Mobile */
+        .bottom-taskbar { display: none; }
+        .flex { display: flex; gap: 15px; flex-wrap: wrap; }
+        
+        /* Login */
+        .login-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .login-box { background: white; padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; }
+        .hidden { display: none; }
+        
+        @media (max-width: 768px) {
+            .desktop-nav { display: none; }
+            .bottom-taskbar { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: white; justify-content: space-around; padding: 10px 0; border-top: 1px solid #e5e7eb; z-index: 200; }
+            .app-container { padding-bottom: 70px; }
+            .taskbar-item { text-align: center; padding: 8px; cursor: pointer; color: #6b7280; font-size: 11px; }
+            .taskbar-item.active { color: #3b82f6; }
+            .taskbar-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 769px) { .bottom-taskbar { display: none; } }
+    </style>
+</head>
+<body>
+<div class="app-container" id="app">
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div style="font-size: 60px; margin-bottom: 20px;">🕊️</div>
+            <h2 style="margin-bottom: 10px;">SH13A PREMIUM</h2>
+            <p style="margin-bottom: 20px; color: #6b7280;">Quản Lý Lớp Quân Đội Chuyên Nghiệp</p>
+            <input type="email" id="email" placeholder="Email" value="admin@sh13a.com">
+            <input type="password" id="password" placeholder="Mật khẩu" value="123456">
+            <button onclick="login()"><i class="fas fa-sign-in-alt"></i> Đăng nhập</button>
+            <button onclick="register()" class="success" style="margin-top:10px;"><i class="fas fa-user-plus"></i> Đăng ký tài khoản</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <div class="header">
+            <div class="logo-area">
+                <div class="logo-img">🕊️</div>
+                <div class="logo-text">SH13A PREMIUM<br><small>Quản Lý Lớp Quân Đội</small></div>
+            </div>
+            <div class="user-info">
+                <span id="userNameDisplay"></span>
+                <div class="avatar" id="userAvatar" onclick="openAvatarEditor()">A</div>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <div class="desktop-nav">
+            <div class="nav-item active" data-page="home"><i class="fas fa-home"></i> Trang chủ</div>
+            <div class="nav-item" data-page="members"><i class="fas fa-users"></i> Thành viên</div>
+            <div class="nav-item" data-page="duty"><i class="fas fa-shield-alt"></i> Cắt gác</div>
+            <div class="nav-item" data-page="schedule"><i class="fas fa-calendar"></i> Lịch học</div>
+            <div class="nav-item" data-page="attendance"><i class="fas fa-check-circle"></i> Điểm danh</div>
+            <div class="nav-item" data-page="fund"><i class="fas fa-coins"></i> Quỹ lớp</div>
+            <div class="nav-item" data-page="chat"><i class="fas fa-comments"></i> Chat</div>
+            <div class="nav-item" data-page="profile"><i class="fas fa-user-cog"></i> Cá nhân</div>
+        </div>
+
+        <!-- Home Page -->
+        <div class="content active" id="home">
+            <div class="stats-grid">
+                <div class="stat-card total"><div class="stat-value" id="totalMembers">0</div><div class="stat-label"><i class="fas fa-users"></i> Tổng quân số</div></div>
+                <div class="stat-card present"><div class="stat-value" id="presentCount">0</div><div class="stat-label"><i class="fas fa-check-circle"></i> Có mặt</div></div>
+                <div class="stat-card absent"><div class="stat-value" id="absentCount">0</div><div class="stat-label"><i class="fas fa-times-circle"></i> Vắng</div></div>
+                <div class="stat-card leave"><div class="stat-value" id="leaveCount">0</div><div class="stat-label"><i class="fas fa-plane"></i> Tranh thủ</div></div>
+                <div class="stat-card duty"><div class="stat-value" id="dutyCount">0</div><div class="stat-label"><i class="fas fa-shield-alt"></i> Đang gác</div></div>
+                <div class="stat-card fund"><div class="stat-value" id="totalFund">0</div><div class="stat-label"><i class="fas fa-coins"></i> Tồn quỹ</div></div>
+            </div>
+            <div class="card">
+                <div class="card-title">📢 Thông báo hôm nay</div>
+                <div id="announcements"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">📅 Lịch công tác tuần</div>
+                <div id="weeklySchedule"></div>
+            </div>
+        </div>
+
+        <!-- Members Page -->
+        <div class="content" id="members">
+            <div class="card">
+                <div class="card-title">➕ Thêm thành viên mới</div>
+                <div class="flex">
+                    <input type="text" id="newMemberName" placeholder="Họ và tên" style="flex:2">
+                    <input type="text" id="newMemberRank" placeholder="Cấp bậc" style="flex:1">
+                </div>
+                <div class="flex">
+                    <input type="text" id="newMemberPosition" placeholder="Chức vụ" style="flex:1">
+                    <select id="newMemberTeam" style="flex:1">
+                        <option value="Tổ 1">Tổ 1</option>
+                        <option value="Tổ 2">Tổ 2</option>
+                        <option value="Tổ 3">Tổ 3</option>
+                        <option value="Ban chỉ huy">Ban chỉ huy</option>
+                    </select>
+                </div>
+                <input type="text" id="newMemberPhone" placeholder="Số điện thoại">
+                <button onclick="addMember()" class="success"><i class="fas fa-save"></i> Thêm thành viên</button>
+            </div>
+            <div class="card">
+                <div class="card-title">📋 Danh sách thành viên <button onclick="exportToExcel('members')" class="success" style="width:auto; padding:8px 15px;"><i class="fas fa-file-excel"></i> Xuất Excel</button></div>
+                <div id="membersList"></div>
+            </div>
+        </div>
+
+        <!-- Duty Page -->
+        <div class="content" id="duty">
+            <div class="card">
+                <div class="card-title">🛡️ Phân công cắt gác</div>
+                <div class="flex">
+                    <select id="dutyTeam" onchange="loadDutyMembers()" style="flex:1">
+                        <option value="Tổ 1">Tổ 1</option>
+                        <option value="Tổ 2">Tổ 2</option>
+                        <option value="Tổ 3">Tổ 3</option>
+                    </select>
+                    <select id="dutyType" style="flex:1">
+                        <option value="truc_ban">Trực ban</option>
+                        <option value="truc_nhat">Trực nhật</option>
+                        <option value="gac_cong">Gác cổng</option>
+                        <option value="truc_chien_dau">Trực chiến đấu</option>
+                    </select>
+                </div>
+                <div class="flex">
+                    <input type="date" id="dutyStartDate" style="flex:1">
+                    <input type="date" id="dutyEndDate" style="flex:1">
+                    <select id="dutyShift" style="flex:1">
+                        <option value="sáng">Ca sáng (06:00-12:00)</option>
+                        <option value="chiều">Ca chiều (12:00-18:00)</option>
+                        <option value="tối">Ca tối (18:00-24:00)</option>
+                        <option value="đêm">Ca đêm (00:00-06:00)</option>
+                    </select>
+                </div>
+                <div id="dutyMembersList" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;"></div>
+                <button onclick="assignDuty()" class="success"><i class="fas fa-check"></i> Phân công gác</button>
+            </div>
+            <div class="card">
+                <div class="card-title">📊 Lịch trực hiện tại <button onclick="exportToExcel('duty')" class="success" style="width:auto; padding:8px 15px;"><i class="fas fa-file-excel"></i> Xuất Excel</button></div>
+                <div id="currentDuty"></div>
+            </div>
+        </div>
+
+        <!-- Schedule Page -->
+        <div class="content" id="schedule">
+            <div class="card">
+                <div class="card-title">➕ Thêm lịch học/công tác</div>
+                <input type="text" id="scheduleTitle" placeholder="Tiêu đề">
+                <div class="flex">
+                    <input type="date" id="scheduleDate" style="flex:1">
+                    <input type="time" id="scheduleTime" style="flex:1">
+                </div>
+                <select id="scheduleType">
+                    <option value="hoc">Học tập</option>
+                    <option value="congtac">Công tác</option>
+                    <option value="hop">Họp</option>
+                    <option value="thethao">Thể dục thể thao</option>
+                </select>
+                <textarea id="scheduleNote" rows="2" placeholder="Ghi chú"></textarea>
+                <button onclick="addSchedule()" class="success"><i class="fas fa-save"></i> Thêm lịch</button>
+            </div>
+            <div class="card">
+                <div class="card-title">📅 Lịch học và công tác <button onclick="exportToExcel('schedule')" class="success" style="width:auto; padding:8px 15px;"><i class="fas fa-file-excel"></i> Xuất Excel</button></div>
+                <div id="scheduleList"></div>
+            </div>
+        </div>
+
+        <!-- Attendance Page -->
+        <div class="content" id="attendance">
+            <div class="card">
+                <div class="card-title">✅ Điểm danh ngày <span id="todayDate"></span></div>
+                <button onclick="saveAttendance()" class="success"><i class="fas fa-save"></i> Lưu điểm danh</button>
+                <div id="attendanceList"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">📊 Thống kê điểm danh tháng</div>
+                <div id="attendanceStats"></div>
+            </div>
+        </div>
+
+        <!-- Fund Page -->
+        <div class="content" id="fund">
+            <div class="card">
+                <div class="card-title">💰 Giao dịch quỹ</div>
+                <div class="flex">
+                    <select id="transType" style="flex:1">
+                        <option value="income">📥 Thu tiền</option>
+                        <option value="expense">📤 Chi tiền</option>
+                    </select>
+                    <input type="number" id="transAmount" placeholder="Số tiền" style="flex:1">
+                </div>
+                <input type="text" id="transReason" placeholder="Lý do thu/chi">
+                <input type="text" id="transPerson" placeholder="Người thực hiện">
+                <button onclick="addTransaction()" class="success"><i class="fas fa-save"></i> Thực hiện giao dịch</button>
+            </div>
+            <div class="card">
+                <div class="card-title">📋 Sổ quỹ <button onclick="exportToExcel('fund')" class="success" style="width:auto; padding:8px 15px;"><i class="fas fa-file-excel"></i> Xuất Excel</button></div>
+                <div id="fundHistory"></div>
+            </div>
+        </div>
+
+        <!-- Chat Page -->
+        <div class="content" id="chat">
+            <div class="card">
+                <div class="card-title">💬 Nhóm chat nội bộ</div>
+                <div class="chat-container">
+                    <div class="chat-rooms">
+                        <button class="chat-room-btn active" onclick="switchChatRoom('class')">🏛️ Toàn lớp</button>
+                        <button class="chat-room-btn" onclick="switchChatRoom('team1')">👥 Tổ 1</button>
+                        <button class="chat-room-btn" onclick="switchChatRoom('team2')">👥 Tổ 2</button>
+                        <button class="chat-room-btn" onclick="switchChatRoom('team3')">👥 Tổ 3</button>
+                    </div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
+                        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i> Gửi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div class="content" id="profile">
+            <div class="card">
+                <div class="card-title">👤 Thông tin cá nhân</div>
+                <div id="profileInfo"></div>
+                <button onclick="toggleEditProfile()" class="warning"><i class="fas fa-edit"></i> Chỉnh sửa thông tin</button>
+                <div id="editProfileForm" style="display:none; margin-top:15px;">
+                    <input type="text" id="editName" placeholder="Họ tên">
+                    <input type="text" id="editRank" placeholder="Cấp bậc">
+                    <input type="text" id="editPosition" placeholder="Chức vụ">
+                    <input type="text" id="editPhone" placeholder="Số điện thoại">
+                    <button onclick="saveProfile()" class="success"><i class="fas fa-save"></i> Lưu thay đổi</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">🔐 Phân quyền hệ thống <span class="badge status-present">Chỉ Lớp trưởng</span></div>
+                <div id="roleManagement"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">🏃 Đăng ký nghỉ phép / tranh thủ</div>
+                <div class="flex">
+                    <input type="datetime-local" id="leaveStart" style="flex:1">
+                    <input type="datetime-local" id="leaveEnd" style="flex:1">
+                </div>
+                <input type="text" id="leaveReason" placeholder="Lý do nghỉ">
+                <input type="text" id="leaveAddress" placeholder="Địa chỉ trong thời gian nghỉ">
+                <div class="flex">
+                    <input type="text" id="leaveVehicle" placeholder="Phương tiện" style="flex:1">
+                    <input type="tel" id="leavePhone" placeholder="SĐT liên lạc" style="flex:1">
+                </div>
+                <button onclick="registerLeave()" class="warning"><i class="fas fa-paper-plane"></i> Gửi đơn đăng ký</button>
+            </div>
+            <div class="card">
+                <div class="card-title">📋 Đơn chờ duyệt</div>
+                <div id="pendingLeaves"></div>
+            </div>
+        </div>
+
+        <!-- Mobile Bottom Taskbar -->
+        <div class="bottom-taskbar">
+            <div class="taskbar-item active" data-page="home"><span class="taskbar-icon"><i class="fas fa-home"></i></span><span>Trang chủ</span></div>
+            <div class="taskbar-item" data-page="members"><span class="taskbar-icon"><i class="fas fa-users"></i></span><span>Thành viên</span></div>
+            <div class="taskbar-item" data-page="duty"><span class="taskbar-icon"><i class="fas fa-shield-alt"></i></span><span>Cắt gác</span></div>
+            <div class="taskbar-item" data-page="schedule"><span class="taskbar-icon"><i class="fas fa-calendar"></i></span><span>Lịch</span></div>
+            <div class="taskbar-item" data-page="attendance"><span class="taskbar-icon"><i class="fas fa-check-circle"></i></span><span>Điểm danh</span></div>
+            <div class="taskbar-item" data-page="fund"><span class="taskbar-icon"><i class="fas fa-coins"></i></span><span>Quỹ</span></div>
+            <div class="taskbar-item" data-page="chat"><span class="taskbar-icon"><i class="fas fa-comments"></i></span><span>Chat</span></div>
+            <div class="taskbar-item" data-page="profile"><span class="taskbar-icon"><i class="fas fa-user"></i></span><span>Cá nhân</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== CẤU HÌNH FIREBASE ==========
+    const firebaseConfig = {
+        apiKey: "AIzaSyA-J5cu-WvUvWT_S1mM6DQiWPiKYrSXo7o",
+        authDomain: "sh13a-d6020.firebaseapp.com",
+        projectId: "sh13a-d6020",
+        storageBucket: "sh13a-d6020.firebasestorage.app",
+        messagingSenderId: "959007282657",
+        appId: "1:959007282657:web:9429c76496061002ceaea0"
+    };
+    // =======================================
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    let currentUser = null;
+    let selectedDutyMembers = [];
+    let currentChatRoom = 'class';
+    let messages = { class: [], team1: [], team2: [], team3: [] };
+
+    // ĐĂNG NHẬP
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        try {
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            currentUser = userCredential.user;
+            document.getElementById('userNameDisplay').innerHTML = `<i class="fas fa-user"></i> ${currentUser.email.split('@')[0]}`;
+            document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            loadAllData();
+        } catch (error) {
+            alert('❌ Lỗi: ' + error.message);
+        }
+    }
+
+    async function register() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if (password.length < 6) { alert('Mật khẩu phải có ít nhất 6 ký tự!'); return; }
+        try {
+            await auth.createUserWithEmailAndPassword(email, password);
+            alert('✅ Đăng ký thành công! Hãy đăng nhập.');
+        } catch (error) { alert('❌ Lỗi: ' + error.message); }
+    }
+
+    async function logout() { await auth.signOut(); location.reload(); }
+
+    // NAVIGATION
+    function switchPage(page) {
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        document.getElementById(page).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll(`.nav-item[data-page="${page}"]`).forEach(n => n.classList.add('active'));
+        document.querySelectorAll('.taskbar-item').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll(`.taskbar-item[data-page="${page}"]`).forEach(t => t.classList.add('active'));
+        if (page === 'members') loadMembers();
+        if (page === 'duty') { loadDutyMembers(); loadCurrentDuty(); }
+        if (page === 'schedule') loadSchedules();
+        if (page === 'attendance') loadAttendance();
+        if (page === 'fund') loadFundHistory();
+        if (page === 'profile') { loadProfile(); loadRoleManagement(); loadPendingLeaves(); }
+        if (page === 'home') { loadStats(); loadAnnouncements(); loadWeeklySchedule(); }
+    }
+
+    async function loadAllData() {
+        document.getElementById('todayDate').innerText = new Date().toLocaleDateString('vi-VN');
+        loadStats(); loadMembers(); loadSchedules(); loadAttendance(); loadFundHistory(); loadCurrentDuty();
+        loadAnnouncements(); loadWeeklySchedule(); loadProfile(); loadRoleManagement(); loadPendingLeaves();
+        loadChatMessages();
+    }
+
+    // THỐNG KÊ
+    async function loadStats() {
+        const membersSnap = await db.collection('members').get();
+        const today = new Date().toISOString().split('T')[0];
+        const attendanceSnap = await db.collection('attendance').doc(today).get();
+        const fundSnap = await db.collection('funds').get();
+        const dutySnap = await db.collection('duty').where('endDate', '>=', new Date().toISOString().split('T')[0]).get();
+        
+        const total = membersSnap.size;
+        const attendanceData = attendanceSnap.exists ? attendanceSnap.data() : {};
+        const present = Object.values(attendanceData).filter(v => v === true).length;
+        let totalFund = 0;
+        fundSnap.forEach(doc => { const f = doc.data(); if(f.type === 'income') totalFund += f.amount; else totalFund -= f.amount; });
+        
+        document.getElementById('totalMembers').innerText = total;
+        document.getElementById('presentCount').innerText = present;
+        document.getElementById('absentCount').innerText = total - present;
+        document.getElementById('leaveCount').innerText = membersSnap.docs.filter(d => d.data().status === 'leave').length;
+        document.getElementById('dutyCount').innerText = dutySnap.size;
+        document.getElementById('totalFund').innerText = totalFund.toLocaleString() + 'đ';
+    }
+
+    // THÀNH VIÊN
+    async function loadMembers() {
+        const snapshot = await db.collection('members').orderBy('name').get();
+        let html = '';
+        snapshot.forEach(doc => {
+            const m = doc.data();
+            html += `<div class="member-item"><div class="member-avatar">${m.name.charAt(0)}</div>
+                    <div class="member-info"><div class="member-name">${m.name}</div><div class="member-rank">${m.rank} - ${m.position} - ${m.team}</div></div>
+                    <button onclick="deleteMember('${doc.id}')" class="danger" style="width:auto; padding:8px 15px;"><i class="fas fa-trash"></i></button></div>`;
+        });
+        document.getElementById('membersList').innerHTML = html || '<p>Chưa có thành viên</p>';
+    }
+
+    async function addMember() {
+        const name = document.getElementById('newMemberName').value;
+        if (!name) { alert('Vui lòng nhập tên!'); return; }
+        await db.collection('members').add({
+            name, rank: document.getElementById('newMemberRank').value || 'Chiến sĩ',
+            position: document.getElementById('newMemberPosition').value || 'Thành viên',
+            team: document.getElementById('newMemberTeam').value,
+            phone: document.getElementById('newMemberPhone').value || '',
+            status: 'present', dutyCount: 0, createdAt: new Date().toISOString()
+        });
+        alert('✅ Đã thêm thành viên!');
+        document.getElementById('newMemberName').value = '';
+        document.getElementById('newMemberRank').value = '';
+        document.getElementById('newMemberPosition').value = '';
+        document.getElementById('newMemberPhone').value = '';
+        loadMembers(); loadStats();
+    }
+
+    async function deleteMember(id) { if(confirm('Xóa thành viên?')) { await db.collection('members').doc(id).delete(); loadMembers(); loadStats(); } }
+
+    // CẮT GÁC
+    async function loadDutyMembers() {
+        const team = document.getElementById('dutyTeam').value;
+        const snapshot = await db.collection('members').where('team', '==', team).get();
+        let html = '<h4>Chọn thành viên:</h4>';
+        snapshot.forEach(doc => {
+            const m = doc.data();
+            const isSelected = selectedDutyMembers.includes(doc.id);
+            html += `<div class="duty-member-select ${isSelected ? 'selected' : ''}" onclick="toggleDutyMember('${doc.id}')">
+                        <div class="member-avatar" style="width:40px;height:40px;">${m.name.charAt(0)}</div>
+                        <div class="member-info"><div class="member-name">${m.name}</div><div class="member-rank">${m.rank} - Đã gác: ${m.dutyCount || 0} ca</div></div>
+                        <div>${isSelected ? '✓ Đã chọn' : '☐ Chọn'}</div>
+                    </div>`;
+        });
+        document.getElementById('dutyMembersList').innerHTML = html;
+    }
+
+    function toggleDutyMember(id) {
+        const index = selectedDutyMembers.indexOf(id);
+        if (index === -1) selectedDutyMembers.push(id);
+        else selectedDutyMembers.splice(index, 1);
+        loadDutyMembers();
+    }
+
+    async function assignDuty() {
+        const startDate = document.getElementById('dutyStartDate').value;
+        const endDate = document.getElementById('dutyEndDate').value;
+        const dutyType = document.getElementById('dutyType').options[document.getElementById('dutyType').selectedIndex].text;
+        const shift = document.getElementById('dutyShift').value;
+        if (!startDate || selectedDutyMembers.length === 0) { alert('Chọn ngày và thành viên!'); return; }
+        for (const id of selectedDutyMembers) {
+            await db.collection('duty').add({
+                memberId: id, startDate, endDate: endDate || startDate, dutyType, shift,
+                assignedBy: currentUser.email, assignedAt: new Date().toISOString()
+            });
+            const memberRef = db.collection('members').doc(id);
+            const memberDoc = await memberRef.get();
+            await memberRef.update({ dutyCount: (memberDoc.data().dutyCount || 0) + 1 });
+        }
+        alert(`✅ Đã phân công ${dutyType} cho ${selectedDutyMembers.length} người`);
+        selectedDutyMembers = [];
+        loadDutyMembers();
+        loadCurrentDuty();
+        loadStats();
+    }
+
+    async function loadCurrentDuty() {
+        const snapshot = await db.collection('duty').orderBy('startDate', 'desc').limit(20).get();
+        let html = '';
+        for (const doc of snapshot.docs) {
+            const d = doc.data();
+            const memberDoc = await db.collection('members').doc(d.memberId).get();
+            const memberName = memberDoc.exists ? memberDoc.data().name : 'Đã xóa';
+            html += `<div class="member-item"><div><strong>${memberName}</strong><br><small>${d.dutyType} - ${d.shift} - ${d.startDate} → ${d.endDate || d.startDate}</small></div></div>`;
+        }
+        document.getElementById('currentDuty').innerHTML = html || '<p>Chưa có lịch gác</p>';
+    }
+
+    // LỊCH HỌC
+    async function addSchedule() {
+        const title = document.getElementById('scheduleTitle').value;
+        const date = document.getElementById('scheduleDate').value;
+        if (!title || !date) { alert('Nhập tiêu đề và ngày!'); return; }
+        await db.collection('schedules').add({
+            title, date, time: document.getElementById('scheduleTime').value,
+            type: document.getElementById('scheduleType').value,
+            note: document.getElementById('scheduleNote').value,
+            createdBy: currentUser.email, createdAt: new Date().toISOString()
+        });
+        alert('✅ Đã thêm lịch!');
+        document.getElementById('scheduleTitle').value = '';
+        document.getElementById('scheduleDate').value = '';
+        document.getElementById('scheduleTime').value = '';
+        document.getElementById('scheduleNote').value = '';
+        loadSchedules();
+        loadWeeklySchedule();
+    }
+
+    async function loadSchedules() {
+        const snapshot = await db.collection('schedules').orderBy('date', 'desc').get();
+        let html = '<table class="data-table"><thead><tr><th>Ngày</th><th>Giờ</th><th>Nội dung</th><th>Loại</th></tr></thead><tbody>';
+        snapshot.forEach(doc => {
+            const s = doc.data();
+            const typeIcon = { hoc: '📖', congtac: '💼', hop: '📢', thethao: '⚽' }[s.type] || '📌';
+            html += `<tr><td>${s.date}</td><td>${s.time || '---'}</td><td>${s.title}</td><td>${typeIcon} ${s.type}</td></tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('scheduleList').innerHTML = html || '<p>Chưa có lịch</p>';
+    }
+
+    async function loadWeeklySchedule() {
+        const snapshot = await db.collection('schedules').orderBy('date').limit(7).get();
+        let html = '';
+        snapshot.forEach(doc => { const s = doc.data(); html += `<p>📅 ${s.date}: ${s.title}</p>`; });
+        document.getElementById('weeklySchedule').innerHTML = html || '<p>Chưa có lịch tuần này</p>';
+    }
+
+    // ĐIỂM DANH
+    async function loadAttendance() {
+        const snapshot = await db.collection('members').orderBy('name').get();
+        const today = new Date().toISOString().split('T')[0];
+        const attendanceDoc = await db.collection('attendance').doc(today).get();
+        const attendanceData = attendanceDoc.exists ? attendanceDoc.data() : {};
+        let html = '';
+        snapshot.forEach(doc => {
+            const m = doc.data();
+            const isPresent = attendanceData[doc.id] === true;
+            html += `<div class="member-item"><div><div class="member-name">${m.name}</div><div class="member-rank">${m.rank}</div></div>
+                    <button onclick="markAttendance('${doc.id}', ${!isPresent})" style="width:auto; padding:8px 20px; background:${isPresent ? '#28a745' : '#6c757d'}">${isPresent ? '✅ Có mặt' : '⬜ Vắng'}</button></div>`;
+        });
+        document.getElementById('attendanceList').innerHTML = html;
+        
+        // Thống kê tháng
+        const month = new Date().getMonth() + 1;
+        const year = new Date().getFullYear();
+        const attendanceStats = {};
+        const monthSnap = await db.collection('attendance').get();
+        monthSnap.forEach(doc => { if(doc.id.includes(`${year}-${month}`)) { const data = doc.data(); Object.values(data).forEach(v => { if(v) attendanceStats[doc.id] = (attendanceStats[doc.id] || 0) + 1; }); } });
+        document.getElementById('attendanceStats').innerHTML = `<p>📊 Tháng ${month}/${year}: Đã điểm danh ${Object.keys(attendanceStats).length} ngày</p>`;
+    }
+
+    async function markAttendance(memberId, isPresent) {
+        const today = new Date().toISOString().split('T')[0];
+        const attendanceRef = db.collection('attendance').doc(today);
+        const doc = await attendanceRef.get();
+        const data = doc.exists ? doc.data() : {};
+        data[memberId] = isPresent;
+        await attendanceRef.set(data);
+        loadAttendance();
+        loadStats();
+    }
+    async function saveAttendance() { alert('✅ Đã lưu điểm danh!'); }
+
+    // QUỸ
+    async function addTransaction() {
+        const type = document.getElementById('transType').value;
+        const amount = parseInt(document.getElementById('transAmount').value);
+        const reason = document.getElementById('transReason').value;
+        if (!amount || !reason) { alert('Nhập số tiền và lý do!'); return; }
+        await db.collection('funds').add({
+            type, amount, reason, person: document.getElementById('transPerson').value || currentUser.email,
+            date: new Date().toISOString(), user: currentUser.email
+        });
+        alert('✅ Đã thêm giao dịch!');
+        document.getElementById('transAmount').value = '';
+        document.getElementById('transReason').value = '';
+        document.getElementById('transPerson').value = '';
+        loadFundHistory();
+        loadStats();
+    }
+
+    async function loadFundHistory() {
+        const snapshot = await db.collection('funds').orderBy('date', 'desc').get();
+        let total = 0;
+        let html = '<table class="data-table"><thead><tr><th>Ngày</th><th>Loại</th><th>Số tiền</th><th>Lý do</th><th>Người thực hiện</th></tr></thead><tbody>';
+        snapshot.forEach(doc => {
+            const f = doc.data();
+            total += f.type === 'income' ? f.amount : -f.amount;
+            html += `<tr><td>${new Date(f.date).toLocaleDateString('vi-VN')}</td><td>${f.type === 'income' ? '📥 Thu' : '📤 Chi'}</td><td style="color:${f.type === 'income' ? '#28a745' : '#dc3545'}">${f.amount.toLocaleString()}đ</td><td>${f.reason}</td><td>${f.person || f.user}</td></tr>`;
+        });
+        html += `<tr style="background:#f0f2f5; font-weight:bold;"><td colspan="5">Tồn quỹ: ${total.toLocaleString()}đ</td></tr>`;
+        html += '</tbody></table>';
+        document.getElementById('fundHistory').innerHTML = html;
+    }
+
+    // CHAT
+    function switchChatRoom(room) { currentChatRoom = room; document.querySelectorAll('.chat-room-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active'); loadChatMessages(); }
+    async function loadChatMessages() {
+        const snapshot = await db.collection('chats').where('room', '==', currentChatRoom).orderBy('timestamp', 'asc').limit(100).get();
+        let html = '';
+        snapshot.forEach(doc => {
+            const m = doc.data();
+            const isSent = m.user === currentUser.email;
+            html += `<div class="message ${isSent ? 'sent' : 'received'}"><div class="message-bubble"><strong>${m.userName || m.user.split('@')[0]}</strong><br>${m.text}</div><div class="message-info">${new Date(m.timestamp).toLocaleTimeString()}</div></div>`;
+        });
+        document.getElementById('chatMessages').innerHTML = html || '<div style="text-align:center;color:#999;">Chưa có tin nhắn</div>';
+        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+    }
+    async function sendMessage() {
+        const text = document.getElementById('messageInput').value.trim();
+        if (!text) return;
+        await db.collection('chats').add({
+            room: currentChatRoom, text, user: currentUser.email, userName: currentUser.email.split('@')[0],
+            timestamp: new Date().toISOString()
+        });
+        document.getElementById('messageInput').value = '';
+        loadChatMessages();
+    }
+
+    // CÁ NHÂN
+    async function loadProfile() {
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        const userData = userDoc.exists ? userDoc.data() : { name: currentUser.email.split('@')[0], rank: 'Thành viên', position: 'Chiến sĩ', phone: '' };
+        document.getElementById('profileInfo').innerHTML = `<p><strong>Họ tên:</strong> ${userData.name}</p><p><strong>Cấp bậc:</strong> ${userData.rank}</p><p><strong>Chức vụ:</strong> ${userData.position}</p><p><strong>Email:</strong> ${currentUser.email}</p><p><strong>SĐT:</strong> ${userData.phone || 'Chưa cập nhật'}</p>`;
+        document.getElementById('editName').value = userData.name;
+        document.getElementById('editRank').value = userData.rank;
+        document.getElementById('editPosition').value = userData.position;
+        document.getElementById('editPhone').value = userData.phone || '';
+    }
+    function toggleEditProfile() { const f = document.getElementById('editProfileForm'); f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+    async function saveProfile() {
+        await db.collection('users').doc(currentUser.uid).set({
+            name: document.getElementById('editName').value,
+            rank: document.getElementById('editRank').value,
+            position: document.getElementById('editPosition').value,
+            phone: document.getElementById('editPhone').value,
+            updatedAt: new Date().toISOString()
+        }, { merge: true });
+        alert('✅ Đã lưu thông tin!');
+        loadProfile();
+        toggleEditProfile();
+    }
+    function openAvatarEditor() { const url = prompt('Nhập URL ảnh đại diện:'); if(url) document.getElementById('userAvatar').innerHTML = `<img src="${url}" style="width:100%;height:100%;border-radius:50%;">`; }
+
+    // PHÂN QUYỀN
+    async function loadRoleManagement() {
+        const userDoc = await db.collection('users').doc(currentUser.uid).get();
+        const isAdmin = userDoc.exists && userDoc.data().role === 'lop_truong';
+        if (!isAdmin) { document.getElementById('roleManagement').innerHTML = '<p>🔒 Chỉ Lớp trưởng mới có quyền phân quyền</p>'; return; }
+        const membersSnap = await db.collection('members').get();
+        let html = '<table class="data-table"><thead><tr><th>Thành viên</th><th>Vai trò</th><th>Chức vụ mới</th></tr></thead><tbody>';
+        membersSnap.forEach(doc => {
+            const m = doc.data();
+            html += `<tr><td>${m.name}</td><td>${m.position}</td><td><select onchange="changeRole('${doc.id}', this.value)"><option>Thủ quỹ</option><option>Tổ trưởng</option><option>Tổ phó</option><option>Chiến sĩ</option></select></td></tr>`;
+        });
+        html += '</tbody></table>';
+        document.getElementById('roleManagement').innerHTML = html;
+    }
+    async function changeRole(id, newRole) { await db.collection('members').doc(id).update({ position: newRole }); alert('✅ Đã cập nhật chức vụ!'); loadRoleManagement(); }
+
+    // ĐĂNG KÝ NGHỈ
+    async function registerLeave() {
+        const start = document.getElementById('leaveStart').value;
+        const end = document.getElementById('leaveEnd').value;
+        const reason = document.getElementById('leaveReason').value;
+        if (!start || !end || !reason) { alert('Nhập đủ thông tin!'); return; }
+        await db.collection('leaveRequests').add({
+            userId: currentUser.uid, userEmail: currentUser.email,
+            start, end, reason, address: document.getElementById('leaveAddress').value,
+            vehicle: document.getElementById('leaveVehicle').value, phone: document.getElementById('leavePhone').value,
+            status: 'pending', createdAt: new Date().toISOString()
+        });
+        alert('✅ Đã gửi đơn đăng ký!');
+        document.getElementById('leaveStart').value = '';
+        document.getElementById('leaveEnd').value = '';
+        document.getElementById('leaveReason').value = '';
+        document.getElementById('leaveAddress').value = '';
+        document.getElementById('leaveVehicle').value = '';
+        document.getElementById('leavePhone').value = '';
+        loadPendingLeaves();
+    }
+
+    async function loadPendingLeaves() {
+        const snapshot = await db.collection('leaveRequests').where('status', '==', 'pending').orderBy('createdAt', 'desc').get();
+        let html = '';
+        for (const doc of snapshot.docs) {
+            const l = doc.data();
+            const userDoc = await db.collection('users').doc(l.userId).get();
+            const userName = userDoc.exists ? userDoc.data().name : l.userEmail;
+            html += `<div class="member-item"><div><strong>${userName}</strong><br>📅 ${new Date(l.start).toLocaleString()} → ${new Date(l.end).toLocaleString()}<br>📝 ${l.reason}<br>📍 ${l.address || ''} | 📞 ${l.phone || ''}</div>
+                    <div><button onclick="approveLeave('${doc.id}')" class="success" style="width:auto;">✅ Duyệt</button><button onclick="rejectLeave('${doc.id}')" class="danger" style="width:auto;">❌ Từ chối</button></div></div>`;
+        }
+        document.getElementById('pendingLeaves').innerHTML = html || '<p>Không có đơn chờ duyệt</p>';
+    }
+    async function approveLeave(id) { await db.collection('leaveRequests').doc(id).update({ status: 'approved' }); alert('✅ Đã duyệt đơn'); loadPendingLeaves(); }
+    async function rejectLeave(id) { await db.collection('leaveRequests').doc(id).update({ status: 'rejected' }); alert('❌ Đã từ chối đơn'); loadPendingLeaves(); }
+
+    async function loadAnnouncements() {
+        const snapshot = await db.collection('announcements').orderBy('createdAt', 'desc').limit(5).get();
+        let html = '';
+        snapshot.forEach(doc => { const a = doc.data(); html += `<p>📢 ${a.content} - <small>${new Date(a.createdAt).toLocaleDateString()}</small></p>`; });
+        document.getElementById('announcements').innerHTML = html || '<p>Chưa có thông báo</p>';
+    }
+
+    // EXPORT EXCEL
+    function exportToExcel(type) {
+        alert(`Đang xuất báo cáo ${type}... (Tính năng đang phát triển)`);
+    }
+
+    // EVENT LISTENERS
+    document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-page'))));
+    document.querySelectorAll('.taskbar-item').forEach(item => item.addEventListener('click', () => switchPage(item.getAttribute('data-page'))));
+
+    auth.onAuthStateChanged((user) => { if(user) { currentUser = user; document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('mainApp').classList.remove('hidden'); loadAllData(); } });
+</script>
+</body>
+</html>
