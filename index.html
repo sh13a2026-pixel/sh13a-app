@@ -345,8 +345,20 @@
             if(typeof initQuanSo === 'function') initQuanSo();
             else showToast('Module Quân số đang được tải...', 'success');
         } else if(tabName === 'chat') {
+    // Kiểm tra và tải chat trực tiếp
+    if(typeof initChat === 'function') {
+        initChat();
+    } else {
+        // Nếu chưa load, thử load lại file
+        const script = document.createElement('script');
+        script.src = 'modules/chat.js';
+        script.onload = function() {
             if(typeof initChat === 'function') initChat();
-            else showToast('Module Chat đang được tải...', 'success');
+            else showToast('Lỗi tải Chat', 'error');
+        };
+        document.head.appendChild(script);
+    }
+}
         } else if(tabName === 'profile') {
             if(typeof initCaNhan === 'function') initCaNhan();
             else showToast('Module Cá nhân đang được tải...', 'success');
