@@ -1,333 +1,2099 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#1e3a8a">
-    <title>SH13A - Hệ Thống Quản Lý Đơn Vị</title>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
-        .app-container { max-width: 600px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,0.1); position: relative; padding-bottom: 70px; }
-        
-        .header { background: linear-gradient(135deg, #0a2b3e, #1a4a6f); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .logo-area { display: flex; align-items: center; gap: 12px; }
-        .logo-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.3); overflow: hidden; }
-        .logo-icon img { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
-        .logo-text { font-size: 20px; font-weight: 700; letter-spacing: 1px; }
-        .logo-text small { font-size: 10px; opacity: 0.8; display: block; font-weight: normal; }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; cursor: pointer; border: 2px solid rgba(255,255,255,0.5); background-size: cover; background-position: center; }
-        
-        .bottom-tab-bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 600px; margin: 0 auto; background: white; display: flex; justify-content: space-around; padding: 10px 0 16px; border-top: 1px solid #eef2f6; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 200; }
-        .tab-item { flex: 1; text-align: center; padding: 6px 0; cursor: pointer; color: #94a3b8; font-size: 11px; transition: 0.2s; border-radius: 12px; margin: 0 2px; position: relative; }
-        .tab-item.active { color: #2d5a8b; background: #eef2f6; }
-        .tab-icon { font-size: 22px; display: block; margin-bottom: 4px; }
-        .tab-badge { position: absolute; top: -5px; right: 15px; background: #e74c3c; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; min-width: 16px; }
-        
-        .content { display: none; }
-        .content.active { display: block; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px; background: white; }
-        .stat-card { border-radius: 16px; padding: 12px; text-align: center; color: white; }
-        .stat-card.total { background: linear-gradient(135deg, #1e3a8a, #3b82f6); }
-        .stat-card.present { background: linear-gradient(135deg, #059669, #10b981); }
-        .stat-card.absent { background: linear-gradient(135deg, #dc2626, #ef4444); }
-        .stat-card.leave { background: linear-gradient(135deg, #d97706, #f59e0b); }
-        .stat-value { font-size: 22px; font-weight: bold; }
-        .stat-label { font-size: 10px; opacity: 0.9; margin-top: 4px; }
-        
-        .section-title { display: flex; justify-content: space-between; align-items: center; padding: 0 15px; margin: 20px 0 12px; }
-        .section-title h3 { font-size: 16px; font-weight: 600; color: #1e3a5f; position: relative; padding-left: 12px; }
-        .section-title h3::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 16px; background: #2d5a8b; border-radius: 2px; }
-        
-        .module-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 0 15px; }
-        .module-card { background: white; border-radius: 16px; padding: 14px 8px; text-align: center; cursor: pointer; transition: all 0.2s; border: 1px solid #eef2f6; }
-        .module-card:hover { transform: translateY(-3px); background: linear-gradient(135deg, #1e3a5f, #2d5a8b); color: white; }
-        .module-card:hover .module-icon, .module-card:hover .module-name { color: white; }
-        .module-icon { font-size: 28px; margin-bottom: 8px; color: #2d5a8b; }
-        .module-name { font-size: 11px; color: #4a5568; font-weight: 500; }
-        
-        .list-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid #eef2f6; background: white; }
-        .list-icon { width: 40px; height: 40px; background: #eef2f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #2d5a8b; }
-        .list-info { flex: 1; }
-        .list-title { font-weight: 600; font-size: 14px; color: #1e293b; }
-        .list-desc { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-        
-        button { background: #2d5a8b; color: white; border: none; padding: 12px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; }
-        button.danger { background: #e74c3c; }
-        button.success { background: #27ae60; }
-        .flex { display: flex; gap: 10px; }
-        
-        .login-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0a2b3e, #1a4a6f); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .login-box { background: white; padding: 35px; border-radius: 28px; width: 85%; max-width: 350px; text-align: center; }
-        .login-logo img { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; }
-        .login-box input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 14px; margin: 8px 0; }
-        
-        .toast { position: fixed; bottom: 80px; left: 16px; right: 16px; background: #1e293b; color: white; padding: 14px; border-radius: 16px; text-align: center; z-index: 1000; animation: fadeOut 2.5s forwards; }
-        .toast.success { background: #27ae60; }
-        .toast.error { background: #e74c3c; }
-        @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
-        
-        .hidden { display: none; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 10px; }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QuânApp v3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#d0d0d0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+:root{--g:#1a4731;--a:#2e7d52;--bg:#fff;--bg2:#f5f5f5;--t:#111;--t2:#666;--b:#e0e0e0;--red:#e24b4a;--amber:#ba7517;--blue:#185fa5;}
+.phone{width:360px;height:720px;background:var(--bg);border-radius:28px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.28);display:flex;flex-direction:column;}
+.status-bar{background:var(--g);color:#fff;font-size:11px;padding:6px 16px;display:flex;justify-content:space-between;flex-shrink:0;}
+.header{background:var(--g);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0;min-height:46px;}
+.hback{font-size:20px;cursor:pointer;display:none;}
+.htitle{font-size:17px;font-weight:600;flex:1;}
+.hsub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:1px;}
+.hright{font-size:13px;color:rgba(255,255,255,0.9);cursor:pointer;white-space:nowrap;}
+.hicons{display:flex;gap:14px;font-size:18px;}
+.content{flex:1;overflow:hidden;}
+.screen{display:none;height:100%;overflow-y:auto;background:var(--bg2);}
+#sc-chat-detail{overflow:hidden;}
+#sc-chat-detail.active{display:flex!important;}
+.screen.active{display:block;}
+.screen::-webkit-scrollbar{width:3px;}
+.screen::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
+
+/* TAB BAR */
+.tab-bar{display:flex;background:var(--bg);border-bottom:1px solid var(--b);flex-shrink:0;position:sticky;top:0;z-index:10;}
+.tab{flex:1;padding:10px 0;font-size:12px;font-weight:600;text-align:center;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;}
+.tab.active{color:var(--a);border-bottom-color:var(--a);}
+
+/* BOTTOM NAV */
+.bottom-nav{height:58px;background:var(--bg);border-top:1px solid var(--b);display:flex;flex-shrink:0;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:transparent;position:relative;}
+.nav-icon{font-size:20px;line-height:1;}
+.nav-label{font-size:9px;color:var(--t2);}
+.nav-item.active .nav-label{color:var(--g);font-weight:700;}
+.nav-dot{width:6px;height:6px;background:var(--red);border-radius:50%;position:absolute;top:5px;right:calc(50% - 14px);border:1.5px solid #fff;}
+
+/* COMMON */
+.card{background:var(--bg);border-radius:12px;border:1px solid var(--b);margin:8px;padding:13px;}
+.chat-item-full{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-bottom:1px solid var(--b);cursor:pointer;}
+.chat-item-full:hover{background:#f8fffe;}
+.search-bar{margin:8px;background:#fff;border:1px solid var(--b);border-radius:20px;padding:8px 14px;font-size:13px;color:var(--t2);display:flex;align-items:center;gap:6px;}
+.sec-label{font-size:11px;color:var(--t2);padding:8px 12px 4px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;background:var(--bg2);}
+.badge{background:var(--red);color:#fff;font-size:10px;font-weight:600;border-radius:10px;padding:2px 6px;min-width:18px;text-align:center;}
+.btn-primary{width:100%;background:var(--a);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;}
+.btn-primary:active{background:var(--g);}
+.btn-danger{width:100%;background:#fcebeb;color:var(--red);border:1px solid #f7c1c1;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;}
+.form-group{margin-bottom:12px;}
+.form-label{font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block;}
+.form-input{width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;background:var(--bg);color:var(--t);outline:none;}
+.form-input:focus{border-color:var(--a);}
+textarea.form-input{resize:none;height:80px;line-height:1.5;}
+.evidence-box{border:2px dashed var(--b);border-radius:10px;padding:16px;text-align:center;color:var(--t2);font-size:13px;cursor:pointer;background:var(--bg2);margin-bottom:10px;}
+.alert-box{background:#fff8e1;border:1px solid #f0c040;border-radius:8px;padding:10px 12px;font-size:12px;color:#633806;margin-bottom:10px;display:flex;gap:8px;}
+
+/* AVATAR */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.av-sq{border-radius:12px!important;}
+.av-g{background:#d4edda;color:#1a4731;}
+.av-b{background:#d0e8fb;color:#0c447c;}
+.av-a{background:#faeeda;color:#633806;}
+.av-r{background:#fcebeb;color:#791f1f;}
+
+/* HOME */
+.home-hero{background:linear-gradient(135deg,#1a4731,#2e7d52);padding:16px 14px 20px;}
+.home-greet{color:rgba(255,255,255,.8);font-size:12px;margin-bottom:2px;}
+.home-name{color:#fff;font-size:18px;font-weight:700;}
+.home-date{color:rgba(255,255,255,.65);font-size:11px;margin-top:3px;}
+.home-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 10px 4px;}
+.stat-card{background:#fff;border-radius:12px;padding:12px;border:1px solid var(--b);}
+.sc-label{font-size:11px;color:var(--t2);margin-bottom:4px;}
+.sc-val{font-size:22px;font-weight:700;color:#1a4731;}
+.sc-sub{font-size:10px;color:var(--t2);margin-top:2px;}
+.home-sec{padding:10px 10px 0;}
+.home-sec-title{font-size:13px;font-weight:700;color:var(--t);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.home-sec-title span{font-size:11px;color:#2e7d52;font-weight:500;}
+.notif-item{background:#fff;border-radius:10px;padding:11px 12px;margin-bottom:7px;border:1px solid var(--b);display:flex;gap:10px;}
+.ndot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.nd-r{background:#e24b4a;} .nd-g{background:#2e7d52;} .nd-a{background:#ba7517;} .nd-b{background:#185fa5;}
+.notif-title{font-size:13px;font-weight:600;color:var(--t);}
+.notif-desc{font-size:11px;color:var(--t2);margin-top:2px;line-height:1.4;}
+.notif-time{font-size:10px;color:var(--t2);margin-top:4px;}
+.task-item{background:#fff;border-radius:10px;padding:11px 12px;margin-bottom:7px;border:1px solid var(--b);display:flex;align-items:center;gap:10px;}
+.task-check{width:20px;height:20px;border-radius:50%;border:2px solid #2e7d52;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}
+.task-check.done{background:#2e7d52;border-color:#2e7d52;}
+.task-check.done::after{content:'✓';color:#fff;font-size:11px;font-weight:700;}
+.weather-card{background:#fff;border-radius:12px;padding:12px 14px;margin:0 10px 10px;border:1px solid var(--b);display:flex;align-items:center;gap:14px;}
+
+/* CHAT */
+.chat-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-bottom:1px solid var(--b);cursor:pointer;}
+.chat-item:hover{background:#f0f9f4;}
+.chat-info{flex:1;min-width:0;}
+.chat-name{font-size:14px;font-weight:600;color:var(--t);}
+.chat-last{font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.chat-meta{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.chat-time{font-size:11px;color:var(--t2);}
+.chat-detail{display:flex;flex-direction:column;height:100%;}
+.chat-messages{flex:1;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.msg-row{display:flex;gap:6px;align-items:flex-end;position:relative;}
+.msg-row.mine{flex-direction:row-reverse;}
+/* Dot button hiện khi hover */
+.msg-dot-btn{opacity:0;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.08);border:none;font-size:13px;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;align-self:center;flex-shrink:0;transition:opacity .15s;}
+.msg-row:hover .msg-dot-btn{opacity:1;}
+/* Swipe container */
+.msg-swipe-wrap{position:relative;overflow:hidden;border-radius:12px;display:inline-block;}
+.msg-delete-bg{position:absolute;right:0;top:0;bottom:0;width:68px;background:var(--red);display:flex;align-items:center;justify-content:center;flex-direction:column;color:#fff;font-size:10px;font-weight:700;gap:2px;border-radius:0 12px 12px 0;transform:translateX(100%);transition:transform .2s;}
+.msg-swipe-inner{transition:transform .2s;}
+.msg-row.mine{flex-direction:row-reverse;}
+.bubble{max-width:210px;padding:9px 12px;border-radius:18px;font-size:13px;line-height:1.45;}
+.bubble.them{background:#fff;border:1px solid var(--b);color:var(--t);border-bottom-left-radius:4px;}
+.bubble.mine{background:#2e7d52;color:#fff;border-bottom-right-radius:4px;}
+.msg-name{font-size:10px;color:var(--t2);margin-bottom:2px;}
+.chat-input-bar{padding:8px 10px;background:#fff;border-top:1px solid var(--b);display:flex;gap:8px;align-items:center;flex-shrink:0;}
+.chat-input{flex:1;border:1px solid var(--b);border-radius:22px;padding:9px 14px;font-size:13px;background:var(--bg2);outline:none;}
+.send-btn{width:36px;height:36px;border-radius:50%;background:#2e7d52;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+
+/* CONTACTS */
+.contact-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border-bottom:1px solid var(--b);}
+.rank-badge{font-size:10px;padding:3px 8px;border-radius:10px;font-weight:600;}
+.rank-co{background:#fcebeb;color:#791f1f;}
+.rank-lt{background:#faeeda;color:#633806;}
+.rank-sg{background:#d4edda;color:#1a4731;}
+
+/* JOURNAL */
+.jcard{background:#fff;border:1px solid var(--b);border-radius:12px;margin:8px;padding:13px;}
+.jc-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px;}
+.jc-title{font-size:14px;font-weight:600;color:var(--t);}
+.jc-date{font-size:11px;color:var(--t2);}
+.jc-body{font-size:12px;color:var(--t2);line-height:1.55;}
+.jc-st{display:inline-block;font-size:10px;font-weight:600;border-radius:8px;padding:3px 9px;margin-top:8px;}
+.st-done{background:#d4edda;color:#1a4731;}
+.st-pend{background:#faeeda;color:#633806;}
+.fab{width:44px;height:44px;border-radius:50%;background:#2e7d52;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(46,125,82,.35);}
+
+/* PROFILE */
+.profile-hero{background:linear-gradient(135deg,#1a4731,#2e7d52);padding:22px 16px;display:flex;align-items:center;gap:14px;}
+.pstat-row{display:flex;background:#fff;border-bottom:1px solid var(--b);}
+.pstat{flex:1;text-align:center;padding:12px 0;border-right:1px solid var(--b);}
+.pstat:last-child{border-right:none;}
+.pstat-num{font-size:18px;font-weight:700;color:#1a4731;}
+.pstat-label{font-size:10px;color:var(--t2);margin-top:2px;}
+.menu-group{margin-top:8px;background:#fff;border-top:1px solid var(--b);border-bottom:1px solid var(--b);}
+.menu-item{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b);cursor:pointer;}
+.menu-item:last-child{border-bottom:none;}
+.micon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.ic-g{background:#d4edda;} .ic-b{background:#d0e8fb;} .ic-a{background:#faeeda;} .ic-r{background:#fcebeb;}
+
+/* TIỆN ÍCH */
+.utilities-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--b);margin:8px;border-radius:12px;overflow:hidden;border:1px solid var(--b);}
+.util-item{background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 8px;gap:6px;cursor:pointer;}
+.util-item:hover{background:#f0f9f4;}
+.util-icon{font-size:26px;}
+.util-label{font-size:11px;font-weight:600;color:var(--t);text-align:center;line-height:1.3;}
+.util-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;margin-top:2px;}
+.ub-red{background:#fcebeb;color:#791f1f;}
+.ub-green{background:#d4edda;color:#1a4731;}
+.ub-amber{background:#faeeda;color:#633806;}
+
+/* F47 */
+.campaign-card{background:var(--bg);border-radius:12px;border:1px solid var(--b);margin:8px;padding:13px;cursor:pointer;}
+.campaign-card:hover{border-color:var(--a);}
+.sb{font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;flex-shrink:0;}
+.sb-live{background:#d4edda;color:#1a4731;}
+.sb-done{background:#e0e0e0;color:#555;}
+.sb-soon{background:#faeeda;color:#633806;}
+.countdown-wrap{background:#fff8e1;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:10px;margin-bottom:10px;border:1px solid #f0c040;}
+.cd-time{font-size:16px;font-weight:700;color:#ba7517;}
+.prog-hd{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:4px;}
+.prog-bar{height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#2e7d52,#4caf80);}
+.prog-fill.warn{background:linear-gradient(90deg,#e24b4a,#ff7043);}
+.stat-row{display:flex;gap:6px;margin-bottom:10px;}
+.stat-box{flex:1;text-align:center;background:var(--bg2);border-radius:8px;padding:8px 4px;border:1px solid var(--b);}
+.snum{font-size:18px;font-weight:700;}
+.snum.g{color:var(--a);} .snum.r{color:var(--red);} .snum.a{color:var(--amber);} .snum.b{color:var(--blue);}
+.slabel{font-size:10px;color:var(--t2);margin-top:2px;}
+.member-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg);border-bottom:1px solid var(--b);}
+.m-info{flex:1;}
+.m-name{font-size:13px;font-weight:600;color:var(--t);}
+.m-rank{font-size:11px;color:var(--t2);margin-top:1px;}
+.done-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;}
+.dt-done{background:#d4edda;color:#1a4731;}
+.dt-late{background:#faeeda;color:#633806;}
+.dt-no{background:#fcebeb;color:#791f1f;}
+.urge-btn{font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid var(--red);color:var(--red);background:transparent;cursor:pointer;font-weight:600;}
+.rank-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-bottom:1px solid var(--b);}
+.rnum{width:24px;font-size:14px;font-weight:700;text-align:center;flex-shrink:0;}
+.r1{color:#f0b429;} .r2{color:#9e9e9e;} .r3{color:#a0522d;}
+.platform-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.ptag{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid var(--b);color:var(--t2);cursor:pointer;}
+.ptag.sel{background:#d4edda;color:#1a4731;border-color:#2e7d52;font-weight:600;}
+</style>
 </head>
 <body>
-<div class="app-container">
-    <!-- Login Screen -->
-    <div class="login-screen" id="loginScreen">
-        <div class="login-box">
-            <div class="login-logo"><img src="logo.png" alt="SH13A" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2721/2721292.png'"></div>
-            <h2>SH13A</h2>
-            <p>Hệ Thống Quản Lý Đơn Vị</p>
-            <input type="email" id="email" placeholder="Email" value="admin@sh13a.com">
-            <input type="password" id="password" placeholder="Mật khẩu" value="123456">
-            <button onclick="login()">Đăng nhập</button>
-            <button onclick="showRegister()" class="success" style="margin-top: 12px;">Đăng ký</button>
+<div class="phone">
+  <div class="status-bar"><span>9:41</span><span>▲▲▲ 🔋 100%</span></div>
+
+  <div class="header" id="hdr">
+    <span class="hback" id="hback" onclick="goBack()">←</span>
+    <div style="flex:1">
+      <div class="htitle" id="htitle">Trang chủ</div>
+      <div class="hsub" id="hsub" style="display:none"></div>
+    </div>
+    <div class="hicons" id="hicons"><span onclick="push('my-notif','Cài đặt thông báo',null,false)" style="cursor:pointer">🔔</span><span onclick="showAppMenu()" style="cursor:pointer">⋯</span></div>
+    <span class="hright" id="hright" style="display:none"></span>
+  </div>
+
+  <div class="content">
+
+    <!-- ========== TRANG CHỦ ========== -->
+    <div class="screen active" id="sc-home">
+      <div class="home-hero">
+        <div class="home-greet">Chào buổi sáng,</div>
+        <div class="home-name">Th.úy Bùi Quang Thành 🎖</div>
+        <div class="home-date">Thứ Sáu, 24/04/2026 • Trung đoàn 5</div>
+      </div>
+      <div style="padding:10px 10px 0">
+        <div class="weather-card">
+          <div style="font-size:36px">⛅</div>
+          <div style="flex:1"><div style="font-size:24px;font-weight:700;color:var(--t)">29°C</div><div style="font-size:12px;color:var(--t2)">Có mây, ít mưa</div><div style="font-size:11px;color:#2e7d52;margin-top:2px">📍 Hà Nội</div></div>
+          <div style="text-align:right;font-size:11px;color:var(--t2);line-height:1.7">💧 78%<br>💨 12 km/h<br>🌅 05:27</div>
         </div>
+      </div>
+      <div class="home-stats">
+        <div class="stat-card"><div class="sc-label">👥 Quân số hôm nay</div><div class="sc-val">42<span style="font-size:13px;color:var(--t2)">/42</span></div><div class="sc-sub" style="color:#2e7d52">✓ Đủ quân số</div></div>
+        <div class="stat-card"><div class="sc-label">🕐 Ca trực hôm nay</div><div class="sc-val">Tr.đội 2</div><div class="sc-sub">18:00 – 06:00</div></div>
+        <div class="stat-card"><div class="sc-label">📋 Báo cáo chờ duyệt</div><div class="sc-val" style="color:#ba7517">2</div><div class="sc-sub">Cần xử lý hôm nay</div></div>
+        <div class="stat-card"><div class="sc-label">🛡 F47 đang chạy</div><div class="sc-val" style="color:var(--red)">2</div><div class="sc-sub">18/28 hoàn thành</div></div>
+      </div>
+      <div class="home-sec">
+        <div class="home-sec-title">📌 Nhiệm vụ hôm nay <span>Xem tất cả</span></div>
+        <div class="task-item"><div class="task-check done" onclick="toggleTask(this)"></div><div><div style="font-size:13px;font-weight:500;color:var(--t)">Báo cáo quân số sáng</div><div style="font-size:11px;color:var(--t2);margin-top:2px">⏰ 06:30 • Đã hoàn thành</div></div></div>
+        <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div><div style="font-size:13px;font-weight:500;color:var(--t)">Kiểm tra trang bị trung đội</div><div style="font-size:11px;color:var(--t2);margin-top:2px">⏰ 08:00 • Đại đội 1</div></div></div>
+        <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div><div style="font-size:13px;font-weight:500;color:var(--t)">Họp giao ban ban chỉ huy</div><div style="font-size:11px;color:var(--t2);margin-top:2px">⏰ 10:00 • Phòng họp số 1</div></div></div>
+        <div class="task-item"><div class="task-check" onclick="toggleTask(this)"></div><div><div style="font-size:13px;font-weight:500;color:var(--t)">Nộp kế hoạch huấn luyện tháng 5</div><div style="font-size:11px;color:var(--t2);margin-top:2px">⏰ 16:00 • Ban tham mưu</div></div></div>
+      </div>
+      <div class="home-sec" style="padding-bottom:12px">
+        <div class="home-sec-title">🔔 Thông báo mới <span>Xem tất cả</span></div>
+        <div class="notif-item"><div class="ndot nd-r"></div><div><div class="notif-title">Lệnh tập hợp khẩn</div><div class="notif-desc">Th.tá Hùng: Toàn đơn vị tập hợp sân lớn lúc 6:00 sáng mai.</div><div class="notif-time">07:30 hôm nay</div></div></div>
+        <div class="notif-item"><div class="ndot nd-r"></div><div><div class="notif-title">⚠️ F47: Còn 10 người chưa làm!</div><div class="notif-desc">Chiến dịch "Phản bác luận điệu biển Đông" deadline còn 1h47p.</div><div class="notif-time">09:30 hôm nay</div></div></div>
+        <div class="notif-item"><div class="ndot nd-a"></div><div><div class="notif-title">Lịch khám sức khỏe định kỳ</div><div class="notif-desc">Quân y: Khám định kỳ toàn đơn vị 28/04, mang sổ khám cá nhân.</div><div class="notif-time">Hôm qua 15:20</div></div></div>
+        <div class="notif-item"><div class="ndot nd-g"></div><div><div class="notif-title">Đã nhận phụ cấp tháng 4</div><div class="notif-desc">Kế toán – Tài vụ: Phụ cấp 4/2026 đã chuyển vào tài khoản.</div><div class="notif-time">Hôm qua 09:00</div></div></div>
+      </div>
     </div>
 
-    <!-- Main App -->
-    <div id="mainApp" class="hidden">
-        <div class="header">
-            <div class="logo-area">
-                <div class="logo-icon"><img src="logo.png" alt="SH13A" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2721/2721292.png'"></div>
-                <div class="logo-text">SH13A<br><small>QUẢN LÝ ĐƠN VỊ</small></div>
+    <!-- ========== TIN NHẮN ========== -->
+    <div class="screen" id="sc-chat">
+      <!-- Search bar -->
+      <div style="padding:7px 8px;background:var(--bg);border-bottom:1px solid var(--b)">
+        <div style="display:flex;gap:6px;align-items:center;background:var(--bg2);border-radius:20px;padding:7px 12px;border:1px solid var(--b)">
+          <span style="font-size:14px;color:var(--t2)">🔍</span>
+          <input id="chat-search" oninput="filterChats(this.value)" style="flex:1;border:none;background:transparent;font-size:13px;outline:none;color:var(--t)" placeholder="Tìm cuộc trò chuyện..."/>
+        </div>
+      </div>
+      <!-- Filter tabs -->
+      <div style="display:flex;background:var(--bg);border-bottom:1px solid var(--b)">
+        <div class="ctab active" onclick="filterChatTab('all',this)" style="flex:1;text-align:center;padding:8px 0;font-size:12px;font-weight:600;color:var(--a);border-bottom:2px solid var(--a);cursor:pointer">Tất cả</div>
+        <div class="ctab" onclick="filterChatTab('unread',this)" style="flex:1;text-align:center;padding:8px 0;font-size:12px;font-weight:600;color:var(--t2);border-bottom:2px solid transparent;cursor:pointer">Chưa đọc <span style="background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:2px">4</span></div>
+        <div class="ctab" onclick="filterChatTab('group',this)" style="flex:1;text-align:center;padding:8px 0;font-size:12px;font-weight:600;color:var(--t2);border-bottom:2px solid transparent;cursor:pointer">Nhóm</div>
+      </div>
+
+      <!-- Thông báo khẩn -->
+      <div id="urgent-banner" style="background:#fff3f3;border-bottom:2px solid var(--red);padding:8px 12px;display:flex;align-items:center;gap:8px;cursor:pointer" onclick="openChatRoom('bch')">
+        <span style="font-size:16px">🚨</span>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--red)">THÔNG BÁO KHẨN – Bộ chỉ huy</div><div style="font-size:11px;color:var(--t2);margin-top:1px">Toàn đơn vị tập hợp sân lớn lúc 6:00 sáng mai</div></div>
+        <span style="font-size:11px;color:var(--red);font-weight:700">07:30</span>
+      </div>
+
+      <!-- Chat list -->
+      <div id="chat-list-wrap">
+        <!-- Ghim -->
+        <div style="font-size:10px;font-weight:700;color:var(--t2);padding:6px 12px 2px;background:var(--bg2);text-transform:uppercase;letter-spacing:.05em">📌 Đã ghim</div>
+        <div class="chat-item-full" data-type="group" data-unread="1" onclick="openChatRoom('bch')">
+          <div style="position:relative">
+            <div class="av av-sq av-g" style="width:46px;height:46px;font-size:11px">BCH</div>
+            <div style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#2e7d52;border:2px solid #fff"></div>
+          </div>
+          <div class="chat-info">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="chat-name">Bộ chỉ huy Trung đoàn 🚨</div>
+              <div style="font-size:10px;color:var(--red);font-weight:600">07:30</div>
             </div>
-            <div class="avatar" id="userAvatar" onclick="openAvatarEditor()">A</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+              <div class="chat-last" style="color:var(--red);font-weight:500">🔴 Th.tá Hùng: Toàn đơn vị tập hợp lúc 6:00</div>
+              <div class="badge">3</div>
+            </div>
+          </div>
         </div>
 
-        <div id="contentArea"></div>
+        <div style="font-size:10px;font-weight:700;color:var(--t2);padding:6px 12px 2px;background:var(--bg2);text-transform:uppercase;letter-spacing:.05em">💬 Cuộc trò chuyện</div>
 
-        <div class="bottom-tab-bar">
-            <div class="tab-item active" data-tab="home"><span class="tab-icon"><i class="fas fa-home"></i></span><span>Trang chủ</span></div>
-            <div class="tab-item" data-tab="quanSo"><span class="tab-icon"><i class="fas fa-users"></i></span><span>Quân số</span></div>
-            <div class="tab-item" data-tab="chat"><span class="tab-icon"><i class="fas fa-comment-dots"></i></span><span>Chat</span><span class="tab-badge" id="chatBadge" style="display:none;">0</span></div>
-            <div class="tab-item" data-tab="profile"><span class="tab-icon"><i class="fas fa-user"></i></span><span>Cá nhân</span></div>
+        <div class="chat-item-full" data-type="group" data-unread="0" onclick="openChatRoom('dd1')">
+          <div style="position:relative">
+            <div class="av av-b" style="width:46px;height:46px">D1</div>
+            <div style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#2e7d52;border:2px solid #fff"></div>
+          </div>
+          <div class="chat-info">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="chat-name">Đại đội 1</div>
+              <div class="chat-time">07:15</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+              <div class="chat-last">Bạn: Báo cáo đã nhận đủ quân số ✓✓</div>
+            </div>
+          </div>
         </div>
+
+        <div class="chat-item-full" data-type="group" data-unread="1" onclick="openChatRoom('tt')">
+          <div style="position:relative">
+            <div class="av av-a" style="width:46px;height:46px">TT</div>
+            <div style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#2e7d52;border:2px solid #fff"></div>
+          </div>
+          <div class="chat-info">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="chat-name">Trung đội trực chiến</div>
+              <div class="chat-time">06:50</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+              <div class="chat-last">Th.sĩ Nam: Đã bàn giao ca trực</div>
+              <div class="badge">1</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-item-full" data-type="group" data-unread="0" onclick="openChatRoom('hq')">
+          <div style="position:relative">
+            <div class="av av-g" style="width:46px;height:46px">HQ</div>
+            <div style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#aaa;border:2px solid #fff"></div>
+          </div>
+          <div class="chat-info">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="chat-name">Hậu cần – Kỹ thuật</div>
+              <div class="chat-time">Hôm qua</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+              <div class="chat-last">Xuất kho vật tư sáng nay</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-item-full" data-type="group" data-unread="0" onclick="openChatRoom('qy')">
+          <div style="position:relative">
+            <div class="av av-r" style="width:46px;height:46px">QY</div>
+            <div style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#aaa;border:2px solid #fff"></div>
+          </div>
+          <div class="chat-info">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="chat-name">Quân y</div>
+              <div class="chat-time">Hôm qua</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+              <div class="chat-last">Lịch khám định kỳ tuần tới</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-item-full" data-type="group" data-unread="0" onclick="openChatRoom('kt')">
+          <div style="position:relative">
+            <div class="av av-a" style="width:46px;height:46px">KT</div>
+            <div style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#aaa;border:2px solid #fff"></div>
+          </div>
+          <div class="chat-info">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="chat-name">Kế toán – Tài vụ</div>
+              <div class="chat-time">23/04</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+              <div class="chat-last">Đã chuyển phụ cấp tháng 4 ✓✓</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DM cá nhân -->
+        <div style="font-size:10px;font-weight:700;color:var(--t2);padding:6px 12px 2px;background:var(--bg2);text-transform:uppercase;letter-spacing:.05em">👤 Cá nhân</div>
+        <div class="chat-item-full" data-type="dm" data-unread="0" onclick="openChatRoom('nh')">
+          <div style="position:relative">
+            <div class="av av-g" style="width:46px;height:46px">NH</div>
+            <div style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#2e7d52;border:2px solid #fff"></div>
+          </div>
+          <div class="chat-info">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="chat-name">Th.tá Nguyễn Văn Hùng</div>
+              <div class="chat-time">08:00</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+              <div class="chat-last">Báo cáo tiến độ huấn luyện cho tôi</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-item-full" data-type="dm" data-unread="1" onclick="openChatRoom('lt')">
+          <div style="position:relative">
+            <div class="av av-a" style="width:46px;height:46px">LT</div>
+            <div style="position:absolute;bottom:0;right:0;width:12px;height:12px;border-radius:50%;background:#2e7d52;border:2px solid #fff"></div>
+          </div>
+          <div class="chat-info">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="chat-name">Tr.úy Lê Quang Tuấn</div>
+              <div class="chat-time">07:50</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+              <div class="chat-last" style="font-weight:600;color:var(--t)">Anh ơi, đổi ca trực được không?</div>
+              <div class="badge">1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAB tạo nhóm -->
+      <div onclick="toast('Tạo nhóm chat mới...')" style="position:sticky;bottom:12px;left:100%;width:44px;height:44px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;margin:0 12px 0 auto;box-shadow:0 4px 12px rgba(46,125,82,.4);cursor:pointer;font-size:20px">✏️</div>
     </div>
+
+    <!-- ========== CHAT DETAIL ========== -->
+    <div id="sc-chat-detail" style="display:none;height:100%;flex-direction:column;background:var(--bg2)">
+      <!-- Context menu xoá/ghim tin - moved to body level via JS -->
+      <!-- Pinned message -->
+      <div id="pinned-bar" style="background:#f0f9f4;border-bottom:1px solid #b7dfc6;padding:7px 12px;display:none;align-items:center;gap:8px;cursor:pointer">
+        <span style="font-size:14px">📌</span>
+        <div style="flex:1;font-size:11px;color:#1a4731" id="pinned-text">Th.tá Hùng: Toàn đơn vị tập hợp lúc 6:00 sáng mai, mang đầy đủ trang bị.</div>
+        <span onclick="document.getElementById('pinned-bar').style.display='none';event.stopPropagation()" style="font-size:14px;color:var(--t2);cursor:pointer">✕</span>
+      </div>
+      <!-- Messages -->
+      <div class="chat-messages" id="msg-list">
+        <div style="text-align:center;margin:8px 0"><span style="background:#e0e0e0;font-size:10px;color:var(--t2);padding:3px 10px;border-radius:10px">Hôm nay 24/04/2026</span></div>
+
+        <!-- Tin người khác: dot btn bên phải bubble -->
+        <div class="msg-row">
+          <div class="av av-g" style="width:30px;height:30px;font-size:11px">HB</div>
+          <div>
+            <div class="msg-name">Th.tá Hùng</div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <div class="bubble them">Toàn đơn vị tập hợp lúc 6:00 sáng mai, mang đầy đủ trang bị.</div>
+              <button class="msg-dot-btn" onclick="showDotMenu(this,false)">⋯</button>
+            </div>
+            <div style="font-size:9px;color:var(--t2);margin-top:2px;padding-left:4px">07:28</div>
+          </div>
+        </div>
+
+        <!-- Tin nhắn khẩn -->
+        <div class="msg-row">
+          <div class="av av-g" style="width:30px;height:30px;font-size:11px">HB</div>
+          <div>
+            <div class="msg-name">Th.tá Hùng</div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <div style="background:#fff3f3;border:1.5px solid var(--red);border-radius:12px;border-bottom-left-radius:4px;padding:10px 12px;max-width:210px">
+                <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px">🚨 THÔNG BÁO KHẨN</div>
+                <div style="font-size:12px;color:var(--t);line-height:1.5">Quân số báo cáo trước 22:00 tối nay. Thiếu 1 người sẽ kỷ luật cả trung đội.</div>
+              </div>
+              <button class="msg-dot-btn" onclick="showDotMenu(this,false)">⋯</button>
+            </div>
+            <div style="font-size:9px;color:var(--t2);margin-top:2px;padding-left:4px">07:30</div>
+          </div>
+        </div>
+
+        <!-- Tin của mình: swipe trái + dot btn -->
+        <div class="msg-row mine">
+          <div class="av" style="width:30px;height:30px;font-size:11px;background:#9fe1cb;color:#085041">Tôi</div>
+          <div>
+            <div style="display:flex;align-items:center;gap:4px;flex-direction:row-reverse">
+              <div class="msg-swipe-wrap">
+                <div class="msg-delete-bg" id="del-bg-1"><span style="font-size:16px">🗑</span>Xoá</div>
+                <div class="msg-swipe-inner bubble mine" id="swipe-1">Rõ thủ trưởng! Đại đội 1 đã nắm lệnh.</div>
+              </div>
+              <button class="msg-dot-btn" onclick="showDotMenu(this,true)">⋯</button>
+            </div>
+            <div style="font-size:9px;color:var(--t2);margin-top:2px;text-align:right;padding-right:4px">07:31 ✓✓</div>
+          </div>
+        </div>
+
+        <div class="msg-row">
+          <div class="av av-b" style="width:30px;height:30px;font-size:11px">TN</div>
+          <div>
+            <div class="msg-name">Th.sĩ Nam</div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <div class="bubble them">Trung đội trực chiến báo cáo sẵn sàng.</div>
+              <button class="msg-dot-btn" onclick="showDotMenu(this,false)">⋯</button>
+            </div>
+            <div style="font-size:9px;color:var(--t2);margin-top:2px;padding-left:4px">07:32</div>
+          </div>
+        </div>
+
+        <div class="msg-row">
+          <div class="av av-a" style="width:30px;height:30px;font-size:11px">LT</div>
+          <div>
+            <div class="msg-name">Tr.úy Tuấn</div>
+            <div style="display:flex;align-items:center;gap:4px">
+              <div style="background:#f0f9f4;border:1px solid #b7dfc6;border-radius:12px;border-bottom-left-radius:4px;padding:8px 10px;max-width:190px;cursor:pointer" onclick="toast('Mở file: QS_Daodo1_24042026.pdf')">
+                <div style="display:flex;align-items:center;gap:8px"><span style="font-size:22px">📄</span><div><div style="font-size:12px;font-weight:600;color:var(--t)">QS_Daodo1_24042026.pdf</div><div style="font-size:10px;color:var(--t2);margin-top:1px">42/42 • 128 KB</div></div></div>
+              </div>
+              <button class="msg-dot-btn" onclick="showDotMenu(this,false)">⋯</button>
+            </div>
+            <div style="font-size:9px;color:var(--t2);margin-top:2px;padding-left:4px">07:45</div>
+          </div>
+        </div>
+
+        <div class="msg-row mine">
+          <div class="av" style="width:30px;height:30px;font-size:11px;background:#9fe1cb;color:#085041">Tôi</div>
+          <div>
+            <div style="display:flex;align-items:center;gap:4px;flex-direction:row-reverse">
+              <div class="msg-swipe-wrap">
+                <div class="msg-delete-bg" id="del-bg-2"><span style="font-size:16px">🗑</span>Xoá</div>
+                <div class="msg-swipe-inner bubble mine" id="swipe-2">👍 Tốt! Đủ quân số rồi.</div>
+              </div>
+              <button class="msg-dot-btn" onclick="showDotMenu(this,true)">⋯</button>
+            </div>
+            <div style="font-size:9px;color:var(--t2);margin-top:2px;text-align:right;padding-right:4px">07:46 ✓✓</div>
+          </div>
+        </div>
+      </div>
+      <!-- Input bar -->
+      <div style="padding:6px 8px;background:var(--bg);border-top:1px solid var(--b);display:flex;gap:6px;align-items:center;flex-shrink:0">
+        <div onclick="showAttachMenu()" style="font-size:22px;color:var(--t2);cursor:pointer;padding:2px">📎</div>
+        <input class="chat-input" id="msg-input" placeholder="Nhắn tin..." onkeydown="if(event.key==='Enter')sendMsg()" style="flex:1"/>
+        <div onclick="toast('Gửi ảnh...')" style="font-size:20px;color:var(--t2);cursor:pointer;padding:2px">🖼</div>
+        <button class="send-btn" onclick="sendMsg()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ========== DANH BẠ ========== -->
+    <div class="screen" id="sc-contacts">
+      <div style="display:flex;gap:6px;padding:7px 8px;background:var(--bg);border-bottom:1px solid var(--b);align-items:center">
+        <input style="flex:1;border:1px solid var(--b);border-radius:20px;padding:7px 14px;font-size:13px;outline:none;background:var(--bg2)" placeholder="🔍 Tìm tên, cấp bậc..." oninput="filterContacts(this.value)"/>
+      </div>
+      <div style="display:flex;gap:6px;padding:6px 8px;background:var(--bg);border-bottom:1px solid var(--b);overflow-x:auto">
+        <div class="ctfilter active" onclick="setCTFilter('all',this)" style="font-size:11px;padding:5px 10px;border-radius:16px;border:1px solid var(--b);background:#d4edda;color:#1a4731;cursor:pointer;white-space:nowrap;font-weight:600">Tất cả</div>
+        <div class="ctfilter" onclick="setCTFilter('unit',this)" style="font-size:11px;padding:5px 10px;border-radius:16px;border:1px solid var(--b);background:var(--bg);color:var(--t2);cursor:pointer;white-space:nowrap">🟢 Tại ĐV</div>
+        <div class="ctfilter" onclick="setCTFilter('duty',this)" style="font-size:11px;padding:5px 10px;border-radius:16px;border:1px solid var(--b);background:var(--bg);color:var(--t2);cursor:pointer;white-space:nowrap">🔵 Trực</div>
+        <div class="ctfilter" onclick="setCTFilter('leave',this)" style="font-size:11px;padding:5px 10px;border-radius:16px;border:1px solid var(--b);background:var(--bg);color:var(--t2);cursor:pointer;white-space:nowrap">🟡 Tranh thủ</div>
+        <div class="ctfilter" onclick="setCTFilter('out',this)" style="font-size:11px;padding:5px 10px;border-radius:16px;border:1px solid var(--b);background:var(--bg);color:var(--t2);cursor:pointer;white-space:nowrap">🔴 Ra ngoài</div>
+        <div class="ctfilter" onclick="setCTFilter('sick',this)" style="font-size:11px;padding:5px 10px;border-radius:16px;border:1px solid var(--b);background:var(--bg);color:var(--t2);cursor:pointer;white-space:nowrap">🟣 Ốm</div>
+      </div>
+      <!-- Quân số boxes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:8px">
+        <div style="background:var(--bg);border-radius:10px;border:1px solid var(--b);padding:9px;text-align:center;cursor:pointer" onclick="setCTFilter('unit',document.querySelectorAll('.ctfilter')[1])"><div style="font-size:20px;font-weight:700;color:#2e7d52">32</div><div style="font-size:9px;color:var(--t2);margin-top:2px">🟢 Tại đơn vị</div></div>
+        <div style="background:var(--bg);border-radius:10px;border:1px solid var(--b);padding:9px;text-align:center;cursor:pointer" onclick="setCTFilter('duty',document.querySelectorAll('.ctfilter')[2])"><div style="font-size:20px;font-weight:700;color:#185fa5">4</div><div style="font-size:9px;color:var(--t2);margin-top:2px">🔵 Đang trực</div></div>
+        <div style="background:var(--bg);border-radius:10px;border:1px solid var(--b);padding:9px;text-align:center;cursor:pointer" onclick="setCTFilter('leave',document.querySelectorAll('.ctfilter')[3])"><div style="font-size:20px;font-weight:700;color:#ba7517">3</div><div style="font-size:9px;color:var(--t2);margin-top:2px">🟡 Tranh thủ</div></div>
+        <div style="background:var(--bg);border-radius:10px;border:1px solid var(--b);padding:9px;text-align:center;cursor:pointer" onclick="setCTFilter('out',document.querySelectorAll('.ctfilter')[4])"><div style="font-size:20px;font-weight:700;color:#e24b4a">2</div><div style="font-size:9px;color:var(--t2);margin-top:2px">🔴 Ra ngoài</div></div>
+        <div style="background:var(--bg);border-radius:10px;border:1px solid var(--b);padding:9px;text-align:center;cursor:pointer" onclick="setCTFilter('sick',document.querySelectorAll('.ctfilter')[5])"><div style="font-size:20px;font-weight:700;color:#534ab7">1</div><div style="font-size:9px;color:var(--t2);margin-top:2px">🟣 Ốm/nghỉ</div></div>
+        <div style="background:var(--bg);border-radius:10px;border:1px solid var(--b);padding:9px;text-align:center"><div style="font-size:20px;font-weight:700;color:#1a4731">42</div><div style="font-size:9px;color:var(--t2);margin-top:2px">👥 Tổng quân số</div></div>
+      </div>
+      <div id="contact-list">
+        <div class="sec-label">Ban chỉ huy</div>
+        <div class="contact-item" data-status="unit" onclick="openSoldierProfile('nh')"><div class="av av-g" style="width:44px;height:44px;font-size:14px">NH</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--t)">Nguyễn Văn Hùng</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Thiếu tá • Trung đoàn trưởng • Thái Bình</div></div><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#d4edda;color:#1a4731;white-space:nowrap">Tại đơn vị</span></div>
+        <div class="contact-item" data-status="unit" onclick="openSoldierProfile('tm')"><div class="av av-b" style="width:44px;height:44px;font-size:14px">TM</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--t)">Trần Văn Minh</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Đại úy • Chính trị viên • Hà Nam</div></div><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#d4edda;color:#1a4731;white-space:nowrap">Tại đơn vị</span></div>
+        <div class="sec-label">Đại đội 1</div>
+        <div class="contact-item" data-status="unit" onclick="openSoldierProfile('lt')"><div class="av av-a" style="width:44px;height:44px;font-size:14px">LT</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--t)">Lê Quang Tuấn</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Trung úy • Đại đội trưởng • Thanh Hóa</div></div><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#d4edda;color:#1a4731;white-space:nowrap">Tại đơn vị</span></div>
+        <div class="contact-item" data-status="duty" onclick="openSoldierProfile('pn')"><div class="av av-g" style="width:44px;height:44px;font-size:14px">PN</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--t)">Phạm Thanh Nam</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Thượng sĩ • Trung đội trưởng • Nghệ An</div></div><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#d0e8fb;color:#0c447c;white-space:nowrap">Đang trực</span></div>
+        <div class="contact-item" data-status="leave" onclick="openSoldierProfile('bl')"><div class="av av-b" style="width:44px;height:44px;font-size:14px">BL</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--t)">Bùi Văn Long</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Hạ sĩ • Chiến sĩ • Nam Định</div></div><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#faeeda;color:#633806;white-space:nowrap">Tranh thủ</span></div>
+        <div class="contact-item" data-status="out" onclick="openSoldierProfile('hk')"><div class="av av-r" style="width:44px;height:44px;font-size:14px">HK</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--t)">Hoàng Văn Khoa</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Binh nhất • Chiến sĩ • Hải Phòng</div></div><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#fcebeb;color:#791f1f;white-space:nowrap">Ra ngoài</span></div>
+        <div class="sec-label">Đại đội 2</div>
+        <div class="contact-item" data-status="unit" onclick="openSoldierProfile('vh')"><div class="av av-r" style="width:44px;height:44px;font-size:14px">VH</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--t)">Vũ Minh Hoàng</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Thiếu úy • Đại đội trưởng • Hà Nội</div></div><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#d4edda;color:#1a4731;white-space:nowrap">Tại đơn vị</span></div>
+        <div class="contact-item" data-status="sick" onclick="openSoldierProfile('dt')"><div class="av av-a" style="width:44px;height:44px;font-size:14px">DT</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--t)">Đặng Quốc Toàn</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Trung sĩ • Tiểu đội trưởng • Hà Tĩnh</div></div><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#eeedfe;color:#3c3489;white-space:nowrap">Ốm/QY</span></div>
+        <div class="contact-item" data-status="out" onclick="openSoldierProfile('nq')"><div class="av" style="width:44px;height:44px;font-size:14px;background:#eeedfe;color:#3c3489">NQ</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--t)">Ngô Đức Quân</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Hạ sĩ • Chiến sĩ • Hưng Yên</div></div><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#fcebeb;color:#791f1f;white-space:nowrap">Ra ngoài</span></div>
+      </div>
+    </div>
+
+    <!-- ========== HỒ SƠ QUÂN NHÂN ========== -->
+    <div class="screen" id="sc-soldier-profile">
+      <div style="background:linear-gradient(135deg,#1a4731,#2e7d52);padding:18px 16px;display:flex;gap:14px;align-items:center">
+        <div class="av" id="spf-av" style="width:64px;height:64px;font-size:22px;border:2.5px solid rgba(255,255,255,.4);background:#d4edda;color:#1a4731">NH</div>
+        <div><div style="color:#fff;font-size:17px;font-weight:700" id="spf-name">Nguyễn Văn Hùng</div><div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:2px" id="spf-rank">Thiếu tá • Trung đoàn trưởng</div><div style="color:rgba(255,255,255,.6);font-size:11px;margin-top:3px" id="spf-unit">Trung đoàn 5 • Ban chỉ huy</div></div>
+      </div>
+      <!-- Trạng thái -->
+      <div style="display:flex;align-items:center;gap:8px;background:var(--bg);padding:10px 14px;border-bottom:1px solid var(--b)">
+        <div id="spf-sdot" style="width:10px;height:10px;border-radius:50%;background:#2e7d52;flex-shrink:0"></div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)" id="spf-status">Đang ở tại đơn vị</div><div style="font-size:11px;color:var(--t2);margin-top:1px" id="spf-status-sub">Cập nhật lúc 07:30</div></div>
+        <button onclick="openSoldierStatus()" style="font-size:11px;padding:5px 10px;border-radius:8px;border:1px solid var(--a);color:var(--a);background:transparent;cursor:pointer;font-weight:600">Cập nhật</button>
+      </div>
+      <!-- Tabs -->
+      <div class="tab-bar" id="spf-tabs" style="position:sticky;top:0;z-index:10">
+        <div class="tab active" onclick="spfTab('info',this)">Thông tin</div>
+        <div class="tab" onclick="spfTab('history',this)">Kỷ luật/KT</div>
+        <div class="tab" onclick="spfTab('activity',this)">Hoạt động</div>
+      </div>
+      <!-- INFO -->
+      <div id="spf-info">
+        <div style="background:var(--bg);margin-top:8px;border-top:1px solid var(--b);border-bottom:1px solid var(--b)">
+          <div style="display:flex;padding:10px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px">Họ và tên</div><div style="font-size:13px;color:var(--t);font-weight:500" id="spf-fullname">Nguyễn Văn Hùng</div></div>
+          <div style="display:flex;padding:10px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px">Ngày sinh</div><div style="font-size:13px;color:var(--t);font-weight:500" id="spf-dob">12/03/1980</div></div>
+          <div style="display:flex;padding:10px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px">Quê quán</div><div style="font-size:13px;color:var(--t);font-weight:500" id="spf-hometown">Thái Bình</div></div>
+          <div style="display:flex;padding:10px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px">Cấp bậc</div><div style="font-size:13px;color:var(--t);font-weight:500" id="spf-capbac">Thiếu tá</div></div>
+          <div style="display:flex;padding:10px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px">Chức vụ</div><div style="font-size:13px;color:var(--t);font-weight:500" id="spf-chucvu">Trung đoàn trưởng</div></div>
+          <div style="display:flex;padding:10px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px">Số điện thoại</div><div style="font-size:13px;color:#185fa5;font-weight:500" id="spf-phone">0912.345.678</div></div>
+          <div style="display:flex;padding:10px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px">Năm nhập ngũ</div><div style="font-size:13px;color:var(--t);font-weight:500" id="spf-year">2002</div></div>
+          <div style="display:flex;padding:10px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px">Số quân</div><div style="font-size:13px;color:var(--t);font-weight:500" id="spf-id">TĐ5-001</div></div>
+          <div style="display:flex;padding:10px 14px"><div style="font-size:12px;color:var(--t2);width:110px">Đảng viên</div><div style="font-size:13px;color:var(--t);font-weight:500" id="spf-party">✅ Có (2008)</div></div>
+        </div>
+        <div style="padding:8px">
+          <button style="width:100%;background:transparent;color:var(--a);border:1.5px solid var(--a);border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer" onclick="toast('Mở form chỉnh sửa hồ sơ...')">✏️ Chỉnh sửa hồ sơ</button>
+          <button style="width:100%;background:#fcebeb;color:var(--red);border:1px solid #f7c1c1;border-radius:10px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px" onclick="toast('Chức năng xoá cần quyền quản trị!')">🗑 Xoá khỏi danh sách</button>
+        </div>
+      </div>
+      <!-- HISTORY -->
+      <div id="spf-history" style="display:none">
+        <div class="sec-label">🏅 Khen thưởng</div>
+        <div style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b);background:var(--bg)"><div style="width:8px;height:8px;border-radius:50%;background:#f0b429;margin-top:5px;flex-shrink:0"></div><div><div style="font-size:13px;font-weight:600;color:var(--t)">Bằng khen Bộ Quốc phòng</div><div style="font-size:11px;color:var(--t2);margin-top:2px;line-height:1.4">Hoàn thành xuất sắc nhiệm vụ huấn luyện năm 2024</div><div style="font-size:10px;color:var(--t2);margin-top:3px">15/12/2024</div></div></div>
+        <div style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b);background:var(--bg)"><div style="width:8px;height:8px;border-radius:50%;background:#f0b429;margin-top:5px;flex-shrink:0"></div><div><div style="font-size:13px;font-weight:600;color:var(--t)">Chiến sĩ thi đua cấp Quân khu</div><div style="font-size:11px;color:var(--t2);margin-top:2px;line-height:1.4">3 năm liên tiếp 2022–2024</div><div style="font-size:10px;color:var(--t2);margin-top:3px">20/12/2023</div></div></div>
+        <div style="display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b);background:var(--bg)"><div style="width:8px;height:8px;border-radius:50%;background:#2e7d52;margin-top:5px;flex-shrink:0"></div><div><div style="font-size:13px;font-weight:600;color:var(--t)">Huân chương Chiến công hạng Ba</div><div style="font-size:11px;color:var(--t2);margin-top:2px;line-height:1.4">Thành tích xuất sắc công tác chỉ huy 2018–2022</div><div style="font-size:10px;color:var(--t2);margin-top:3px">01/09/2022</div></div></div>
+        <div class="sec-label">⚠️ Kỷ luật</div>
+        <div style="display:flex;gap:10px;padding:10px 14px;background:var(--bg)"><div style="width:8px;height:8px;border-radius:50%;background:#ccc;margin-top:5px;flex-shrink:0"></div><div style="font-size:13px;color:var(--t2)">Không có vi phạm kỷ luật</div></div>
+        <div style="padding:8px"><button style="width:100%;background:transparent;color:var(--a);border:1.5px solid var(--a);border-radius:10px;padding:11px;font-size:14px;font-weight:700;cursor:pointer" onclick="toast('Mở form ghi nhận khen thưởng/kỷ luật')">➕ Thêm ghi nhận</button></div>
+      </div>
+      <!-- ACTIVITY -->
+      <div id="spf-activity" style="display:none;padding:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div style="background:#d4edda;border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;color:#1a4731">12</div><div style="font-size:10px;color:#2e7d52;margin-top:2px">📝 Bài viết tháng này</div></div>
+          <div style="background:#d0e8fb;border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;color:#0c447c">34</div><div style="font-size:10px;color:#185fa5;margin-top:2px">💬 Bình luận tháng này</div></div>
+          <div style="background:#d4edda;border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;color:#1a4731">3</div><div style="font-size:10px;color:#2e7d52;margin-top:2px">🛡 F47 hoàn thành</div></div>
+          <div style="background:#faeeda;border-radius:10px;padding:12px;text-align:center"><div style="font-size:22px;font-weight:700;color:#633806">412</div><div style="font-size:10px;color:#ba7517;margin-top:2px">❤️ Tổng tương tác</div></div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:6px">📋 Lịch sử F47 tháng 4</div>
+        <div style="background:var(--bg);border-radius:10px;border:1px solid var(--b);overflow:hidden">
+          <div style="display:flex;gap:10px;padding:10px 12px;border-bottom:1px solid var(--b)"><div style="width:8px;height:8px;border-radius:50%;background:#2e7d52;margin-top:5px;flex-shrink:0"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Phản bác luận điệu biển Đông</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Hoàn thành lúc 07:32 • Nhanh nhất</div><div style="font-size:10px;color:var(--t2);margin-top:3px">24/04/2026</div></div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#d4edda;color:#1a4731;align-self:flex-start;margin-top:4px">✅ Xong</span></div>
+          <div style="display:flex;gap:10px;padding:10px 12px"><div style="width:8px;height:8px;border-radius:50%;background:#e24b4a;margin-top:5px;flex-shrink:0"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Phản bác thông tin bầu cử</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Chưa hoàn thành trong thời hạn</div><div style="font-size:10px;color:var(--t2);margin-top:3px">20/04/2026</div></div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#fcebeb;color:#791f1f;align-self:flex-start;margin-top:4px">❌ Trễ</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== CẬP NHẬT TRẠNG THÁI ========== -->
+    <div class="screen" id="sc-soldier-status">
+      <div style="padding:14px">
+        <div style="font-size:13px;font-weight:700;color:var(--t);margin-bottom:12px">Cập nhật trạng thái: <span id="ss-name" style="color:var(--a)">Nguyễn Văn Hùng</span></div>
+        <div id="status-options" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+          <div class="sto" onclick="selectSoldierStatus(this,'unit','#2e7d52','#f0faf4')" style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;border:2px solid #2e7d52;background:#f0faf4;cursor:pointer"><div style="width:12px;height:12px;border-radius:50%;background:#2e7d52;flex-shrink:0"></div><div><div style="font-size:13px;font-weight:600;color:#1a4731">Đang ở tại đơn vị</div><div style="font-size:11px;color:#2e7d52;margin-top:1px">Có mặt tại doanh trại</div></div></div>
+          <div class="sto" onclick="selectSoldierStatus(this,'duty','#185fa5','#f0f6ff')" style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;border:1px solid var(--b);background:var(--bg);cursor:pointer"><div style="width:12px;height:12px;border-radius:50%;background:#185fa5;flex-shrink:0"></div><div><div style="font-size:13px;font-weight:600;color:var(--t)">Đang trực chiến</div><div style="font-size:11px;color:var(--t2);margin-top:1px">Đang thực hiện ca trực</div></div></div>
+          <div class="sto" onclick="selectSoldierStatus(this,'leave','#ba7517','#fffbf0')" style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;border:1px solid var(--b);background:var(--bg);cursor:pointer"><div style="width:12px;height:12px;border-radius:50%;background:#ba7517;flex-shrink:0"></div><div><div style="font-size:13px;font-weight:600;color:var(--t)">Nghỉ tranh thủ</div><div style="font-size:11px;color:var(--t2);margin-top:1px">Đã được phép về nhà</div></div></div>
+          <div class="sto" onclick="selectSoldierStatus(this,'out','#e24b4a','#fff5f5')" style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;border:1px solid var(--b);background:var(--bg);cursor:pointer"><div style="width:12px;height:12px;border-radius:50%;background:#e24b4a;flex-shrink:0"></div><div><div style="font-size:13px;font-weight:600;color:var(--t)">Ra ngoài</div><div style="font-size:11px;color:var(--t2);margin-top:1px">Ra khỏi doanh trại có phép</div></div></div>
+          <div class="sto" onclick="selectSoldierStatus(this,'sick','#534ab7','#f5f4ff')" style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;border:1px solid var(--b);background:var(--bg);cursor:pointer"><div style="width:12px;height:12px;border-radius:50%;background:#534ab7;flex-shrink:0"></div><div><div style="font-size:13px;font-weight:600;color:var(--t)">Ốm / Điều trị</div><div style="font-size:11px;color:var(--t2);margin-top:1px">Đang điều trị tại quân y</div></div></div>
+        </div>
+        <div id="ss-return-wrap">
+          <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px">⏰ Thời gian về / hết phép</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px"><input style="flex:1;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" type="date" value="2026-04-26"/><input style="flex:1;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" type="time" value="18:00"/></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px">📝 Ghi chú thêm</div>
+        <input style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;margin-bottom:14px" placeholder="VD: Ra ngoài mua đồ, về trước 18h..."/>
+        <button class="btn-primary" onclick="toast('✅ Đã cập nhật trạng thái!');setTimeout(goBack,1200)">✅ Xác nhận cập nhật</button>
+      </div>
+    </div>
+
+    <!-- ========== THÊM QUÂN NHÂN ========== -->
+    <div class="screen" id="sc-add-soldier">
+      <div style="padding:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--t2);padding:6px 0;text-transform:uppercase;letter-spacing:.05em">👤 Thông tin cơ bản</div>
+        <div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">Họ và tên *</label><input style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" placeholder="Nguyễn Văn A"/></div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <div style="flex:1"><label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">Ngày sinh</label><input style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" type="date"/></div>
+          <div style="flex:1"><label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">SĐT</label><input style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" placeholder="09xx..."/></div>
+        </div>
+        <div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">Quê quán</label><input style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" placeholder="Tỉnh / Thành phố"/></div>
+        <div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">Số quân</label><input style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" placeholder="TĐ5-0xx"/></div>
+        <div style="font-size:11px;font-weight:700;color:var(--t2);padding:6px 0;text-transform:uppercase;letter-spacing:.05em">🎖 Chức vụ & Đơn vị</div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">Cấp bậc *</label>
+          <div style="display:flex;flex-wrap:wrap;gap:6px" id="rank-radio">
+            <div onclick="selRadio(this,'rank-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Binh nhì</div>
+            <div onclick="selRadio(this,'rank-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Binh nhất</div>
+            <div onclick="selRadio(this,'rank-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Hạ sĩ</div>
+            <div onclick="selRadio(this,'rank-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Trung sĩ</div>
+            <div onclick="selRadio(this,'rank-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Thượng sĩ</div>
+            <div onclick="selRadio(this,'rank-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Thiếu úy</div>
+            <div onclick="selRadio(this,'rank-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Trung úy</div>
+            <div onclick="selRadio(this,'rank-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Đại úy</div>
+            <div onclick="selRadio(this,'rank-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Thiếu tá</div>
+          </div>
+        </div>
+        <div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">Chức vụ</label><input style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" placeholder="VD: Trung đội trưởng, Chiến sĩ..."/></div>
+        <div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">Đơn vị *</label>
+          <select style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none;background:var(--bg)">
+            <option>-- Chọn đơn vị --</option><option>Ban chỉ huy Trung đoàn</option><option>Đại đội 1</option><option>Đại đội 2</option><option>Đại đội 3</option><option>Hậu cần – Kỹ thuật</option><option>Quân y</option>
+          </select>
+        </div>
+        <div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">Năm nhập ngũ</label><input style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" type="number" placeholder="2024"/></div>
+        <div style="margin-bottom:16px">
+          <label style="font-size:12px;font-weight:600;color:var(--t);margin-bottom:5px;display:block">Đảng viên</label>
+          <div style="display:flex;gap:6px" id="party-radio">
+            <div onclick="selRadio(this,'party-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid #2e7d52;background:#d4edda;color:#1a4731;cursor:pointer;font-weight:600">Chưa vào Đảng</div>
+            <div onclick="selRadio(this,'party-radio')" style="font-size:11px;padding:5px 12px;border-radius:16px;border:1px solid var(--b);background:var(--bg2);color:var(--t2);cursor:pointer">Đảng viên</div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="toast('✅ Đã thêm quân nhân vào danh sách!');setTimeout(goBack,1200)">✅ Thêm vào danh sách</button>
+      </div>
+    </div>
+
+    <!-- ========== TIỆN ÍCH ========== -->
+    <div class="screen" id="sc-utilities">
+      <div style="padding:8px 8px 4px">
+        <div style="font-size:12px;color:var(--t2);padding:4px 4px 8px;font-weight:600">CHỨC NĂNG CHÍNH</div>
+        <div class="utilities-grid">
+          <div class="util-item" onclick="openF47()"><div class="util-icon">🛡</div><div class="util-label">Lực lượng 47</div><div class="util-badge ub-red">2 đang chạy</div></div>
+          <div class="util-item"><div class="util-icon">📅</div><div class="util-label">Lịch trực</div><div class="util-badge ub-green">Cập nhật</div></div>
+          <div class="util-item"><div class="util-icon">🎯</div><div class="util-label">Nhiệm vụ</div><div class="util-badge ub-amber">3 đang làm</div></div>
+          <div class="util-item"><div class="util-icon">📋</div><div class="util-label">Báo cáo</div><div class="util-badge ub-amber">2 chờ duyệt</div></div>
+          <div class="util-item"><div class="util-icon">👥</div><div class="util-label">Quản lý quân nhân</div><div class="util-badge ub-green">42 người</div></div>
+          <div class="util-item"><div class="util-icon">📁</div><div class="util-label">Tài liệu</div><div class="util-badge ub-green">Mới</div></div>
+        </div>
+      </div>
+      <div style="padding:8px 8px 4px;margin-top:4px">
+        <div style="font-size:12px;color:var(--t2);padding:4px 4px 8px;font-weight:600">QUẢN LÝ ĐƠN VỊ</div>
+        <div class="utilities-grid">
+          <div class="util-item"><div class="util-icon">🏥</div><div class="util-label">Quân y</div></div>
+          <div class="util-item"><div class="util-icon">🚗</div><div class="util-label">Phương tiện</div></div>
+          <div class="util-item"><div class="util-icon">💰</div><div class="util-label">Tài vụ</div></div>
+          <div class="util-item"><div class="util-icon">🏆</div><div class="util-label">Thi đua khen thưởng</div></div>
+          <div class="util-item"><div class="util-icon">📊</div><div class="util-label">Thống kê báo cáo</div></div>
+          <div class="util-item"><div class="util-icon">⚙️</div><div class="util-label">Quản trị hệ thống</div></div>
+        </div>
+      </div>
+      <div style="padding:8px 8px 12px;margin-top:4px">
+        <div style="font-size:12px;color:var(--t2);padding:4px 4px 8px;font-weight:600">TIỆN ÍCH KHÁC</div>
+        <div class="utilities-grid">
+          <div class="util-item"><div class="util-icon">🗓</div><div class="util-label">Lịch & Sự kiện</div></div>
+          <div class="util-item"><div class="util-icon">📡</div><div class="util-label">Thông báo nội bộ</div></div>
+          <div class="util-item"><div class="util-icon">➕</div><div class="util-label" style="color:#999">Sắp ra mắt</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== CÁ NHÂN ========== -->
+    <div class="screen" id="sc-profile">
+      <!-- Hero -->
+      <div style="background:linear-gradient(135deg,#1a4731,#2e7d52);padding:20px 16px 16px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          <div style="position:relative">
+            <div class="av" style="width:68px;height:68px;font-size:24px;background:#9fe1cb;color:#085041;border:3px solid rgba(255,255,255,.4)">BT</div>
+            <div onclick="toast('Chọn ảnh đại diện...')" style="position:absolute;bottom:0;right:0;width:22px;height:22px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.2)">✏️</div>
+          </div>
+          <div>
+            <div style="color:#fff;font-size:18px;font-weight:700">Bùi Quang Thành</div>
+            <div style="color:rgba(255,255,255,.8);font-size:12px;margin-top:3px">Thiếu úy • Đại đội trưởng</div>
+            <div style="color:rgba(255,255,255,.6);font-size:11px;margin-top:2px">Đại đội 1 – Trung đoàn 5</div>
+          </div>
+        </div>
+        <!-- 4 stat boxes -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:8px 4px;text-align:center">
+            <div style="color:#fff;font-size:18px;font-weight:700">42</div>
+            <div style="color:rgba(255,255,255,.7);font-size:9px;margin-top:1px">Quân số</div>
+          </div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:8px 4px;text-align:center">
+            <div style="color:#fff;font-size:18px;font-weight:700">18</div>
+            <div style="color:rgba(255,255,255,.7);font-size:9px;margin-top:1px">Báo cáo</div>
+          </div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:8px 4px;text-align:center">
+            <div style="color:#fff;font-size:18px;font-weight:700">3</div>
+            <div style="color:rgba(255,255,255,.7);font-size:9px;margin-top:1px">Năm PV</div>
+          </div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:8px 4px;text-align:center">
+            <div style="color:#fff;font-size:18px;font-weight:700">5</div>
+            <div style="color:rgba(255,255,255,.7);font-size:9px;margin-top:1px">KT nhận</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;background:var(--bg);border-bottom:1px solid var(--b)">
+        <div onclick="push('my-info','Thông tin cá nhân',null,false)" style="display:flex;flex-direction:column;align-items:center;padding:12px 4px;gap:4px;cursor:pointer;border-right:1px solid var(--b)">
+          <span style="font-size:22px">👤</span><span style="font-size:9px;color:var(--t2);text-align:center">Hồ sơ</span>
+        </div>
+        <div onclick="push('my-schedule','Lịch trực của tôi',null,false)" style="display:flex;flex-direction:column;align-items:center;padding:12px 4px;gap:4px;cursor:pointer;border-right:1px solid var(--b)">
+          <span style="font-size:22px">📅</span><span style="font-size:9px;color:var(--t2);text-align:center">Lịch trực</span>
+        </div>
+        <div onclick="push('my-achievement','Thành tích cá nhân',null,false)" style="display:flex;flex-direction:column;align-items:center;padding:12px 4px;gap:4px;cursor:pointer;border-right:1px solid var(--b)">
+          <span style="font-size:22px">🏅</span><span style="font-size:9px;color:var(--t2);text-align:center">Thành tích</span>
+        </div>
+        <div onclick="push('my-f47','Hoạt động F47',null,false)" style="display:flex;flex-direction:column;align-items:center;padding:12px 4px;gap:4px;cursor:pointer">
+          <span style="font-size:22px">🛡</span><span style="font-size:9px;color:var(--t2);text-align:center">F47</span>
+        </div>
+      </div>
+
+      <!-- Menu nhóm 1 -->
+      <div style="margin-top:8px;background:var(--bg);border-top:1px solid var(--b);border-bottom:1px solid var(--b)">
+        <div onclick="push('my-info','Thông tin cá nhân',null,false)" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b);cursor:pointer">
+          <div style="width:32px;height:32px;border-radius:9px;background:#d4edda;display:flex;align-items:center;justify-content:center;font-size:15px">👤</div>
+          <span style="flex:1;font-size:14px;color:var(--t)">Thông tin cá nhân</span><span style="color:var(--t2)">›</span>
+        </div>
+        <div onclick="push('my-schedule','Lịch trực của tôi',null,false)" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b);cursor:pointer">
+          <div style="width:32px;height:32px;border-radius:9px;background:#d0e8fb;display:flex;align-items:center;justify-content:center;font-size:15px">📅</div>
+          <span style="flex:1;font-size:14px;color:var(--t)">Lịch trực của tôi</span><span style="color:var(--t2)">›</span>
+        </div>
+        <div onclick="push('my-achievement','Thành tích cá nhân',null,false)" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b);cursor:pointer">
+          <div style="width:32px;height:32px;border-radius:9px;background:#faeeda;display:flex;align-items:center;justify-content:center;font-size:15px">🏅</div>
+          <span style="flex:1;font-size:14px;color:var(--t)">Thành tích – Khen thưởng</span><span style="color:var(--t2)">›</span>
+        </div>
+        <div onclick="push('my-f47','Hoạt động F47',null,false)" style="display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer">
+          <div style="width:32px;height:32px;border-radius:9px;background:#d4edda;display:flex;align-items:center;justify-content:center;font-size:15px">🛡</div>
+          <span style="flex:1;font-size:14px;color:var(--t)">Hoạt động F47 cá nhân</span>
+          <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;background:#d4edda;color:#1a4731;margin-right:6px">Xếp #2</span>
+          <span style="color:var(--t2)">›</span>
+        </div>
+      </div>
+
+      <!-- Menu nhóm 2 -->
+      <div style="margin-top:8px;background:var(--bg);border-top:1px solid var(--b);border-bottom:1px solid var(--b)">
+        <div onclick="push('my-security','Bảo mật & Mật khẩu',null,false)" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b);cursor:pointer">
+          <div style="width:32px;height:32px;border-radius:9px;background:#d0e8fb;display:flex;align-items:center;justify-content:center;font-size:15px">🔒</div>
+          <span style="flex:1;font-size:14px;color:var(--t)">Bảo mật & Mật khẩu</span><span style="color:var(--t2)">›</span>
+        </div>
+        <div onclick="push('my-notif','Cài đặt thông báo',null,false)" style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b);cursor:pointer">
+          <div style="width:32px;height:32px;border-radius:9px;background:#faeeda;display:flex;align-items:center;justify-content:center;font-size:15px">🔔</div>
+          <span style="flex:1;font-size:14px;color:var(--t)">Cài đặt thông báo</span><span style="color:var(--t2)">›</span>
+        </div>
+        <div onclick="toast('Đã chuyển sang giao diện tối!')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer">
+          <div style="width:32px;height:32px;border-radius:9px;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:15px">⚙️</div>
+          <span style="flex:1;font-size:14px;color:var(--t)">Cài đặt ứng dụng</span><span style="color:var(--t2)">›</span>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;background:var(--bg);border-top:1px solid var(--b);border-bottom:1px solid var(--b)">
+        <div onclick="toast('Đã đăng xuất!')" style="display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer">
+          <div style="width:32px;height:32px;border-radius:9px;background:#fcebeb;display:flex;align-items:center;justify-content:center;font-size:15px">⏻</div>
+          <span style="flex:1;font-size:14px;color:#a32d2d;font-weight:600">Đăng xuất</span>
+        </div>
+      </div>
+      <div style="text-align:center;padding:14px;font-size:11px;color:var(--t2)">QuânApp v1.0 • Trung đoàn 5</div>
+    </div>
+
+    <!-- ========== THÔNG TIN CÁ NHÂN ========== -->
+    <div class="screen" id="sc-my-info">
+      <div style="background:linear-gradient(135deg,#1a4731,#2e7d52);padding:20px 16px;display:flex;gap:14px;align-items:center">
+        <div style="position:relative">
+          <div class="av" style="width:60px;height:60px;font-size:20px;background:#9fe1cb;color:#085041;border:2.5px solid rgba(255,255,255,.4)">BT</div>
+          <div onclick="toast('Chọn ảnh...')" style="position:absolute;bottom:0;right:0;width:20px;height:20px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer">✏️</div>
+        </div>
+        <div><div style="color:#fff;font-size:16px;font-weight:700">Bùi Quang Thành</div><div style="color:rgba(255,255,255,.7);font-size:11px;margin-top:3px">TĐ5-BT-009 • Thiếu úy</div></div>
+      </div>
+      <div style="background:var(--bg);margin-top:8px;border-top:1px solid var(--b);border-bottom:1px solid var(--b)">
+        <div style="display:flex;padding:11px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Họ và tên</div><div style="font-size:13px;color:var(--t);font-weight:500;flex:1">Bùi Quang Thành</div><span onclick="toast('Sửa họ tên...')" style="font-size:12px;color:var(--a);cursor:pointer">Sửa</span></div>
+        <div style="display:flex;padding:11px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Ngày sinh</div><div style="font-size:13px;color:var(--t);font-weight:500;flex:1">15/08/1998</div></div>
+        <div style="display:flex;padding:11px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Quê quán</div><div style="font-size:13px;color:var(--t);font-weight:500;flex:1">Hà Nội</div></div>
+        <div style="display:flex;padding:11px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Số điện thoại</div><div style="font-size:13px;color:#185fa5;font-weight:500;flex:1">0912.000.999</div><span onclick="toast('Sửa SĐT...')" style="font-size:12px;color:var(--a);cursor:pointer">Sửa</span></div>
+        <div style="display:flex;padding:11px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Cấp bậc</div><div style="font-size:13px;color:var(--t);font-weight:500;flex:1">Thiếu úy</div></div>
+        <div style="display:flex;padding:11px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Chức vụ</div><div style="font-size:13px;color:var(--t);font-weight:500;flex:1">Đại đội trưởng</div></div>
+        <div style="display:flex;padding:11px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Đơn vị</div><div style="font-size:13px;color:var(--t);font-weight:500;flex:1">Đại đội 1 – Trung đoàn 5</div></div>
+        <div style="display:flex;padding:11px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Năm nhập ngũ</div><div style="font-size:13px;color:var(--t);font-weight:500;flex:1">2020</div></div>
+        <div style="display:flex;padding:11px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Số quân</div><div style="font-size:13px;color:var(--t);font-weight:500;flex:1">TĐ5-009</div></div>
+        <div style="display:flex;padding:11px 14px"><div style="font-size:12px;color:var(--t2);width:110px;flex-shrink:0">Đảng viên</div><div style="font-size:13px;color:var(--t);font-weight:500;flex:1">✅ Có (2023)</div></div>
+      </div>
+    </div>
+
+    <!-- ========== LỊCH TRỰC ========== -->
+    <div class="screen" id="sc-my-schedule">
+      <!-- Tháng điều hướng -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-bottom:1px solid var(--b)">
+        <span style="font-size:20px;cursor:pointer;color:var(--t2)">‹</span>
+        <span style="font-size:14px;font-weight:700;color:var(--t)">Tháng 4 / 2026</span>
+        <span style="font-size:20px;cursor:pointer;color:var(--t2)">›</span>
+      </div>
+      <!-- Lịch tuần -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg);border-bottom:1px solid var(--b)">
+        <div style="text-align:center;padding:6px 0;font-size:10px;font-weight:700;color:var(--t2)">T2</div>
+        <div style="text-align:center;padding:6px 0;font-size:10px;font-weight:700;color:var(--t2)">T3</div>
+        <div style="text-align:center;padding:6px 0;font-size:10px;font-weight:700;color:var(--t2)">T4</div>
+        <div style="text-align:center;padding:6px 0;font-size:10px;font-weight:700;color:var(--t2)">T5</div>
+        <div style="text-align:center;padding:6px 0;font-size:10px;font-weight:700;color:var(--t2)">T6</div>
+        <div style="text-align:center;padding:6px 0;font-size:10px;font-weight:700;color:var(--red)">T7</div>
+        <div style="text-align:center;padding:6px 0;font-size:10px;font-weight:700;color:var(--red)">CN</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:6px;background:var(--bg);border-bottom:1px solid var(--b)">
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t2)"></div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t2)"></div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">1</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">2</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;background:#d0e8fb;font-size:12px;font-weight:600;color:#0c447c">3</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--red)">4</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--red)">5</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">6</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;background:#faeeda;font-size:12px;font-weight:600;color:#633806">7</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;background:#faeeda;font-size:12px;font-weight:600;color:#633806">8</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">9</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;background:#d0e8fb;font-size:12px;font-weight:600;color:#0c447c">10</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--red)">11</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--red)">12</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">13</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">14</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">15</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">16</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;background:#d0e8fb;font-size:12px;font-weight:600;color:#0c447c">17</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--red)">18</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--red)">19</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">20</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">21</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">22</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">23</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;background:var(--a);font-size:12px;font-weight:700;color:#fff">24</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--red)">25</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--red)">26</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">27</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">28</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">29</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t)">30</div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t2)"></div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t2)"></div>
+        <div style="text-align:center;padding:7px 2px;border-radius:8px;font-size:12px;color:var(--t2)"></div>
+      </div>
+      <!-- Chú thích -->
+      <div style="display:flex;gap:12px;padding:8px 14px;background:var(--bg);border-bottom:1px solid var(--b)">
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:var(--a)"></div><span style="font-size:11px;color:var(--t2)">Hôm nay</span></div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#185fa5"></div><span style="font-size:11px;color:var(--t2)">Ca trực</span></div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#ba7517"></div><span style="font-size:11px;color:var(--t2)">Tranh thủ</span></div>
+      </div>
+      <!-- Chi tiết ca trực -->
+      <div style="padding:10px">
+        <div style="font-size:13px;font-weight:700;color:var(--t);margin-bottom:8px">📋 Ca trực tháng 4/2026</div>
+        <div style="background:var(--bg);border-radius:12px;border:1px solid var(--b);overflow:hidden">
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--b)">
+            <div style="width:36px;height:36px;border-radius:8px;background:#d0e8fb;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🌙</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Ca trực đêm – 03/04</div><div style="font-size:11px;color:var(--t2);margin-top:2px">18:00 – 06:00 • Trực cổng chính</div></div>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#d4edda;color:#1a4731">✅ Xong</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--b)">
+            <div style="width:36px;height:36px;border-radius:8px;background:#d0e8fb;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🌙</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Ca trực đêm – 10/04</div><div style="font-size:11px;color:var(--t2);margin-top:2px">18:00 – 06:00 • Trực nội vụ</div></div>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#d4edda;color:#1a4731">✅ Xong</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--b)">
+            <div style="width:36px;height:36px;border-radius:8px;background:#d0e8fb;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🌙</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Ca trực đêm – 17/04</div><div style="font-size:11px;color:var(--t2);margin-top:2px">18:00 – 06:00 • Trực cổng chính</div></div>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#d4edda;color:#1a4731">✅ Xong</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 13px">
+            <div style="width:36px;height:36px;border-radius:8px;background:#faeeda;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🌙</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Ca trực đêm – 24/04</div><div style="font-size:11px;color:var(--t2);margin-top:2px">18:00 – 06:00 • Trực nội vụ</div></div>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#faeeda;color:#633806">⏳ Hôm nay</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== THÀNH TÍCH ========== -->
+    <div class="screen" id="sc-my-achievement">
+      <!-- Tóm tắt -->
+      <div style="background:linear-gradient(135deg,#1a4731,#2e7d52);padding:16px 14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px;text-align:center"><div style="color:#fff;font-size:20px;font-weight:700">5</div><div style="color:rgba(255,255,255,.7);font-size:10px;margin-top:2px">Khen thưởng</div></div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px;text-align:center"><div style="color:#fff;font-size:20px;font-weight:700">0</div><div style="color:rgba(255,255,255,.7);font-size:10px;margin-top:2px">Kỷ luật</div></div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px;text-align:center"><div style="color:#fff;font-size:20px;font-weight:700">3</div><div style="color:rgba(255,255,255,.7);font-size:10px;margin-top:2px">Năm CSTĐ</div></div>
+        </div>
+      </div>
+      <div style="padding:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:8px">🏅 Khen thưởng</div>
+        <div style="background:var(--bg);border-radius:12px;border:1px solid var(--b);overflow:hidden">
+          <div style="display:flex;gap:10px;padding:11px 13px;border-bottom:1px solid var(--b)">
+            <div style="font-size:24px">🥇</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--t)">Chiến sĩ thi đua cấp Trung đoàn</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Xuất sắc trong huấn luyện và công tác 2025</div><div style="font-size:10px;color:var(--t2);margin-top:3px">20/12/2025</div></div>
+          </div>
+          <div style="display:flex;gap:10px;padding:11px 13px;border-bottom:1px solid var(--b)">
+            <div style="font-size:24px">🏆</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--t)">Bằng khen Sư đoàn</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Hoàn thành tốt nhiệm vụ huấn luyện tân binh</div><div style="font-size:10px;color:var(--t2);margin-top:3px">01/09/2024</div></div>
+          </div>
+          <div style="display:flex;gap:10px;padding:11px 13px;border-bottom:1px solid var(--b)">
+            <div style="font-size:24px">🎖</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--t)">Chiến sĩ thi đua cấp Trung đoàn</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Năm 2024 – 2025 liên tiếp</div><div style="font-size:10px;color:var(--t2);margin-top:3px">20/12/2024</div></div>
+          </div>
+          <div style="display:flex;gap:10px;padding:11px 13px;border-bottom:1px solid var(--b)">
+            <div style="font-size:24px">🛡</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--t)">Xuất sắc F47 – Quý 1/2026</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Hoàn thành 100% nhiệm vụ đấu tranh mạng</div><div style="font-size:10px;color:var(--t2);margin-top:3px">31/03/2026</div></div>
+          </div>
+          <div style="display:flex;gap:10px;padding:11px 13px">
+            <div style="font-size:24px">⭐</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--t)">Cờ thi đua Trung đoàn</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Đại đội 1 dẫn đầu phong trào thi đua 2025</div><div style="font-size:10px;color:var(--t2);margin-top:3px">20/12/2025</div></div>
+          </div>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:var(--t);margin:12px 0 8px">⚠️ Kỷ luật</div>
+        <div style="background:var(--bg);border-radius:12px;border:1px solid var(--b);padding:14px;text-align:center">
+          <div style="font-size:24px;margin-bottom:6px">✅</div>
+          <div style="font-size:13px;font-weight:600;color:#2e7d52">Không có vi phạm kỷ luật</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:4px">Giữ gìn kỷ luật tốt trong suốt quá trình phục vụ</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== HOẠT ĐỘNG F47 CÁ NHÂN ========== -->
+    <div class="screen" id="sc-my-f47">
+      <div style="background:linear-gradient(135deg,#1a4731,#2e7d52);padding:14px">
+        <div style="display:flex;gap:0;border:1px solid rgba(255,255,255,.3);border-radius:8px;overflow:hidden;margin-bottom:10px">
+          <div id="mf47-w" onclick="mf47Toggle('week')" style="flex:1;text-align:center;padding:7px;font-size:12px;font-weight:700;background:rgba(255,255,255,.25);color:#fff;cursor:pointer">Tuần này</div>
+          <div id="mf47-m" onclick="mf47Toggle('month')" style="flex:1;text-align:center;padding:7px;font-size:12px;font-weight:700;color:rgba(255,255,255,.6);cursor:pointer">Tháng 4</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px;text-align:center"><div style="color:#fff;font-size:20px;font-weight:700" id="mf47-bai">7</div><div style="color:rgba(255,255,255,.7);font-size:10px;margin-top:2px">📝 Bài viết</div></div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px;text-align:center"><div style="color:#fff;font-size:20px;font-weight:700" id="mf47-cmt">23</div><div style="color:rgba(255,255,255,.7);font-size:10px;margin-top:2px">💬 Bình luận</div></div>
+          <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:10px;text-align:center"><div style="color:#fff;font-size:20px;font-weight:700" id="mf47-tt">412</div><div style="color:rgba(255,255,255,.7);font-size:10px;margin-top:2px">❤️ Tương tác</div></div>
+        </div>
+      </div>
+      <!-- Xếp hạng -->
+      <div style="background:var(--bg);padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px">
+        <div style="font-size:24px">🥈</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--t)">Xếp hạng #2 toàn đơn vị</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Tuần này • Sau N.V. Hùng 5 bài</div></div>
+        <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;background:#faeeda;color:#633806">Tốt</span>
+      </div>
+      <!-- Lịch sử chiến dịch -->
+      <div style="padding:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:8px">🛡 Chiến dịch tháng 4</div>
+        <div style="background:var(--bg);border-radius:12px;border:1px solid var(--b);overflow:hidden">
+          <div style="display:flex;gap:10px;padding:10px 13px;border-bottom:1px solid var(--b)"><div style="width:8px;height:8px;border-radius:50%;background:#2e7d52;margin-top:5px;flex-shrink:0"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Phản bác luận điệu biển Đông</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Hoàn thành 07:32 • Nhanh nhất đơn vị 🏆</div><div style="font-size:10px;color:var(--t2);margin-top:3px">24/04/2026</div></div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#d4edda;color:#1a4731;align-self:flex-start;margin-top:4px">✅</span></div>
+          <div style="display:flex;gap:10px;padding:10px 13px;border-bottom:1px solid var(--b)"><div style="width:8px;height:8px;border-radius:50%;background:#2e7d52;margin-top:5px;flex-shrink:0"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Lan tỏa hình ảnh Quân đội</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Hoàn thành 08:45</div><div style="font-size:10px;color:var(--t2);margin-top:3px">22/04/2026</div></div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#d4edda;color:#1a4731;align-self:flex-start;margin-top:4px">✅</span></div>
+          <div style="display:flex;gap:10px;padding:10px 13px"><div style="width:8px;height:8px;border-radius:50%;background:#e24b4a;margin-top:5px;flex-shrink:0"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Phản bác thông tin bầu cử</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Chưa hoàn thành trong thời hạn</div><div style="font-size:10px;color:var(--t2);margin-top:3px">20/04/2026</div></div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#fcebeb;color:#791f1f;align-self:flex-start;margin-top:4px">❌</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== BẢO MẬT ========== -->
+    <div class="screen" id="sc-my-security">
+      <div style="padding:14px">
+        <div style="background:var(--bg);border-radius:12px;border:1px solid var(--b);overflow:hidden;margin-bottom:12px">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--b)"><div style="font-size:13px;font-weight:700;color:var(--t);margin-bottom:10px">🔑 Đổi mật khẩu</div>
+            <div style="margin-bottom:8px"><label style="font-size:12px;color:var(--t2);display:block;margin-bottom:4px">Mật khẩu hiện tại</label><input type="password" style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" placeholder="••••••••"/></div>
+            <div style="margin-bottom:8px"><label style="font-size:12px;color:var(--t2);display:block;margin-bottom:4px">Mật khẩu mới</label><input type="password" style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" placeholder="••••••••"/></div>
+            <div style="margin-bottom:10px"><label style="font-size:12px;color:var(--t2);display:block;margin-bottom:4px">Xác nhận mật khẩu mới</label><input type="password" style="width:100%;border:1px solid var(--b);border-radius:8px;padding:9px 12px;font-size:13px;outline:none" placeholder="••••••••"/></div>
+            <button onclick="toast('✅ Đã đổi mật khẩu thành công!')" style="width:100%;background:var(--a);color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">Đổi mật khẩu</button>
+          </div>
+        </div>
+        <div style="background:var(--bg);border-radius:12px;border:1px solid var(--b);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid var(--b)">
+            <div><div style="font-size:13px;font-weight:600;color:var(--t)">Xác thực 2 lớp (OTP)</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Gửi OTP qua số 09xx.xxx.999</div></div>
+            <div onclick="this.style.background=this.style.background==='#2e7d52'?'#ccc':'#2e7d52';this.style.left=this.style.left==='18px'?'2px':'18px'" style="width:44px;height:24px;border-radius:12px;background:#2e7d52;position:relative;cursor:pointer;transition:.3s"><div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:22px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px">
+            <div><div style="font-size:13px;font-weight:600;color:var(--t)">Tự động khóa màn hình</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Sau 5 phút không hoạt động</div></div>
+            <div onclick="this.style.background=this.style.background==='#2e7d52'?'#ccc':'#2e7d52'" style="width:44px;height:24px;border-radius:12px;background:#2e7d52;position:relative;cursor:pointer;transition:.3s"><div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:22px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== CÀI ĐẶT THÔNG BÁO ========== -->
+    <div class="screen" id="sc-my-notif">
+      <div style="padding:14px">
+        <div style="background:var(--bg);border-radius:12px;border:1px solid var(--b);overflow:hidden">
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b)">
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">🛡 Lực lượng F47</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Chiến dịch mới, deadline, bị giục</div></div>
+          <div onclick="toggleNotif(this)" data-on="1" style="width:44px;height:24px;border-radius:12px;background:#2e7d52;position:relative;cursor:pointer"><div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:22px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b)">
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">💬 Tin nhắn</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Tin nhắn mới từ các nhóm</div></div>
+          <div onclick="toggleNotif(this)" data-on="1" style="width:44px;height:24px;border-radius:12px;background:#2e7d52;position:relative;cursor:pointer"><div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:22px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b)">
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">📋 Nhiệm vụ</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Giao nhiệm vụ mới, deadline</div></div>
+          <div onclick="toggleNotif(this)" data-on="1" style="width:44px;height:24px;border-radius:12px;background:#2e7d52;position:relative;cursor:pointer"><div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:22px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b)">
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">📢 Thông báo đơn vị</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Lệnh, thông báo từ ban chỉ huy</div></div>
+          <div onclick="toggleNotif(this)" data-on="1" style="width:44px;height:24px;border-radius:12px;background:#2e7d52;position:relative;cursor:pointer"><div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:22px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--b)">
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">🔔 Nhắc nhở ca trực</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Nhắc trước 1 tiếng</div></div>
+          <div onclick="toggleNotif(this)" data-on="1" style="width:44px;height:24px;border-radius:12px;background:#2e7d52;position:relative;cursor:pointer"><div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:22px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:13px 14px">
+          <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">📊 Báo cáo</div><div style="font-size:11px;color:var(--t2);margin-top:2px">Khi báo cáo được duyệt/từ chối</div></div>
+          <div onclick="toggleNotif(this)" data-on="0" style="width:44px;height:24px;border-radius:12px;background:#ccc;position:relative;cursor:pointer"><div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+        </div>
+        </div>
+        <div style="margin-top:12px;background:var(--bg);border-radius:12px;border:1px solid var(--b);overflow:hidden">
+          <div style="padding:13px 14px;border-bottom:1px solid var(--b)"><div style="font-size:12px;color:var(--t2);margin-bottom:8px;font-weight:600">Giờ không làm phiền</div>
+            <div style="display:flex;gap:8px;align-items:center"><input type="time" value="22:00" style="flex:1;border:1px solid var(--b);border-radius:8px;padding:8px 10px;font-size:13px;outline:none"/><span style="color:var(--t2)">–</span><input type="time" value="06:00" style="flex:1;border:1px solid var(--b);border-radius:8px;padding:8px 10px;font-size:13px;outline:none"/></div>
+          </div>
+          <div style="padding:13px 14px;font-size:12px;color:var(--t2)">Trong giờ không làm phiền chỉ nhận thông báo khẩn từ Ban chỉ huy</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== F47: DANH SÁCH CHIẾN DỊCH ========== -->
+    <div class="screen" id="sc-f47">
+      <div class="tab-bar">
+        <div class="tab active" onclick="f47MainTab('campaigns',this)">Chiến dịch</div>
+        <div class="tab" onclick="f47MainTab('activity',this)">Hoạt động</div>
+        <div class="tab" onclick="f47MainTab('stats',this)">Thống kê</div>
+      </div>
+
+      <!-- CHIẾN DỊCH -->
+      <div id="f47-campaigns">
+        <div style="display:flex;gap:6px;padding:8px 8px 4px">
+          <div class="ptag sel" style="font-size:11px" onclick="f47Filter('all',this)">Tất cả</div>
+          <div class="ptag" style="font-size:11px" onclick="f47Filter('live',this)">🔴 Đang chạy</div>
+          <div class="ptag" style="font-size:11px" onclick="f47Filter('done',this)">⚫ Đã kết thúc</div>
+        </div>
+        <div id="f47-list">
+          <div class="campaign-card" data-status="live" onclick="openCampaign()">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:14px;font-weight:700;color:var(--t);flex:1;margin-right:8px">📢 Phản bác luận điệu sai trái về biển Đông</div><span class="sb sb-live">🔴 Đang chạy</span></div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--b)">
+              <div class="av av-g" style="width:22px;height:22px;font-size:9px;flex-shrink:0">NH</div>
+              <div style="font-size:11px;color:var(--t2)">Phát động bởi <b style="color:var(--t)">Th.tá Nguyễn Văn Hùng</b> – Trung đoàn trưởng</div>
+            </div>
+            <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:10px">Đăng bình luận + chia sẻ bài viết chính thống về chủ quyền biển Đông trên Facebook, TikTok.</div>
+            <div class="countdown-wrap"><span style="font-size:18px">⏱</span><div><div style="font-size:11px;color:#633806">Thời gian còn lại</div><div class="cd-time" id="cd1">01:47:23</div></div></div>
+            <div class="prog-hd"><span>Tiến độ</span><span style="font-weight:700;color:var(--a)">18/28 (64%)</span></div>
+            <div class="prog-bar" style="margin-bottom:10px"><div class="prog-fill" style="width:64%"></div></div>
+            <div class="stat-row">
+              <div class="stat-box"><div class="snum g">18</div><div class="slabel">✅ Đã làm</div></div>
+              <div class="stat-box"><div class="snum r">10</div><div class="slabel">❌ Chưa</div></div>
+              <div class="stat-box"><div class="snum a">5</div><div class="slabel">🐢 Chậm</div></div>
+            </div>
+          </div>
+          <div class="campaign-card" data-status="live" onclick="openCampaign()">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:14px;font-weight:700;color:var(--t);flex:1;margin-right:8px">🇻🇳 Lan tỏa hình ảnh Quân đội nhân dân</div><span class="sb sb-live">🔴 Đang chạy</span></div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--b)">
+              <div class="av av-b" style="width:22px;height:22px;font-size:9px;flex-shrink:0">TM</div>
+              <div style="font-size:11px;color:var(--t2)">Phát động bởi <b style="color:var(--t)">Đ.úy Trần Văn Minh</b> – Chính trị viên</div>
+            </div>
+            <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:10px">Chia sẻ video, hình ảnh hoạt động nhân kỷ niệm 30/4. Hashtag #QuanDoiNhanDan.</div>
+            <div class="countdown-wrap"><span style="font-size:18px">⏱</span><div><div style="font-size:11px;color:#633806">Thời gian còn lại</div><div class="cd-time" id="cd2">05:12:08</div></div></div>
+            <div class="prog-hd"><span>Tiến độ</span><span style="font-weight:700;color:var(--red)">8/28 (29%)</span></div>
+            <div class="prog-bar" style="margin-bottom:10px"><div class="prog-fill warn" style="width:29%"></div></div>
+            <div class="stat-row">
+              <div class="stat-box"><div class="snum g">8</div><div class="slabel">✅ Đã làm</div></div>
+              <div class="stat-box"><div class="snum r">20</div><div class="slabel">❌ Chưa</div></div>
+              <div class="stat-box"><div class="snum a">2</div><div class="slabel">🐢 Chậm</div></div>
+            </div>
+          </div>
+          <div class="campaign-card" data-status="done">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:14px;font-weight:700;color:var(--t);flex:1;margin-right:8px">🏳 Phản bác thông tin sai về bầu cử</div><span class="sb sb-done">⚫ Đã kết thúc</span></div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--b)">
+              <div class="av av-g" style="width:22px;height:22px;font-size:9px;flex-shrink:0">NH</div>
+              <div style="font-size:11px;color:var(--t2)">Phát động bởi <b style="color:var(--t)">Th.tá Nguyễn Văn Hùng</b> • 20/04/2026</div>
+            </div>
+            <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:10px">Kết thúc 20/04/2026. Tỷ lệ hoàn thành: 26/28.</div>
+            <div class="prog-hd"><span>Kết quả</span><span style="font-weight:700;color:var(--a)">26/28 (93%)</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:93%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOẠT ĐỘNG CÁ NHÂN -->
+      <div id="f47-activity" style="display:none">
+        <div style="padding:10px 10px 0">
+          <!-- Dán link -->
+          <div class="card" style="margin:0 0 10px">
+            <div style="font-size:13px;font-weight:700;color:var(--t);margin-bottom:8px">📎 Thêm hoạt động mới</div>
+            <!-- Bài viết: dán link -->
+            <div style="background:#f0faf4;border-radius:10px;padding:10px;margin-bottom:8px;border:1px solid #b7dfc6">
+              <div style="font-size:11px;font-weight:700;color:#1a4731;margin-bottom:6px">📝 Bài viết — dán link</div>
+              <div style="display:flex;gap:6px">
+                <input class="form-input" id="link-input" placeholder="https://facebook.com/..." style="flex:1;font-size:12px;padding:7px 10px;background:#fff"/>
+                <button onclick="addLink()" style="background:#2e7d52;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">+ Thêm</button>
+              </div>
+            </div>
+            <!-- Bình luận: upload ảnh -->
+            <div style="background:#f0f6ff;border-radius:10px;padding:10px;margin-bottom:8px;border:1px solid #b3d0f5">
+              <div style="font-size:11px;font-weight:700;color:#0c447c;margin-bottom:6px">💬 Bình luận — chụp ảnh màn hình</div>
+              <div id="img-upload-box" onclick="addImage()" style="border:2px dashed #90bce8;border-radius:8px;padding:12px;text-align:center;cursor:pointer;background:#fff;font-size:12px;color:#185fa5">📷 Nhấn để chọn ảnh chụp màn hình bình luận</div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <div style="flex:1;background:#d4edda;border-radius:8px;padding:8px;text-align:center">
+                <div style="font-size:18px;font-weight:700;color:#1a4731" id="my-bai">7</div>
+                <div style="font-size:10px;color:#2e7d52">📝 Bài viết tuần này</div>
+              </div>
+              <div style="flex:1;background:#d0e8fb;border-radius:8px;padding:8px;text-align:center">
+                <div style="font-size:18px;font-weight:700;color:#0c447c" id="my-cmt">23</div>
+                <div style="font-size:10px;color:#185fa5">💬 Bình luận tuần này</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lịch sử link -->
+          <div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:6px">Lịch sử hoạt động</div>
+          <div id="link-history">
+            <div class="activity-item" style="background:#fff;border-radius:10px;border:1px solid var(--b);padding:10px 12px;margin-bottom:7px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+                <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#d4edda;color:#1a4731">📝 Bài viết</span>
+                <span style="font-size:10px;color:var(--t2)">Hôm nay 08:15</span>
+              </div>
+              <div style="font-size:12px;color:#185fa5;margin-top:4px;word-break:break-all">fb.com/100xxx/posts/abc123</div>
+              <div style="font-size:11px;color:var(--t2);margin-top:3px">📱 Facebook • 142 lượt thích</div>
+            </div>
+            <div class="activity-item" style="background:#fff;border-radius:10px;border:1px solid var(--b);padding:10px 12px;margin-bottom:7px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+                <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#d0e8fb;color:#0c447c">💬 Bình luận</span>
+                <span style="font-size:10px;color:var(--t2)">Hôm nay 07:50</span>
+              </div>
+              <div style="font-size:12px;color:#185fa5;margin-top:4px;word-break:break-all">tiktok.com/@abc/video/xyz</div>
+              <div style="font-size:11px;color:var(--t2);margin-top:3px">📱 TikTok • 38 lượt thích</div>
+            </div>
+            <div class="activity-item" style="background:#fff;border-radius:10px;border:1px solid var(--b);padding:10px 12px;margin-bottom:7px">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+                <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:#d4edda;color:#1a4731">📝 Bài viết</span>
+                <span style="font-size:10px;color:var(--t2)">Hôm qua 21:30</span>
+              </div>
+              <div style="font-size:12px;color:#185fa5;margin-top:4px;word-break:break-all">fb.com/100xxx/posts/def456</div>
+              <div style="font-size:11px;color:var(--t2);margin-top:3px">📱 Facebook • 89 lượt thích</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- THỐNG KÊ TOÀN ĐƠN VỊ -->
+      <div id="f47-stats" style="display:none">
+        <!-- Toggle tuần/tháng -->
+        <div style="display:flex;gap:0;margin:10px 10px 0;border:1px solid var(--b);border-radius:8px;overflow:hidden">
+          <div id="toggle-week" onclick="f47StatsToggle('week')" style="flex:1;text-align:center;padding:8px;font-size:12px;font-weight:700;background:var(--a);color:#fff;cursor:pointer">Tuần này</div>
+          <div id="toggle-month" onclick="f47StatsToggle('month')" style="flex:1;text-align:center;padding:8px;font-size:12px;font-weight:700;background:var(--bg);color:var(--t2);cursor:pointer">Tháng 4</div>
+        </div>
+
+        <!-- Tổng đơn vị -->
+        <div style="padding:10px 10px 0">
+          <div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:8px">📊 Tổng toàn đơn vị</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+            <div style="background:#fff;border-radius:10px;border:1px solid var(--b);padding:10px;text-align:center">
+              <div style="font-size:20px;font-weight:700;color:#1a4731" id="total-bai">147</div>
+              <div style="font-size:10px;color:var(--t2);margin-top:2px">📝 Bài viết</div>
+            </div>
+            <div style="background:#fff;border-radius:10px;border:1px solid var(--b);padding:10px;text-align:center">
+              <div style="font-size:20px;font-weight:700;color:#0c447c" id="total-cmt">389</div>
+              <div style="font-size:10px;color:var(--t2);margin-top:2px">💬 Bình luận</div>
+            </div>
+            <div style="background:#fff;border-radius:10px;border:1px solid var(--b);padding:10px;text-align:center">
+              <div style="font-size:20px;font-weight:700;color:#ba7517" id="total-tt">2.4k</div>
+              <div style="font-size:10px;color:var(--t2);margin-top:2px">❤️ Tương tác</div>
+            </div>
+          </div>
+
+          <!-- Bảng từng người -->
+          <div style="font-size:12px;font-weight:700;color:var(--t);margin-bottom:8px">👤 Theo từng thành viên</div>
+          <div style="background:#fff;border-radius:10px;border:1px solid var(--b);overflow:hidden">
+            <div style="display:flex;padding:8px 12px;background:var(--bg2);border-bottom:1px solid var(--b)">
+              <div style="flex:2;font-size:11px;font-weight:700;color:var(--t2)">Thành viên</div>
+              <div style="flex:1;text-align:center;font-size:11px;font-weight:700;color:var(--t2)">📝 Bài</div>
+              <div style="flex:1;text-align:center;font-size:11px;font-weight:700;color:var(--t2)">💬 CMT</div>
+              <div style="flex:1;text-align:center;font-size:11px;font-weight:700;color:var(--t2)">❤️ TT</div>
+            </div>
+            <div class="stats-row-item" style="display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--b)">
+              <div style="flex:2;display:flex;align-items:center;gap:6px"><div class="av av-g" style="width:24px;height:24px;font-size:9px">NH</div><div style="font-size:12px;font-weight:600;color:var(--t)">N.V. Hùng</div></div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#1a4731">12</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#0c447c">34</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#ba7517">412</div>
+            </div>
+            <div class="stats-row-item" style="display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--b)">
+              <div style="flex:2;display:flex;align-items:center;gap:6px"><div class="av av-b" style="width:24px;height:24px;font-size:9px">TM</div><div style="font-size:12px;font-weight:600;color:var(--t)">T.V. Minh</div></div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#1a4731">10</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#0c447c">28</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#ba7517">338</div>
+            </div>
+            <div class="stats-row-item" style="display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--b)">
+              <div style="flex:2;display:flex;align-items:center;gap:6px"><div class="av av-a" style="width:24px;height:24px;font-size:9px">LT</div><div style="font-size:12px;font-weight:600;color:var(--t)">L.Q. Tuấn</div></div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#1a4731">8</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#0c447c">21</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#ba7517">215</div>
+            </div>
+            <div class="stats-row-item" style="display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--b)">
+              <div style="flex:2;display:flex;align-items:center;gap:6px"><div class="av av-g" style="width:24px;height:24px;font-size:9px">PN</div><div style="font-size:12px;font-weight:600;color:var(--t)">P.T. Nam</div></div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#1a4731">7</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#0c447c">23</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#ba7517">198</div>
+            </div>
+            <div class="stats-row-item" style="display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--b)">
+              <div style="flex:2;display:flex;align-items:center;gap:6px"><div class="av av-r" style="width:24px;height:24px;font-size:9px">BL</div><div style="font-size:12px;font-weight:600;color:var(--t)">B.V. Long</div></div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#e24b4a">2</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#e24b4a">5</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#ba7517">31</div>
+            </div>
+            <div class="stats-row-item" style="display:flex;align-items:center;padding:9px 12px">
+              <div style="flex:2;display:flex;align-items:center;gap:6px"><div class="av av-r" style="width:24px;height:24px;font-size:9px">MT</div><div style="font-size:12px;font-weight:600;color:var(--t)">M.T. Tùng</div></div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#e24b4a">1</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#e24b4a">3</div>
+              <div style="flex:1;text-align:center;font-size:13px;font-weight:700;color:#ba7517">18</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--t2);text-align:center;padding:8px 0 12px">Hiển thị 6/28 thành viên • Bấm để xem đầy đủ</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- F47: CHI TIẾT CHIẾN DỊCH -->
+    <div class="screen" id="sc-f47-detail">
+      <div class="tab-bar" id="f47-detail-tabs">
+        <div class="tab active" onclick="f47DetailTab('ov',this)">Tổng quan</div>
+        <div class="tab" onclick="f47DetailTab('mb',this)">Thành viên</div>
+        <div class="tab" onclick="f47DetailTab('rk',this)">Xếp hạng</div>
+      </div>
+      <!-- OV -->
+      <div id="f47-ov">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px"><div style="font-size:14px;font-weight:700;color:var(--t);flex:1;margin-right:8px">📢 Phản bác luận điệu sai về biển Đông</div><span class="sb sb-live">🔴 Đang chạy</span></div>
+          <div class="alert-box">⚠️ Còn <b style="margin:0 2px">10 người chưa hoàn thành</b>. Deadline còn 1h47p!</div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-bottom:10px">Đăng bình luận + chia sẻ bài chính thống trên Facebook, TikTok. Nộp link + ảnh chụp màn hình.</div>
+          <div class="countdown-wrap"><span style="font-size:18px">⏱</span><div style="flex:1"><div style="font-size:11px;color:#633806">Deadline: 24/04/2026 – 11:30</div><div class="cd-time" id="cd-detail">01:47:23</div></div></div>
+          <div class="stat-row">
+            <div class="stat-box"><div class="snum g">18</div><div class="slabel">✅ Đã làm</div></div>
+            <div class="stat-box"><div class="snum r">10</div><div class="slabel">❌ Chưa</div></div>
+            <div class="stat-box"><div class="snum a">5</div><div class="slabel">🐢 Chậm</div></div>
+            <div class="stat-box"><div class="snum b">247</div><div class="slabel">💬 TT</div></div>
+          </div>
+          <button class="btn-danger" onclick="toast('🔔 Đã giục 10 thành viên chưa hoàn thành!')">🔔 Giục tất cả chưa làm (10 người)</button>
+          <button class="btn-primary" onclick="openSubmit()">📤 Nộp minh chứng của tôi</button>
+        </div>
+      </div>
+      <!-- MEMBERS -->
+      <div id="f47-mb" style="display:none">
+        <div class="sec-label">✅ Đã hoàn thành (18)</div>
+        <div class="member-item"><div class="av av-g" style="width:36px;height:36px;font-size:11px;">NH</div><div class="m-info"><div class="m-name">Nguyễn Văn Hùng</div><div class="m-rank">Thiếu tá • Trung đoàn trưởng</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="done-tag dt-done">✅ Xong</span><span style="font-size:10px;color:var(--t2)">07:32 – Nhanh nhất</span></div></div>
+        <div class="member-item"><div class="av av-b" style="width:36px;height:36px;font-size:11px;">TM</div><div class="m-info"><div class="m-name">Trần Văn Minh</div><div class="m-rank">Đại úy • Chính trị viên</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="done-tag dt-done">✅ Xong</span><span style="font-size:10px;color:var(--t2)">07:45</span></div></div>
+        <div class="member-item"><div class="av av-a" style="width:36px;height:36px;font-size:11px;">LT</div><div class="m-info"><div class="m-name">Lê Quang Tuấn</div><div class="m-rank">Trung úy</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="done-tag dt-late">🐢 Chậm</span><span style="font-size:10px;color:var(--t2)">09:05</span></div></div>
+        <div class="sec-label">❌ Chưa hoàn thành (10)</div>
+        <div class="member-item"><div class="av av-r" style="width:36px;height:36px;font-size:11px;">BL</div><div class="m-info"><div class="m-name">Bùi Văn Long</div><div class="m-rank">Hạ sĩ • Chiến sĩ</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="done-tag dt-no">❌ Chưa</span><button class="urge-btn" onclick="toast('🔔 Đã giục Bùi Văn Long!')">Giục</button></div></div>
+        <div class="member-item"><div class="av av-a" style="width:36px;height:36px;font-size:11px;">DT</div><div class="m-info"><div class="m-name">Đặng Quốc Toàn</div><div class="m-rank">Trung sĩ</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="done-tag dt-no">❌ Chưa</span><button class="urge-btn" onclick="toast('🔔 Đã giục Đặng Quốc Toàn!')">Giục</button></div></div>
+        <div class="member-item"><div class="av av-r" style="width:36px;height:36px;font-size:11px;">MT</div><div class="m-info"><div class="m-name">Mai Thanh Tùng</div><div class="m-rank">Binh nhì</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="done-tag dt-no">❌ Chưa</span><button class="urge-btn" onclick="toast('🔔 Đã giục Mai Thanh Tùng!')">Giục</button></div></div>
+        <div style="padding:8px 8px 4px"><button class="btn-danger" onclick="toast('🔔 Đã giục 10 thành viên chưa hoàn thành!')">🔔 Giục tất cả 10 người chưa làm</button></div>
+      </div>
+      <!-- RANK -->
+      <div id="f47-rk" style="display:none">
+        <div class="sec-label">🏆 Xếp hạng tháng 4/2026</div>
+        <div class="rank-item"><div class="rnum r1">🥇</div><div class="av av-g" style="width:34px;height:34px;font-size:11px;">NH</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Nguyễn Văn Hùng</div><div style="font-size:11px;color:var(--t2);margin-top:2px">12 chiến dịch • Nhanh nhất 8 lần • 0 lần chậm</div></div><span class="done-tag dt-done">Xuất sắc</span></div>
+        <div class="rank-item"><div class="rnum r2">🥈</div><div class="av av-b" style="width:34px;height:34px;font-size:11px;">TM</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Trần Văn Minh</div><div style="font-size:11px;color:var(--t2);margin-top:2px">12 chiến dịch • 1 lần chậm</div></div><span class="done-tag dt-done">Tốt</span></div>
+        <div class="rank-item"><div class="rnum r3">🥉</div><div class="av av-a" style="width:34px;height:34px;font-size:11px;">LT</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Lê Quang Tuấn</div><div style="font-size:11px;color:var(--t2);margin-top:2px">11 chiến dịch • 2 lần chậm</div></div><span class="done-tag dt-done">Tốt</span></div>
+        <div class="rank-item"><div class="rnum" style="color:var(--red)">28</div><div class="av av-r" style="width:34px;height:34px;font-size:11px;">MT</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--t)">Mai Thanh Tùng</div><div style="font-size:11px;color:var(--t2);margin-top:2px">5 chiến dịch • 7 lần chậm • 2 lần bỏ</div></div><span class="done-tag dt-no">Yếu</span></div>
+      </div>
+    </div>
+
+    <!-- F47: PHÁT ĐỘNG -->
+    <div class="screen" id="sc-f47-create">
+      <div style="padding:12px">
+        <div class="form-group"><label class="form-label">📌 Tên chiến dịch</label><input class="form-input" placeholder="VD: Phản bác luận điệu sai về biển Đông..."/></div>
+        <div class="form-group"><label class="form-label">📝 Nội dung nhiệm vụ</label><textarea class="form-input" placeholder="Mô tả chi tiết thành viên cần làm gì..."></textarea></div>
+        <div class="form-group">
+          <label class="form-label">📱 Nền tảng thực hiện</label>
+          <div class="platform-row">
+            <span class="ptag sel" onclick="this.classList.toggle('sel')">Facebook</span>
+            <span class="ptag" onclick="this.classList.toggle('sel')">TikTok</span>
+            <span class="ptag" onclick="this.classList.toggle('sel')">YouTube</span>
+            <span class="ptag" onclick="this.classList.toggle('sel')">Zalo</span>
+            <span class="ptag" onclick="this.classList.toggle('sel')">Báo điện tử</span>
+            <span class="ptag" onclick="this.classList.toggle('sel')">Twitter/X</span>
+          </div>
+        </div>
+        <div class="form-group"><label class="form-label">⏰ Deadline</label><div style="display:flex;gap:8px"><input class="form-input" type="date" value="2026-04-24" style="flex:1"/><input class="form-input" type="time" value="11:30" style="flex:1"/></div></div>
+        <div class="form-group"><label class="form-label">🎯 Phạm vi phát động</label><select class="form-input"><option>Toàn Trung đoàn (28 người)</option><option>Tiểu đoàn 1 (14 người)</option><option>Đại đội 1 (7 người)</option></select></div>
+        <div class="form-group"><label class="form-label">📎 Tài liệu định hướng (tuỳ chọn)</label><div class="evidence-box">📁 Đính kèm file tài liệu / bài viết mẫu</div></div>
+        <button class="btn-primary" onclick="toast('🚀 Chiến dịch đã phát động đến 28 thành viên!');setTimeout(goBack,1500)">🚀 Phát động chiến dịch</button>
+      </div>
+    </div>
+
+    <!-- F47: NỘP MINH CHỨNG -->
+    <div class="screen" id="sc-f47-submit">
+      <div style="padding:12px">
+        <div class="alert-box">⏱ Còn <b style="margin:0 2px">01:47:23</b> để hoàn thành nhiệm vụ!</div>
+        <div class="card" style="margin:0 0 12px">
+          <div style="font-size:14px;font-weight:700;color:var(--t);margin-bottom:6px">📢 Phản bác luận điệu sai về biển Đông</div>
+          <div style="font-size:12px;color:var(--t2)">Nộp link bài đăng + ảnh chụp màn hình minh chứng.</div>
+        </div>
+        <div class="form-group"><label class="form-label">🔗 Link bài đăng / bình luận</label><input class="form-input" placeholder="https://facebook.com/..."/></div>
+        <div class="form-group"><label class="form-label">🔗 Link thứ 2 (nếu có)</label><input class="form-input" placeholder="https://tiktok.com/..."/></div>
+        <div class="form-group"><label class="form-label">📸 Ảnh chụp màn hình minh chứng</label><div class="evidence-box" onclick="this.textContent='✅ Đã chọn 2 ảnh'">📷 Nhấn để chọn ảnh từ thư viện</div></div>
+        <div class="form-group"><label class="form-label">💬 Ghi chú (tuỳ chọn)</label><textarea class="form-input" style="height:60px" placeholder="Ghi chú thêm nếu cần..."></textarea></div>
+        <button class="btn-primary" onclick="toast('✅ Đã nộp minh chứng thành công!');setTimeout(()=>{goBack();goBack();},1500)">✅ Xác nhận nộp minh chứng</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-item active" id="nav-home" onclick="switchTab('home','Trang chủ',null,this)"><span class="nav-icon">🏠</span><span class="nav-label">Trang chủ</span></button>
+    <button class="nav-item" id="nav-chat" onclick="switchTab('chat','Tin nhắn',null,this)" style="position:relative"><div class="nav-dot"></div><span class="nav-icon">💬</span><span class="nav-label">Tin nhắn</span></button>
+    <button class="nav-item" id="nav-utilities" onclick="switchTab('utilities','Tiện ích',null,this)"><span class="nav-icon">⚡</span><span class="nav-label">Tiện ích</span></button>
+    <button class="nav-item" id="nav-contacts" onclick="switchTab('contacts','Danh bạ',null,this)"><span class="nav-icon">👥</span><span class="nav-label">Danh bạ</span></button>
+    <button class="nav-item" id="nav-profile" onclick="switchTab('profile','Cá nhân',null,this)"><span class="nav-icon">👤</span><span class="nav-label">Cá nhân</span></button>
+  </div>
 </div>
 
 <script>
-    // Firebase Config
-    const firebaseConfig = {
-        apiKey: "AIzaSyA-J5cu-WvUvWT_S1mM6DQiWPiKYrSXo7o",
-        authDomain: "sh13a-d6020.firebaseapp.com",
-        projectId: "sh13a-d6020",
-        storageBucket: "sh13a-d6020.firebasestorage.app",
-        messagingSenderId: "959007282657",
-        appId: "1:959007282657:web:9429c76496061002ceaea0"
-    };
-    
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-    
-    let currentUser = null;
-    
-    // ========== AUTH ==========
-    async function login() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        try {
-            const result = await auth.signInWithEmailAndPassword(email, password);
-            currentUser = result.user;
-            document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            loadHomePage();
-        } catch(error) { alert('Lỗi: ' + error.message); }
+let screenStack = [];
+let activeNavBtn = document.getElementById('nav-home');
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  // Also hide chat-detail (not a .screen)
+  const cd = document.getElementById('sc-chat-detail');
+  cd.style.display = 'none'; cd.classList.remove('active');
+  const el = document.getElementById('sc-' + id);
+  if(el) el.classList.add('active');
+}
+
+function setHeader(title, sub, rightText, showBack) {
+  document.getElementById('htitle').textContent = title;
+  const subEl = document.getElementById('hsub');
+  if (sub) { subEl.textContent = sub; subEl.style.display = 'block'; } else { subEl.style.display = 'none'; }
+  const hback = document.getElementById('hback');
+  hback.style.display = showBack ? 'block' : 'none';
+  const hright = document.getElementById('hright');
+  const hicons = document.getElementById('hicons');
+  if (rightText) { hright.textContent = rightText; hright.style.display = 'block'; hicons.style.display = 'none'; }
+  else { hright.style.display = 'none'; hicons.style.display = 'flex'; }
+}
+
+function switchTab(sc, title, sub, btn) {
+  screenStack = [];
+  showScreen(sc);
+  // Show + button on contacts tab
+  if(sc === 'contacts') {
+    document.getElementById('hright').textContent = '＋';
+    document.getElementById('hright').onclick = openAddSoldier;
+    document.getElementById('hright').style.display = 'block';
+    document.getElementById('hicons').style.display = 'none';
+  } else {
+    setHeader(title, sub, null, false);
+  }
+  document.getElementById('htitle').textContent = title;
+  document.getElementById('hback').style.display = 'none';
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (btn) { btn.classList.add('active'); activeNavBtn = btn; }
+}
+
+function push(sc, title, sub, rightText) {
+  screenStack.push(document.querySelector('.screen.active').id.replace('sc-',''));
+  showScreen(sc);
+  setHeader(title, sub, rightText, true);
+  document.getElementById('hicons').style.display = 'none';
+}
+
+function goBack() {
+  if (!screenStack.length) return;
+  const prev = screenStack.pop();
+  showScreen(prev);
+  const titles = {home:'Trang chủ',chat:'Tin nhắn',contacts:'Danh bạ',utilities:'Tiện ích',profile:'Cá nhân','f47':'🛡 Lực lượng 47','f47-detail':'Chi tiết chiến dịch','soldier-profile':'Hồ sơ quân nhân','soldier-status':'Cập nhật trạng thái','add-soldier':'Thêm quân nhân','chat-detail':'Tin nhắn','my-info':'Thông tin cá nhân','my-schedule':'Lịch trực của tôi','my-achievement':'Thành tích cá nhân','my-f47':'Hoạt động F47','my-security':'Bảo mật & Mật khẩu','my-notif':'Cài đặt thông báo'};
+  const subs = {'f47':'Trung đoàn 5 • 28 thành viên'};
+  const isBack = screenStack.length > 0;
+  document.getElementById('htitle').textContent = titles[prev]||prev;
+  const subEl = document.getElementById('hsub');
+  if(subs[prev]){subEl.textContent=subs[prev];subEl.style.display='block';}else{subEl.style.display='none';}
+  document.getElementById('hback').style.display = isBack ? 'block' : 'none';
+  const hright = document.getElementById('hright');
+  const hicons = document.getElementById('hicons');
+  if(prev==='f47'){hright.textContent='＋ Phát động';hright.onclick=openF47Create;hright.style.display='block';hicons.style.display='none';}
+  else if(prev==='contacts'){hright.textContent='＋';hright.onclick=openAddSoldier;hright.style.display='block';hicons.style.display='none';}
+  else if(!isBack){hright.style.display='none';hicons.style.display='flex';}
+  else{hright.style.display='none';hicons.style.display='none';}
+  if (!isBack) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (activeNavBtn) activeNavBtn.classList.add('active');
+  }
+}
+
+const chatRooms = {
+  bch:{name:'Bộ chỉ huy Trung đoàn',sub:'8 thành viên • Th.tá Hùng quản lý',pinned:'Th.tá Hùng: Toàn đơn vị tập hợp lúc 6:00 sáng mai, mang đầy đủ trang bị.'},
+  dd1:{name:'Đại đội 1',sub:'12 thành viên',pinned:'Lịch trực tuần 17: Trung đội 2 ca đêm'},
+  tt:{name:'Trung đội trực chiến',sub:'6 thành viên',pinned:'Ca trực 18:00–06:00 • Liên hệ Th.sĩ Nam'},
+  hq:{name:'Hậu cần – Kỹ thuật',sub:'5 thành viên',pinned:null},
+  qy:{name:'Quân y',sub:'3 thành viên',pinned:null},
+  kt:{name:'Kế toán – Tài vụ',sub:'3 thành viên',pinned:null},
+  nh:{name:'Th.tá Nguyễn Văn Hùng',sub:'🟢 Đang hoạt động',pinned:null},
+  lt:{name:'Tr.úy Lê Quang Tuấn',sub:'🟢 Đang hoạt động',pinned:null},
+};
+
+function openChatRoom(id) {
+  const room = chatRooms[id] || {name:'Cuộc trò chuyện',sub:'',pinned:null};
+  // Set header
+  document.getElementById('htitle').textContent = room.name;
+  const subEl = document.getElementById('hsub');
+  subEl.textContent = room.sub; subEl.style.display = 'block';
+  document.getElementById('hback').style.display = 'block';
+  document.getElementById('hicons').style.display = 'none';
+  document.getElementById('hright').textContent = 'ℹ️';
+  document.getElementById('hright').style.display = 'block';
+  document.getElementById('hright').onclick = () => toast('Thông tin nhóm: '+room.name);
+  // Pinned
+  const pinnedBar = document.getElementById('pinned-bar');
+  const pinnedText = document.getElementById('pinned-text');
+  if(room.pinned){ pinnedBar.style.display='flex'; pinnedText.textContent=room.pinned; }
+  else { pinnedBar.style.display='none'; }
+  initAllSwipes();
+  screenStack.push('chat');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const cd = document.getElementById('sc-chat-detail');
+  cd.style.display = 'flex';
+  cd.classList.add('active');
+  // Kết nối Firebase realtime cho room này
+  if (window.fbOpenRoom) window.fbOpenRoom(id);
+}
+
+function openChat(name) { openChatRoom('bch'); }
+
+function filterChats(val) {
+  const v = val.toLowerCase();
+  document.querySelectorAll('.chat-item-full').forEach(item => {
+    item.style.display = item.textContent.toLowerCase().includes(v) ? 'flex' : 'none';
+  });
+}
+
+function filterChatTab(type, btn) {
+  document.querySelectorAll('.ctab').forEach(t => {
+    t.style.color = 'var(--t2)'; t.style.borderBottomColor = 'transparent';
+  });
+  btn.style.color = 'var(--a)'; btn.style.borderBottomColor = 'var(--a)';
+  document.querySelectorAll('.chat-item-full').forEach(item => {
+    if(type === 'all') item.style.display = 'flex';
+    else if(type === 'unread') item.style.display = item.dataset.unread === '1' ? 'flex' : 'none';
+    else if(type === 'group') item.style.display = item.dataset.type === 'group' ? 'flex' : 'none';
+  });
+  // Show/hide sections
+  document.querySelectorAll('#chat-list-wrap > div[style*="text-transform"]').forEach(el => {
+    el.style.display = type === 'all' ? 'block' : 'none';
+  });
+}
+
+function showAttachMenu() {
+  const items = [['📄 File / Tài liệu','toast(\'Chọn file...\')'],['🖼 Ảnh / Video','toast(\'Chọn ảnh...\')'],['📍 Vị trí','toast(\'Gửi vị trí...\')'],['🚨 Thông báo khẩn','sendUrgent()']];
+  const menu = document.createElement('div');
+  menu.style.cssText = 'position:fixed;bottom:70px;left:12px;background:#fff;border-radius:14px;border:1px solid var(--b);box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:999;min-width:180px;overflow:hidden';
+  items.forEach(([label, action]) => {
+    const el = document.createElement('div');
+    el.textContent = label;
+    el.style.cssText = 'padding:12px 16px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0f0;color:#111';
+    el.onclick = () => { document.body.removeChild(menu); eval(action); };
+    menu.appendChild(el);
+  });
+  document.body.appendChild(menu);
+  setTimeout(() => document.addEventListener('click', () => { if(document.body.contains(menu)) document.body.removeChild(menu); }, {once:true}), 100);
+}
+
+function sendUrgent() {
+  const list = document.getElementById('msg-list');
+  const now = new Date();
+  const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const row = document.createElement('div');
+  row.className = 'msg-row mine';
+  row.innerHTML = `<div class="av" style="width:30px;height:30px;font-size:11px;background:#9fe1cb;color:#085041">Tôi</div><div><div style="background:#fff3f3;border:1.5px solid var(--red);border-radius:12px;border-bottom-right-radius:4px;padding:8px 12px;max-width:200px"><div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:3px">🚨 THÔNG BÁO KHẨN</div><div style="font-size:12px;color:var(--t)">Đã gửi thông báo khẩn</div></div><div style="font-size:9px;color:var(--t2);margin-top:2px;text-align:right;padding-right:4px">${t} ✓✓</div></div>`;
+  list.appendChild(row);
+  list.scrollTop = list.scrollHeight;
+  toast('🚨 Đã gửi thông báo khẩn!');
+}
+function openF47() { push('f47','🛡 Lực lượng 47','Trung đoàn 5 • 28 thành viên','＋ Phát động'); document.getElementById('hright').onclick = openF47Create; }
+function openCampaign() { push('f47-detail','Chi tiết chiến dịch','Cập nhật lúc 09:41',null); f47DetailTab('ov', document.querySelector('#f47-detail-tabs .tab')); }
+function openF47Create() { push('f47-create','➕ Phát động mới','Tạo chiến dịch đấu tranh',null); }
+function openSubmit() { push('f47-submit','📤 Nộp minh chứng','Chiến dịch biển Đông',null); }
+
+function f47MainTab(tab, btn) {
+  ['campaigns','activity','stats'].forEach(t => {
+    const el = document.getElementById('f47-'+t);
+    if(el) el.style.display = t===tab?'block':'none';
+  });
+  document.querySelectorAll('#sc-f47 .tab-bar .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function f47Filter(status, btn) {
+  document.querySelectorAll('#f47-campaigns .ptag').forEach(t => t.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.querySelectorAll('.campaign-card').forEach(c => {
+    c.style.display = (status === 'all' || c.dataset.status === status) ? 'block' : 'none';
+  });
+}
+
+function f47StatsToggle(period) {
+  const isWeek = period==='week';
+  document.getElementById('toggle-week').style.cssText = isWeek ? 'flex:1;text-align:center;padding:8px;font-size:12px;font-weight:700;background:var(--a);color:#fff;cursor:pointer' : 'flex:1;text-align:center;padding:8px;font-size:12px;font-weight:700;background:var(--bg);color:var(--t2);cursor:pointer';
+  document.getElementById('toggle-month').style.cssText = !isWeek ? 'flex:1;text-align:center;padding:8px;font-size:12px;font-weight:700;background:var(--a);color:#fff;cursor:pointer' : 'flex:1;text-align:center;padding:8px;font-size:12px;font-weight:700;background:var(--bg);color:var(--t2);cursor:pointer';
+  if(isWeek){
+    document.getElementById('total-bai').textContent='147';
+    document.getElementById('total-cmt').textContent='389';
+    document.getElementById('total-tt').textContent='2.4k';
+  } else {
+    document.getElementById('total-bai').textContent='612';
+    document.getElementById('total-cmt').textContent='1.8k';
+    document.getElementById('total-tt').textContent='9.7k';
+  }
+}
+
+let myBai = 7, myCmt = 23;
+
+function addLink() {
+  const input = document.getElementById('link-input');
+  const url = input.value.trim();
+  if (!url) { toast('⚠️ Vui lòng dán link bài viết!'); return; }
+  const platform = url.includes('tiktok') ? 'TikTok' : url.includes('youtube')||url.includes('youtu.be') ? 'YouTube' : url.includes('zalo') ? 'Zalo' : url.includes('twitter')||url.includes('x.com') ? 'Twitter/X' : 'Facebook';
+  const likes = Math.floor(Math.random()*200)+20;
+  const now = new Date();
+  const timeStr = `Hôm nay ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const shortUrl = url.replace('https://','').replace('http://','').substring(0,42);
+  addActivityItem('📝 Bài viết','#d4edda','#1a4731', shortUrl, platform, likes, timeStr, false);
+  myBai++; document.getElementById('my-bai').textContent = myBai;
+  input.value = '';
+  toast('✅ Đã thêm bài viết từ '+platform+'!');
+}
+
+function addImage() {
+  const box = document.getElementById('img-upload-box');
+  // Simulate picking image
+  const platforms = ['Facebook','TikTok','Zalo','YouTube'];
+  const platform = platforms[Math.floor(Math.random()*platforms.length)];
+  const likes = Math.floor(Math.random()*80)+5;
+  const now = new Date();
+  const timeStr = `Hôm nay ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  box.innerHTML = '✅ Đã chọn ảnh chụp màn hình';
+  box.style.color = '#0c447c';
+  box.style.borderColor = '#185fa5';
+  addActivityItem('💬 Bình luận','#d0e8fb','#0c447c', '📷 Ảnh chụp màn hình', platform, likes, timeStr, true);
+  myCmt++; document.getElementById('my-cmt').textContent = myCmt;
+  setTimeout(()=>{
+    box.innerHTML = '📷 Nhấn để chọn ảnh chụp màn hình bình luận';
+    box.style.color = '#185fa5';
+    box.style.borderColor = '#90bce8';
+  }, 2000);
+  toast('✅ Đã thêm bình luận từ '+platform+'!');
+}
+
+function addActivityItem(type, bg, color, content, platform, likes, time, isImg) {
+  const item = document.createElement('div');
+  item.style.cssText = 'background:#fff;border-radius:10px;border:1px solid var(--b);padding:10px 12px;margin-bottom:7px';
+  item.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:${bg};color:${color}">${type}</span><span style="font-size:10px;color:var(--t2)">${time}</span></div><div style="font-size:12px;color:${isImg?'#555':'#185fa5'};margin-top:4px;word-break:break-all">${content}</div><div style="font-size:11px;color:var(--t2);margin-top:3px">📱 ${platform} • ${likes} lượt thích</div>`;
+  const history = document.getElementById('link-history');
+  history.insertBefore(item, history.firstChild);
+}
+
+function f47DetailTab(tab, el) {
+  ['ov','mb','rk'].forEach(t => document.getElementById('f47-'+t).style.display = t===tab?'block':'none');
+  document.querySelectorAll('#f47-detail-tabs .tab').forEach(t => t.classList.remove('active'));
+  const map = {ov:'Tổng quan',mb:'Thành viên',rk:'Xếp hạng'};
+  document.querySelectorAll('#f47-detail-tabs .tab').forEach(t => { if(t.textContent===map[tab]) t.classList.add('active'); });
+}
+
+// ===== CHAT MESSAGE ACTIONS =====
+// Create context menu at body level to avoid overflow clipping
+(function createCtxMenu() {
+  const menu = document.createElement('div');
+  menu.id = 'msg-ctx-menu';
+  menu.style.cssText = 'display:none;position:fixed;background:#fff;border-radius:12px;border:1px solid #e0e0e0;box-shadow:0 8px 28px rgba(0,0,0,.2);z-index:9999;min-width:165px;overflow:hidden';
+  menu.innerHTML = `
+    <div onclick="copyMsg()" style="padding:11px 16px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px">📋 Sao chép</div>
+    <div onclick="pinMsg()" style="padding:11px 16px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px">📌 Ghim tin nhắn</div>
+    <div onclick="forwardMsg()" style="padding:11px 16px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px">↪️ Chuyển tiếp</div>
+    <div onclick="deleteMsg()" style="padding:11px 16px;font-size:13px;cursor:pointer;color:#e24b4a;display:flex;align-items:center;gap:8px">🗑 Xoá tin nhắn</div>`;
+  document.body.appendChild(menu);
+})();
+let ctxIsMine = false;
+
+function showDotMenu(btn, isMine) {
+  ctxTarget = btn.closest('.msg-row');
+  ctxIsMine = isMine;
+  const menu = document.getElementById('msg-ctx-menu');
+  menu.querySelector('div:last-child').style.display = isMine ? 'flex' : 'none';
+
+  // Dùng tọa độ viewport thật của button
+  const rect = btn.getBoundingClientRect();
+  const menuW = 170, menuH = isMine ? 170 : 130;
+  const vw = window.innerWidth, vh = window.innerHeight;
+
+  // Ưu tiên hiện bên trái button, nếu không đủ thì bên phải
+  let left = rect.left - menuW - 4;
+  if(left < 4) left = rect.right + 4;
+  if(left + menuW > vw - 4) left = vw - menuW - 4;
+
+  // Ưu tiên hiện xuống dưới, nếu không đủ thì lên trên
+  let top = rect.bottom + 4;
+  if(top + menuH > vh - 4) top = rect.top - menuH - 4;
+  if(top < 4) top = 4;
+
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+  menu.style.display = 'block';
+  setTimeout(() => document.addEventListener('click', closeMsgMenu, {once:true}), 50);
+}
+
+function closeMsgMenu() {
+  document.getElementById('msg-ctx-menu').style.display = 'none';
+  ctxTarget = null;
+}
+
+function copyMsg() {
+  const text = ctxTarget?.querySelector('.bubble, .msg-swipe-inner')?.textContent || '';
+  toast('📋 Đã sao chép: "' + text.substring(0,30) + (text.length>30?'...':"") + '"');
+  closeMsgMenu();
+}
+
+function pinMsg() {
+  const text = ctxTarget?.querySelector('.bubble, .msg-swipe-inner')?.textContent || '';
+  if(text) {
+    document.getElementById('pinned-text').textContent = (ctxIsMine?'Tôi: ':'')+text.substring(0,70);
+    document.getElementById('pinned-bar').style.display = 'flex';
+    toast('📌 Đã ghim tin nhắn!');
+  }
+  closeMsgMenu();
+}
+
+function forwardMsg() { toast('↪️ Chọn người/nhóm để chuyển tiếp...'); closeMsgMenu(); }
+
+function deleteMsg() {
+  if(ctxTarget) {
+    ctxTarget.style.transition = 'opacity .25s, max-height .3s';
+    ctxTarget.style.opacity = '0';
+    ctxTarget.style.maxHeight = '0';
+    ctxTarget.style.overflow = 'hidden';
+    ctxTarget.style.marginBottom = '0';
+    setTimeout(() => ctxTarget?.remove(), 320);
+    toast('🗑 Đã xoá tin nhắn');
+  }
+  closeMsgMenu();
+}
+
+// ===== SWIPE TO DELETE =====
+function initSwipe(wrap, delBg, inner) {
+  let startX = 0, curX = 0, swiping = false, revealed = false;
+  const THRESHOLD = 60;
+
+  inner.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    swiping = true;
+  }, {passive:true});
+
+  inner.addEventListener('touchmove', e => {
+    if(!swiping) return;
+    curX = e.touches[0].clientX - startX;
+    if(curX < 0) { // only swipe left
+      const move = Math.max(curX, -THRESHOLD - 10);
+      inner.style.transform = `translateX(${move}px)`;
+      delBg.style.transform = `translateX(${100 + (move / THRESHOLD * 100)}%)`;
     }
-    
-    function showRegister() {
-        const email = prompt('Email:');
-        const pass = prompt('Mật khẩu (6+ ký tự):');
-        if(email && pass && pass.length >= 6) {
-            auth.createUserWithEmailAndPassword(email, pass).then(() => alert('Đăng ký thành công!')).catch(e => alert(e.message));
-        }
+  }, {passive:true});
+
+  inner.addEventListener('touchend', () => {
+    swiping = false;
+    if(curX < -THRESHOLD) {
+      // Snap to revealed
+      inner.style.transform = `translateX(-${THRESHOLD}px)`;
+      delBg.style.transform = 'translateX(0)';
+      revealed = true;
+    } else {
+      // Snap back
+      inner.style.transform = '';
+      delBg.style.transform = 'translateX(100%)';
+      revealed = false;
     }
-    
-    function openAvatarEditor() {
-        const url = prompt('URL ảnh:');
-        if(url) document.getElementById('userAvatar').style.backgroundImage = `url(${url})`;
+    curX = 0;
+  });
+
+  delBg.addEventListener('click', () => {
+    const row = wrap.closest('.msg-row');
+    if(row) {
+      row.style.transition = 'opacity .25s';
+      row.style.opacity = '0';
+      setTimeout(() => row.remove(), 280);
+      toast('🗑 Đã xoá tin nhắn');
     }
-    
-    // ========== TRANG CHỦ ==========
-    async function loadHomePage() {
-        document.getElementById('contentArea').innerHTML = `
-            <div id="homeContent">
-                <div class="stats-grid">
-                    <div class="stat-card total"><div class="stat-value" id="totalCount">0</div><div class="stat-label">Tổng quân số</div></div>
-                    <div class="stat-card present"><div class="stat-value" id="presentCount">0</div><div class="stat-label">Có mặt</div></div>
-                    <div class="stat-card absent"><div class="stat-value" id="absentCount">0</div><div class="stat-label">Vắng</div></div>
-                    <div class="stat-card leave"><div class="stat-value" id="leaveCount">0</div><div class="stat-label">Tranh thủ</div></div>
-                </div>
-                <div class="section-title"><h3>PHÂN HỆ QUẢN LÝ</h3></div>
-                <div class="module-grid" id="moduleGrid"></div>
-                <div class="section-title"><h3>LỊCH CÔNG TÁC TUẦN</h3></div>
-                <div id="scheduleList"></div>
-                <div class="section-title"><h3>THÔNG BÁO MỚI</h3></div>
-                <div id="notificationList"></div>
-            </div>
-        `;
-        
-        // 16 module
-        const modules = ['Quân số', 'Học tập', 'Công tác', 'Trực gác', 'Tài chính', 'Hậu cần', 'Khen thưởng', 'Văn bản', 'Lịch', 'Thông báo', 'Báo cáo', 'Doanh trại', 'Y tế', 'Thể thao', 'Vũ khí', 'Thư viện'];
-        const icons = ['👥', '📚', '📋', '🛡️', '💰', '📦', '🏆', '📄', '📅', '📢', '📊', '🏠', '🏥', '⚽', '🔫', '📁'];
-        
-        let gridHtml = '';
-        for(let i=0; i<modules.length; i++) {
-            gridHtml += `<div class="module-card" onclick="showModuleMsg('${modules[i]}')"><div class="module-icon">${icons[i]}</div><div class="module-name">${modules[i]}</div></div>`;
-        }
-        document.getElementById('moduleGrid').innerHTML = gridHtml;
-        
-        // Thống kê
-        const members = await db.collection('members').get();
-        document.getElementById('totalCount').innerText = members.size;
-        document.getElementById('presentCount').innerText = members.size - 2;
-        document.getElementById('absentCount').innerText = 2;
-        document.getElementById('leaveCount').innerText = 1;
-        
-        // Lịch
-        document.getElementById('scheduleList').innerHTML = `
-            <div class="list-item"><div class="list-icon"><i class="fas fa-clock"></i></div><div class="list-info"><div class="list-title">07:30 - Chào cờ</div></div></div>
-            <div class="list-item"><div class="list-icon"><i class="fas fa-clock"></i></div><div class="list-info"><div class="list-title">08:00 - Học chính trị</div></div></div>
-            <div class="list-item"><div class="list-icon"><i class="fas fa-clock"></i></div><div class="list-info"><div class="list-title">14:00 - Huấn luyện</div></div></div>
-        `;
-        
-        // Thông báo
-        document.getElementById('notificationList').innerHTML = `
-            <div class="list-item"><div class="list-icon"><i class="fas fa-bullhorn"></i></div><div class="list-info"><div class="list-title">Kiểm tra quân số ngày mai</div><div class="list-desc">20/04/2026</div></div></div>
-            <div class="list-item"><div class="list-icon"><i class="fas fa-bullhorn"></i></div><div class="list-info"><div class="list-title">Họp giao ban tuần</div><div class="list-desc">22/04/2026</div></div></div>
-        `;
+  });
+
+  // Click outside to close
+  document.addEventListener('click', e => {
+    if(revealed && !wrap.contains(e.target)) {
+      inner.style.transform = '';
+      delBg.style.transform = 'translateX(100%)';
+      revealed = false;
     }
-    
-    function showModuleMsg(name) {
-        alert(`Module "${name}" đang phát triển`);
+  });
+}
+
+function initAllSwipes() {
+  document.querySelectorAll('.msg-swipe-wrap').forEach(wrap => {
+    const delBg = wrap.querySelector('.msg-delete-bg');
+    const inner = wrap.querySelector('.msg-swipe-inner');
+    if(delBg && inner) initSwipe(wrap, delBg, inner);
+  });
+}
+
+function sendMsg() {
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  // Gửi qua Firebase nếu đã kết nối và đang trong room
+  if (window.fbSendMsg && window._currentRoomId) {
+    window.fbSendMsg(text);
+    return;
+  }
+
+  // Fallback local nếu chưa có Firebase
+  const list = document.getElementById('msg-list');
+  const now = new Date();
+  const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const row = document.createElement('div');
+  row.className = 'msg-row mine';
+  row.innerHTML = `
+    <div class="av" style="width:30px;height:30px;font-size:11px;background:#9fe1cb;color:#085041">Tôi</div>
+    <div>
+      <div style="display:flex;align-items:center;gap:4px;flex-direction:row-reverse">
+        <div class="msg-swipe-wrap">
+          <div class="msg-delete-bg"><span style="font-size:16px">🗑</span>Xoá</div>
+          <div class="msg-swipe-inner bubble mine">${text}</div>
+        </div>
+        <button class="msg-dot-btn" onclick="showDotMenu(this,true)">⋯</button>
+      </div>
+      <div style="font-size:9px;color:var(--t2);margin-top:2px;text-align:right;padding-right:4px">${t} ✓</div>
+    </div>`;
+  const wrap = row.querySelector('.msg-swipe-wrap');
+  const delBg = wrap.querySelector('.msg-delete-bg');
+  const inner = wrap.querySelector('.msg-swipe-inner');
+  initSwipe(wrap, delBg, inner);
+  list.appendChild(row);
+  list.scrollTop = list.scrollHeight;
+}
+
+function toggleTask(el) {
+  el.classList.toggle('done');
+  const body = el.nextElementSibling;
+  const t = body.querySelector('div:first-child');
+  const s = body.querySelector('div:last-child');
+  if (el.classList.contains('done')) { t.style.textDecoration='line-through'; t.style.color='#999'; s.textContent='✓ Đã hoàn thành'; }
+  else { t.style.textDecoration=''; t.style.color=''; s.textContent='⏰ Chưa hoàn thành'; }
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  Object.assign(t.style, {position:'fixed',bottom:'72px',left:'50%',transform:'translateX(-50%)',background:'#1a4731',color:'#fff',padding:'10px 18px',borderRadius:'20px',fontSize:'12px',fontWeight:'600',zIndex:999,whiteSpace:'nowrap',boxShadow:'0 4px 12px rgba(0,0,0,0.25)'});
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 2000);
+}
+
+// ===== MODULE CÁ NHÂN =====
+function mf47Toggle(period) {
+  const isWeek = period==='week';
+  document.getElementById('mf47-w').style.cssText=`flex:1;text-align:center;padding:7px;font-size:12px;font-weight:700;cursor:pointer;background:${isWeek?'rgba(255,255,255,.25)':'transparent'};color:${isWeek?'#fff':'rgba(255,255,255,.5)'}`;
+  document.getElementById('mf47-m').style.cssText=`flex:1;text-align:center;padding:7px;font-size:12px;font-weight:700;cursor:pointer;background:${!isWeek?'rgba(255,255,255,.25)':'transparent'};color:${!isWeek?'#fff':'rgba(255,255,255,.5)'}`;
+  document.getElementById('mf47-bai').textContent = isWeek?'7':'28';
+  document.getElementById('mf47-cmt').textContent = isWeek?'23':'89';
+  document.getElementById('mf47-tt').textContent = isWeek?'412':'1.6k';
+}
+function toggleNotif(el) {
+  const isOn = el.dataset.on === '1';
+  el.dataset.on = isOn ? '0' : '1';
+  el.style.background = isOn ? '#ccc' : '#2e7d52';
+  el.firstElementChild.style.left = isOn ? '2px' : '22px';
+}
+
+function showAppMenu() {
+  const menu = document.createElement('div');
+  menu.style.cssText = 'position:fixed;top:52px;right:20px;background:#fff;border-radius:12px;border:1px solid var(--b);box-shadow:0 8px 24px rgba(0,0,0,.15);z-index:999;min-width:160px;overflow:hidden';
+  const items = [['🔔 Thông báo','push(\'my-notif\',\'Cài đặt thông báo\',null,false)'],['⚙️ Cài đặt','toast(\'Mở cài đặt...\')'],['❓ Trợ giúp','toast(\'Mở trợ giúp...\')'],['📞 Liên hệ IT','toast(\'Liên hệ: it@truongdoan5.mil.vn\')']];
+  items.forEach(([label, action]) => {
+    const el = document.createElement('div');
+    el.textContent = label;
+    el.style.cssText = 'padding:12px 16px;font-size:13px;cursor:pointer;border-bottom:1px solid #f0f0f0;color:#111';
+    el.onmouseenter = () => el.style.background = '#f5f5f5';
+    el.onmouseleave = () => el.style.background = '';
+    el.onclick = () => { document.body.removeChild(menu); eval(action); };
+    menu.appendChild(el);
+  });
+  document.body.appendChild(menu);
+  setTimeout(() => { document.addEventListener('click', () => { if(document.body.contains(menu)) document.body.removeChild(menu); }, {once:true}); }, 100);
+}
+
+// Update goBack titles for personal screens
+
+const soldierProfiles = {
+  nh:{av:'NH',avcls:'av-g',avbg:'#d4edda',avclr:'#1a4731',name:'Nguyễn Văn Hùng',rank:'Thiếu tá',chucvu:'Trung đoàn trưởng',unit:'Trung đoàn 5 • Ban chỉ huy',sdot:'#2e7d52',statusText:'Đang ở tại đơn vị',statusSub:'Cập nhật lúc 07:30',dob:'12/03/1980',hometown:'Thái Bình',phone:'0912.345.678',year:'2002',id:'TĐ5-001',party:'✅ Có (2008)'},
+  tm:{av:'TM',avcls:'av-b',avbg:'#d0e8fb',avclr:'#0c447c',name:'Trần Văn Minh',rank:'Đại úy',chucvu:'Chính trị viên',unit:'Trung đoàn 5 • Ban chỉ huy',sdot:'#2e7d52',statusText:'Đang ở tại đơn vị',statusSub:'Cập nhật lúc 07:45',dob:'05/07/1985',hometown:'Hà Nam',phone:'0934.567.890',year:'2007',id:'TĐ5-002',party:'✅ Có (2012)'},
+  lt:{av:'LT',avcls:'av-a',avbg:'#faeeda',avclr:'#633806',name:'Lê Quang Tuấn',rank:'Trung úy',chucvu:'Đại đội trưởng',unit:'Trung đoàn 5 • Đại đội 1',sdot:'#2e7d52',statusText:'Đang ở tại đơn vị',statusSub:'Cập nhật lúc 06:00',dob:'18/11/1995',hometown:'Thanh Hóa',phone:'0967.123.456',year:'2017',id:'TĐ5-011',party:'✅ Có (2020)'},
+  pn:{av:'PN',avcls:'av-g',avbg:'#d4edda',avclr:'#1a4731',name:'Phạm Thanh Nam',rank:'Thượng sĩ',chucvu:'Trung đội trưởng',unit:'Trung đoàn 5 • Đại đội 1',sdot:'#185fa5',statusText:'Đang trực chiến',statusSub:'Ca trực 18:00 – 06:00',dob:'22/04/1998',hometown:'Nghệ An',phone:'0978.234.567',year:'2019',id:'TĐ5-013',party:'Chưa vào Đảng'},
+  bl:{av:'BL',avcls:'av-b',avbg:'#d0e8fb',avclr:'#0c447c',name:'Bùi Văn Long',rank:'Hạ sĩ',chucvu:'Chiến sĩ',unit:'Trung đoàn 5 • Đại đội 1',sdot:'#ba7517',statusText:'Nghỉ tranh thủ • về 26/04',statusSub:'Phép đến 26/04/2026 18:00',dob:'03/08/2003',hometown:'Nam Định',phone:'0945.678.901',year:'2023',id:'TĐ5-018',party:'Chưa vào Đảng'},
+  hk:{av:'HK',avcls:'av-r',avbg:'#fcebeb',avclr:'#791f1f',name:'Hoàng Văn Khoa',rank:'Binh nhất',chucvu:'Chiến sĩ',unit:'Trung đoàn 5 • Đại đội 1',sdot:'#e24b4a',statusText:'Ra ngoài • về 16:00',statusSub:'Ra ngoài mua đồ, về trước 16:00',dob:'15/01/2004',hometown:'Hải Phòng',phone:'0956.789.012',year:'2023',id:'TĐ5-020',party:'Chưa vào Đảng'},
+  vh:{av:'VH',avcls:'av-r',avbg:'#fcebeb',avclr:'#791f1f',name:'Vũ Minh Hoàng',rank:'Thiếu úy',chucvu:'Đại đội trưởng',unit:'Trung đoàn 5 • Đại đội 2',sdot:'#2e7d52',statusText:'Đang ở tại đơn vị',statusSub:'Cập nhật lúc 06:30',dob:'09/06/1996',hometown:'Hà Nội',phone:'0989.012.345',year:'2018',id:'TĐ5-021',party:'✅ Có (2021)'},
+  dt:{av:'DT',avcls:'av-a',avbg:'#faeeda',avclr:'#633806',name:'Đặng Quốc Toàn',rank:'Trung sĩ',chucvu:'Tiểu đội trưởng',unit:'Trung đoàn 5 • Đại đội 2',sdot:'#534ab7',statusText:'Ốm • Đang điều trị tại Quân y',statusSub:'Từ 22/04, dự kiến ra viện 27/04',dob:'28/02/2001',hometown:'Hà Tĩnh',phone:'0923.456.789',year:'2021',id:'TĐ5-024',party:'Chưa vào Đảng'},
+  nq:{av:'NQ',avcls:'',avbg:'#eeedfe',avclr:'#3c3489',name:'Ngô Đức Quân',rank:'Hạ sĩ',chucvu:'Chiến sĩ',unit:'Trung đoàn 5 • Đại đội 2',sdot:'#e24b4a',statusText:'Ra ngoài • về 18:00',statusSub:'Ra ngoài có phép, về trước 18:00',dob:'11/09/2003',hometown:'Hưng Yên',phone:'0901.234.567',year:'2022',id:'TĐ5-027',party:'Chưa vào Đảng'},
+};
+
+function openSoldierProfile(id) {
+  const p = soldierProfiles[id];
+  if(!p) return;
+  const av = document.getElementById('spf-av');
+  av.textContent = p.av;
+  av.style.cssText = 'width:64px;height:64px;font-size:22px;border:2.5px solid rgba(255,255,255,.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;background:'+p.avbg+';color:'+p.avclr;
+  document.getElementById('spf-name').textContent = p.name;
+  document.getElementById('spf-rank').textContent = p.rank+' • '+p.chucvu;
+  document.getElementById('spf-unit').textContent = p.unit;
+  document.getElementById('spf-sdot').style.background = p.sdot;
+  document.getElementById('spf-status').textContent = p.statusText;
+  document.getElementById('spf-status-sub').textContent = p.statusSub;
+  document.getElementById('spf-fullname').textContent = p.name;
+  document.getElementById('spf-dob').textContent = p.dob;
+  document.getElementById('spf-hometown').textContent = p.hometown;
+  document.getElementById('spf-capbac').textContent = p.rank;
+  document.getElementById('spf-chucvu').textContent = p.chucvu;
+  document.getElementById('spf-phone').textContent = p.phone;
+  document.getElementById('spf-year').textContent = p.year;
+  document.getElementById('spf-id').textContent = p.id;
+  document.getElementById('spf-party').textContent = p.party;
+  document.getElementById('ss-name').textContent = p.name;
+  spfTab('info', document.querySelector('#spf-tabs .tab'));
+  push('soldier-profile', p.name, p.rank+' • '+p.chucvu, false);
+  document.getElementById('hright').style.display = 'none';
+}
+
+function openSoldierStatus() { push('soldier-status','Cập nhật trạng thái',null,false); }
+
+function spfTab(tab, el) {
+  ['info','history','activity'].forEach(t=>{ document.getElementById('spf-'+t).style.display = t===tab?'block':'none'; });
+  document.querySelectorAll('#spf-tabs .tab').forEach(t=>t.classList.remove('active'));
+  const map={info:'Thông tin',history:'Kỷ luật/KT',activity:'Hoạt động'};
+  document.querySelectorAll('#spf-tabs .tab').forEach(t=>{ if(t.textContent===map[tab]) t.classList.add('active'); });
+}
+
+function filterContacts(val) {
+  const v = val.toLowerCase();
+  document.querySelectorAll('.contact-item').forEach(item=>{
+    item.style.display = item.textContent.toLowerCase().includes(v) ? 'flex' : 'none';
+  });
+}
+
+function setCTFilter(status, btn) {
+  document.querySelectorAll('.ctfilter').forEach(b=>{ b.style.background='var(--bg)'; b.style.color='var(--t2)'; b.style.borderColor='var(--b)'; b.style.fontWeight='normal'; });
+  btn.style.background='#d4edda'; btn.style.color='#1a4731'; btn.style.borderColor='#2e7d52'; btn.style.fontWeight='600';
+  document.querySelectorAll('.contact-item').forEach(item=>{
+    item.style.display = (status==='all'||item.dataset.status===status) ? 'flex' : 'none';
+  });
+}
+
+function selectSoldierStatus(el, status, color, bg) {
+  document.querySelectorAll('.sto').forEach(o=>{ o.style.border='1px solid var(--b)'; o.style.background='var(--bg)'; });
+  el.style.border='2px solid '+color; el.style.background=bg;
+  document.getElementById('ss-return-wrap').style.display = ['leave','out','sick'].includes(status)?'block':'none';
+}
+
+function selRadio(el, groupId) {
+  document.querySelectorAll('#'+groupId+' div').forEach(b=>{ b.style.background='var(--bg2)'; b.style.color='var(--t2)'; b.style.borderColor='var(--b)'; b.style.fontWeight='normal'; });
+  el.style.background='#d4edda'; el.style.color='#1a4731'; el.style.borderColor='#2e7d52'; el.style.fontWeight='600';
+}
+
+function openAddSoldier() { push('add-soldier','Thêm quân nhân',null,false); }
+function tick() {
+  ['cd1','cd2','cd-detail'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const p = el.textContent.split(':').map(Number);
+    let s = p[0]*3600 + p[1]*60 + p[2] - 1;
+    if (s < 0) s = 0;
+    el.textContent = [Math.floor(s/3600),Math.floor((s%3600)/60),s%60].map(v=>String(v).padStart(2,'0')).join(':');
+  });
+}
+setInterval(tick, 1000);
+</script>
+
+<!-- ===== FIREBASE ===== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA-J5cu-WvUvWT_S1mM6DQiWPiKYrSXo7o",
+  authDomain: "sh13a-d6020.firebaseapp.com",
+  projectId: "sh13a-d6020",
+  storageBucket: "sh13a-d6020.firebasestorage.app",
+  messagingSenderId: "959007282657",
+  appId: "1:959007282657:web:9429c76496061002ceaea0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Expose to window for use in non-module scripts
+window._fb = { db, auth, addDoc, collection, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc };
+
+// Trạng thái user
+window._fbUser = null;
+window._currentRoomId = null;
+window._msgUnsubscribe = null;
+
+// ===== AUTH - Đăng nhập ẩn danh để test =====
+// Thực tế sẽ thay bằng signInWithEmailAndPassword
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    window._fbUser = user;
+    showFbStatus('🟢 Đã kết nối Firebase', '#2e7d52');
+
+    // Lưu profile user nếu chưa có
+    const userRef = doc(db, 'users', user.uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        name: 'Bùi Quang Thành',
+        rank: 'Thiếu úy',
+        unit: 'Đại đội 1',
+        avatar: 'BT',
+        createdAt: serverTimestamp()
+      });
     }
-    
-    // ========== CHAT ĐƠN GIẢN ==========
-    async function loadChatPage() {
-        document.getElementById('contentArea').innerHTML = `
-            <div style="padding: 15px;">
-                <div style="background: white; border-radius: 16px; overflow: hidden;">
-                    <div style="padding: 12px; background: #2c3e50; color: white;"><i class="fas fa-comments"></i> CHAT NỘI BỘ</div>
-                    <div id="chatMsgList" style="height: 450px; overflow-y: auto; padding: 15px; background: #f8fafc;"></div>
-                    <div style="padding: 12px; display: flex; gap: 10px; background: white;">
-                        <input type="text" id="chatInput" placeholder="Nhập tin nhắn..." style="flex:1; margin:0;">
-                        <button onclick="sendChatMsg()" style="width: auto; padding: 10px 20px;">Gửi</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        loadChatMessages();
-        
-        // Lắng nghe realtime
-        db.collection('chats').orderBy('timestamp', 'asc').onSnapshot(() => {
-            if(document.getElementById('chatMsgList')) loadChatMessages();
-        });
-    }
-    
-    async function loadChatMessages() {
-        const snapshot = await db.collection('chats').orderBy('timestamp', 'asc').limit(100).get();
-        let html = '';
-        snapshot.forEach(doc => {
-            const msg = doc.data();
-            const isMe = msg.userId === currentUser?.uid;
-            html += `
-                <div style="display: flex; justify-content: ${isMe ? 'flex-end' : 'flex-start'}; margin-bottom: 12px;">
-                    <div style="max-width: 75%; padding: 10px 14px; border-radius: 18px; background: ${isMe ? '#3b82f6' : 'white'}; color: ${isMe ? 'white' : '#333'}; border: 1px solid #ddd;">
-                        <div><strong>${msg.userName || 'Thành viên'}</strong></div>
-                        <div>${escapeHtml(msg.text || '')}</div>
-                        <div style="font-size: 10px; margin-top: 5px;">${msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString() : ''}</div>
-                    </div>
-                </div>
-            `;
-        });
-        document.getElementById('chatMsgList').innerHTML = html || '<div style="text-align:center;padding:20px;">Chưa có tin nhắn</div>';
-        document.getElementById('chatMsgList').scrollTop = document.getElementById('chatMsgList').scrollHeight;
-    }
-    
-    async function sendChatMsg() {
-        const text = document.getElementById('chatInput').value.trim();
-        if(!text) return;
-        await db.collection('chats').add({
-            text: text,
-            userId: currentUser.uid,
-            userName: currentUser.email.split('@')[0],
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        document.getElementById('chatInput').value = '';
-    }
-    
-    // ========== CÁ NHÂN ==========
-    async function loadProfilePage() {
-        const userDoc = await db.collection('users').doc(currentUser.uid).get();
-        const userData = userDoc.exists ? userDoc.data() : { name: currentUser.email.split('@')[0], rank: 'Chiến sĩ', position: 'Thành viên', phone: '' };
-        
-        document.getElementById('contentArea').innerHTML = `
-            <div style="padding: 15px;">
-                <div class="card" style="background:white; border-radius:16px; padding:20px; margin-bottom:15px;">
-                    <h3 style="margin-bottom:15px;"><i class="fas fa-user"></i> THÔNG TIN CÁ NHÂN</h3>
-                    <div class="info-row"><strong>Họ tên:</strong> ${userData.name}</div>
-                    <div class="info-row"><strong>Cấp bậc:</strong> ${userData.rank}</div>
-                    <div class="info-row"><strong>Chức vụ:</strong> ${userData.position}</div>
-                    <div class="info-row"><strong>Email:</strong> ${currentUser.email}</div>
-                    <div class="info-row"><strong>SĐT:</strong> ${userData.phone || 'Chưa có'}</div>
-                    <button onclick="editProfile()" style="margin-top:15px;" class="warning">✏️ Chỉnh sửa</button>
-                    <button onclick="logout()" style="margin-top:10px;" class="danger">🚪 Đăng xuất</button>
-                </div>
-            </div>
-        `;
-    }
-    
-    function editProfile() {
-        const newName = prompt('Họ tên mới:');
-        if(newName) db.collection('users').doc(currentUser.uid).set({ name: newName }, { merge: true });
-        loadProfilePage();
-    }
-    
-    async function logout() { await auth.signOut(); location.reload(); }
-    function escapeHtml(text) { return text.replace(/[&<>]/g, function(m) { return m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'); }); }
-    
-    // ========== CHUYỂN TAB ==========
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-        document.querySelector(`.tab-item[data-tab="${tabName}"]`).classList.add('active');
-        
-        if(tabName === 'home') loadHomePage();
-        else if(tabName === 'quanSo') alert('Module Quân số đang phát triển');
-        else if(tabName === 'chat') loadChatPage();
-        else if(tabName === 'profile') loadProfilePage();
-    }
-    
-    document.querySelectorAll('.tab-item').forEach(tab => {
-        tab.addEventListener('click', () => switchTab(tab.getAttribute('data-tab')));
+    window._fbProfile = snap.exists() ? snap.data() : { name: 'Bùi Quang Thành', rank: 'Thiếu úy', avatar: 'BT' };
+  } else {
+    showFbStatus('🔄 Đang kết nối...', '#ba7517');
+    signInAnonymously(auth).catch(e => {
+      showFbStatus('🔴 Lỗi kết nối Firebase', '#e24b4a');
+      console.error('Firebase auth error:', e);
     });
-    
-    auth.onAuthStateChanged(async (user) => {
-        if(user) {
-            currentUser = user;
-            document.getElementById('userAvatar').innerHTML = currentUser.email.charAt(0).toUpperCase();
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            loadHomePage();
-            
-            // Tạo tin nhắn mẫu nếu chưa có
-            const chatSnap = await db.collection('chats').limit(1).get();
-            if(chatSnap.empty) {
-                await db.collection('chats').add({ text: 'Chào mừng bạn đến với SH13A!', userId: 'system', userName: 'Hệ thống', timestamp: new Date().toISOString() });
-            }
-        }
+  }
+});
+
+function showFbStatus(msg, color) {
+  let el = document.getElementById('fb-status');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'fb-status';
+    el.style.cssText = 'position:fixed;bottom:70px;right:8px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:10px;background:#fff;border:1px solid #e0e0e0;z-index:500;box-shadow:0 2px 6px rgba(0,0,0,.1)';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.color = color;
+  if (msg.includes('Đã kết nối')) setTimeout(() => { if(el) el.style.opacity = '0'; el.style.transition='opacity 1s'; setTimeout(()=>el.remove(),1000); }, 3000);
+}
+
+// ===== REALTIME MESSAGES =====
+window.fbOpenRoom = function(roomId) {
+  window._currentRoomId = roomId;
+  // Hủy listener cũ
+  if (window._msgUnsubscribe) { window._msgUnsubscribe(); window._msgUnsubscribe = null; }
+
+  const msgList = document.getElementById('msg-list');
+
+  // Lắng nghe tin nhắn realtime
+  const q = query(collection(db, 'rooms', roomId, 'messages'), orderBy('createdAt', 'asc'), limit(50));
+  window._msgUnsubscribe = onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === 'added') {
+        const data = change.doc.data();
+        const isMine = data.uid === window._fbUser?.uid;
+        // Tránh render trùng tin đã có
+        if (document.querySelector(`[data-msgid="${change.doc.id}"]`)) return;
+        appendFirebaseMsg(change.doc.id, data, isMine, msgList);
+      }
+      if (change.type === 'removed') {
+        const el = document.querySelector(`[data-msgid="${change.doc.id}"]`);
+        if (el) el.closest('.msg-row')?.remove();
+      }
     });
+    msgList.scrollTop = msgList.scrollHeight;
+  }, (err) => console.error('Snapshot error:', err));
+};
+
+function appendFirebaseMsg(id, data, isMine, list) {
+  const now = data.createdAt?.toDate?.() || new Date();
+  const t = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const row = document.createElement('div');
+  row.className = 'msg-row' + (isMine ? ' mine' : '');
+  row.dataset.msgid = id;
+
+  if (isMine) {
+    row.innerHTML = `
+      <div class="av" style="width:30px;height:30px;font-size:11px;background:#9fe1cb;color:#085041">${data.avatar||'Tôi'}</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:4px;flex-direction:row-reverse">
+          <div class="msg-swipe-wrap">
+            <div class="msg-delete-bg"><span style="font-size:16px">🗑</span>Xoá</div>
+            <div class="msg-swipe-inner bubble mine">${escHtml(data.text)}</div>
+          </div>
+          <button class="msg-dot-btn" onclick="showDotMenu(this,true)">⋯</button>
+        </div>
+        <div style="font-size:9px;color:var(--t2);margin-top:2px;text-align:right;padding-right:4px">${t} ✓</div>
+      </div>`;
+    // Init swipe
+    const wrap = row.querySelector('.msg-swipe-wrap');
+    const delBg = wrap.querySelector('.msg-delete-bg');
+    const inner = wrap.querySelector('.msg-swipe-inner');
+    if (wrap && delBg && inner) initSwipe(wrap, delBg, inner);
+  } else {
+    row.innerHTML = `
+      <div class="av av-g" style="width:30px;height:30px;font-size:11px">${data.avatar||'?'}</div>
+      <div>
+        <div class="msg-name">${escHtml(data.senderName||'Quân nhân')}</div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div class="bubble them">${escHtml(data.text)}</div>
+          <button class="msg-dot-btn" onclick="showDotMenu(this,false)">⋯</button>
+        </div>
+        <div style="font-size:9px;color:var(--t2);margin-top:2px;padding-left:4px">${t}</div>
+      </div>`;
+  }
+  list.appendChild(row);
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ===== GỬI TIN NHẮN QUA FIREBASE =====
+window.fbSendMsg = async function(text) {
+  if (!window._fbUser || !window._currentRoomId || !text.trim()) return;
+  const profile = window._fbProfile || {};
+  try {
+    await addDoc(collection(db, 'rooms', window._currentRoomId, 'messages'), {
+      text: text.trim(),
+      uid: window._fbUser.uid,
+      senderName: profile.name || 'Bùi Quang Thành',
+      avatar: profile.avatar || 'BT',
+      rank: profile.rank || 'Thiếu úy',
+      createdAt: serverTimestamp()
+    });
+  } catch(e) {
+    console.error('Send error:', e);
+    window.toast?.('❌ Lỗi gửi tin nhắn!');
+  }
+};
+
+console.log('✅ Firebase module loaded');
 </script>
 </body>
 </html>
