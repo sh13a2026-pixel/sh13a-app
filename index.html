@@ -5,173 +5,81 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>B1 Master By Cường Cá - Ôn thi B1 Thạc sĩ Cấp tốc</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh; color: #333; padding-bottom: 80px;
-}
-.container { max-width: 900px; margin: 0 auto; padding: 16px; }
-header {
-  background: rgba(255,255,255,0.95); border-radius: 16px; padding: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 16px; text-align: center;
-}
-header h1 { font-size: 22px; color: #667eea; margin-bottom: 4px; }
-header .author { font-size: 13px; color: #f5576c; font-weight: 600; }
-header p { color: #666; font-size: 14px; margin-top: 4px; }
-.streak { display: inline-block; background: #ff6b35; color: white; padding: 4px 12px; border-radius: 20px; font-size: 13px; margin-top: 8px; }
-
-.card {
-  background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-}
-.card h2 { color: #444; margin-bottom: 12px; font-size: 18px; }
-
-.menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.menu-item {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white; padding: 20px 16px; border-radius: 14px; cursor: pointer;
-  text-align: center; transition: transform 0.2s; border: none;
-  font-size: 14px; font-weight: 600;
-}
-.menu-item:active { transform: scale(0.97); }
-.menu-item.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.menu-item.green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-.menu-item.orange { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-.menu-item.purple { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; }
-.menu-item.red { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333; }
-.menu-item .icon { font-size: 32px; display: block; margin-bottom: 6px; }
-.menu-item .desc { font-size: 11px; font-weight: 400; opacity: 0.9; margin-top: 4px; }
-
-.progress-bar { background: #eee; border-radius: 10px; height: 8px; overflow: hidden; margin: 8px 0; }
-.progress-fill { background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; transition: width 0.5s; }
-
-.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
-.stat-box { background: #f7f8fc; padding: 12px; border-radius: 10px; text-align: center; }
-.stat-box .num { font-size: 22px; font-weight: bold; color: #667eea; }
-.stat-box .lbl { font-size: 11px; color: #666; }
-
-.btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white; border: none; padding: 12px 24px; border-radius: 10px;
-  font-size: 15px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px;
-}
-.btn:active { transform: scale(0.98); }
-.btn-secondary { background: #f0f0f0; color: #444; }
-.btn-success { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #fff; }
-
-.question-box {
-  background: #f7f8fc; padding: 16px; border-radius: 12px; margin-bottom: 16px;
-  border-left: 4px solid #667eea;
-}
-.question-box .qnum { color: #888; font-size: 13px; margin-bottom: 8px; }
-.question-box .qtxt { font-size: 16px; line-height: 1.5; margin-bottom: 12px; }
-
-.vi-text {
-  background: #fff8e1; padding: 8px 12px; border-radius: 8px;
-  font-size: 13px; color: #6a4f1a; margin-top: 8px; line-height: 1.5;
-  border-left: 3px solid #ffa726;
-}
-.vi-text::before { content: "🇻🇳 "; }
-
-.option {
-  background: white; border: 2px solid #e0e0e0; padding: 12px 16px;
-  border-radius: 10px; margin-bottom: 8px; cursor: pointer;
-  transition: all 0.2s; font-size: 14px;
-}
-.option:active { transform: scale(0.98); }
-.option.selected { border-color: #667eea; background: #f0f4ff; }
-.option.correct { border-color: #43e97b; background: #e8fdf0; }
-.option.wrong { border-color: #ff6b6b; background: #ffe8e8; }
-.option .label { font-weight: bold; margin-right: 8px; color: #667eea; }
-
-.input-answer {
-  width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px;
-  font-size: 15px; font-family: inherit; resize: vertical; min-height: 60px;
-}
-.input-answer:focus { border-color: #667eea; outline: none; }
-
-.feedback {
-  padding: 12px; border-radius: 10px; margin-top: 12px; font-size: 14px;
-  display: none;
-}
-.feedback.show { display: block; }
-.feedback.correct { background: #e8fdf0; color: #2d7a4f; border-left: 4px solid #43e97b; }
-.feedback.wrong { background: #ffe8e8; color: #a83232; border-left: 4px solid #ff6b6b; }
-.feedback strong { display: block; margin-bottom: 4px; }
-
-.timer {
-  position: fixed; top: 16px; right: 16px; background: #ff6b35;
-  color: white; padding: 8px 16px; border-radius: 20px; font-weight: bold;
-  font-size: 14px; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-}
-.exit-fab {
-  position: fixed; top: 16px; left: 16px; background: #444;
-  color: white; padding: 8px 14px; border-radius: 20px; font-weight: 600;
-  font-size: 13px; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-  border: none; cursor: pointer;
-}
-.exit-fab:active { transform: scale(0.95); }
-
-.back-btn {
-  background: none; border: none; color: #667eea; font-size: 15px;
-  cursor: pointer; padding: 8px 0; margin-bottom: 12px; font-weight: 600;
-}
-
-.topic-card {
-  background: linear-gradient(135deg, #fff 0%, #f7f8fc 100%);
-  padding: 16px; border-radius: 12px; margin-bottom: 12px;
-  border-left: 4px solid #f5576c;
-}
-.topic-card h3 { color: #333; margin-bottom: 8px; font-size: 16px; }
-.topic-card ul { margin-left: 20px; color: #555; font-size: 14px; }
-.topic-card ul li { margin-bottom: 4px; }
-.sample-answer {
-  background: #fffbeb; padding: 12px; border-radius: 10px; margin-top: 10px;
-  font-size: 13px; line-height: 1.7; color: #333; display: none;
-}
-.sample-answer.show { display: block; }
-.sample-answer .en { color: #1a4d8c; margin-bottom: 10px; }
-.sample-answer .vi { color: #6a4f1a; padding-top: 10px; border-top: 1px dashed #e0c97a; }
-.sample-answer .label-lang { font-weight: 700; font-size: 11px; display: block; margin-bottom: 4px; opacity: 0.7; }
-
-.passage {
-  background: #fffef0; padding: 16px; border-radius: 12px; margin-bottom: 16px;
-  font-size: 14px; line-height: 1.7; color: #444;
-  border-left: 4px solid #fa709a;
-}
-.passage-vi {
-  background: #f0f8ff; padding: 16px; border-radius: 12px; margin-bottom: 16px;
-  font-size: 13px; line-height: 1.7; color: #333;
-  border-left: 4px solid #4facfe; display: none;
-}
-.passage-vi.show { display: block; }
-.passage-vi::before { content: "🇻🇳 Bản dịch tiếng Việt"; display: block; font-weight: 700; color: #1a4d8c; margin-bottom: 8px; }
-
-.modal-bg {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-  display: none; align-items: center; justify-content: center; z-index: 200; padding: 20px;
-}
-.modal-bg.show { display: flex; }
-.modal {
-  background: white; border-radius: 16px; padding: 24px; max-width: 400px; width: 100%;
-  text-align: center;
-}
-.modal h2 { color: #667eea; margin-bottom: 12px; }
-.modal .score { font-size: 48px; font-weight: bold; color: #ff6b35; margin: 16px 0; }
-
-@media (max-width: 480px) {
-  .menu-grid { grid-template-columns: 1fr 1fr; }
-  header h1 { font-size: 18px; }
-  .container { padding: 12px; }
-}
-
-.hidden { display: none !important; }
-.hint-btn {
-  background: #fff3cd; color: #856404; border: 1px solid #ffeaa7;
-  padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
-  margin-top: 8px;
-}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333;padding-bottom:80px}
+.container{max-width:900px;margin:0 auto;padding:16px}
+footer{position:fixed;bottom:0;left:0;width:100%;text-align:center;padding:8px;background:rgba(255,255,255,0.9);font-size:13px;color:#f5576c;font-weight:600;z-index:50}
+header{background:rgba(255,255,255,0.95);border-radius:16px;padding:20px;box-shadow:0 4px 20px rgba(0,0,0,0.1);margin-bottom:16px;text-align:center}
+header h1{font-size:22px;color:#667eea;margin-bottom:4px}
+header .author{font-size:13px;color:#f5576c;font-weight:600}
+header p{color:#666;font-size:14px;margin-top:4px}
+.streak{display:inline-block;background:#ff6b35;color:white;padding:4px 12px;border-radius:20px;font-size:13px;margin-top:8px}
+.card{background:white;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+.card h2{color:#444;margin-bottom:12px;font-size:18px}
+.card h3{color:#444;margin-bottom:8px;font-size:16px}
+.menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.menu-item{background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);color:white;padding:20px 16px;border-radius:14px;cursor:pointer;text-align:center;transition:transform 0.2s;border:none;font-size:14px;font-weight:600}
+.menu-item:active{transform:scale(0.97)}
+.menu-item.blue{background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)}
+.menu-item.green{background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)}
+.menu-item.orange{background:linear-gradient(135deg,#fa709a 0%,#fee140 100%)}
+.menu-item.purple{background:linear-gradient(135deg,#a8edea 0%,#fed6e3 100%);color:#333}
+.menu-item.red{background:linear-gradient(135deg,#ff9a9e 0%,#fecfef 100%);color:#333}
+.menu-item .icon{font-size:32px;display:block;margin-bottom:6px}
+.menu-item .desc{font-size:11px;font-weight:400;opacity:0.9;margin-top:4px}
+.progress-bar{background:#eee;border-radius:10px;height:8px;overflow:hidden;margin:8px 0}
+.progress-fill{background:linear-gradient(90deg,#667eea,#764ba2);height:100%;transition:width 0.5s}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat-box{background:#f7f8fc;padding:12px;border-radius:10px;text-align:center}
+.stat-box .num{font-size:22px;font-weight:bold;color:#667eea}
+.stat-box .lbl{font-size:11px;color:#666}
+.btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 24px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;width:100%;margin-top:12px}
+.btn:active{transform:scale(0.98)}
+.btn-secondary{background:#f0f0f0;color:#444}
+.btn-success{background:linear-gradient(135deg,#43e97b,#38f9d7);color:#fff}
+.qnum{color:#888;font-size:13px;margin-bottom:8px}
+.qtxt{font-size:16px;line-height:1.5;margin-bottom:12px}
+.vi-text{background:#fff8e1;padding:8px 12px;border-radius:8px;font-size:13px;color:#6a4f1a;margin-top:8px;line-height:1.5;border-left:3px solid #ffa726}
+.vi-text::before{content:"🇻🇳 "}
+.option{background:white;border:2px solid #e0e0e0;padding:12px 16px;border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all 0.2s;font-size:14px}
+.option:active{transform:scale(0.98)}
+.option.correct{border-color:#43e97b;background:#e8fdf0}
+.option.wrong{border-color:#ff6b6b;background:#ffe8e8}
+.option .label{font-weight:bold;margin-right:8px;color:#667eea}
+.input-answer{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:10px;font-size:15px;font-family:inherit;resize:vertical;min-height:60px}
+.input-answer:focus{border-color:#667eea;outline:none}
+.feedback{padding:12px;border-radius:10px;margin-top:12px;font-size:14px;display:none}
+.feedback.show{display:block}
+.feedback.correct{background:#e8fdf0;color:#2d7a4f;border-left:4px solid #43e97b}
+.feedback.wrong{background:#ffe8e8;color:#a83232;border-left:4px solid #ff6b6b}
+.feedback strong{display:block;margin-bottom:4px}
+.timer{position:fixed;top:16px;right:16px;background:#ff6b35;color:white;padding:8px 16px;border-radius:20px;font-weight:bold;font-size:14px;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,0.2)}
+.exit-fab{position:fixed;top:16px;left:16px;background:#444;color:white;padding:8px 14px;border-radius:20px;font-weight:600;font-size:13px;z-index:100;border:none;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,0.3)}
+.back-btn{background:none;border:none;color:#667eea;font-size:15px;cursor:pointer;padding:8px 0;margin-bottom:12px;font-weight:600}
+.toggle-vi-btn{background:#f0f0f0;border:none;color:#333;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;margin-left:12px}
+.topic-card{background:linear-gradient(135deg,#fff 0%,#f7f8fc 100%);padding:16px;border-radius:12px;margin-bottom:12px;border-left:4px solid #f5576c;cursor:pointer}
+.topic-card:active{transform:scale(0.99)}
+.topic-card h3{color:#333;margin-bottom:8px;font-size:16px}
+.topic-card ul{margin-left:20px;color:#555;font-size:14px}
+.topic-card ul li{margin-bottom:4px}
+.sample-answer{background:#fffbeb;padding:12px;border-radius:10px;margin-top:10px;font-size:13px;line-height:1.7;color:#333;display:none}
+.sample-answer.show{display:block}
+.sample-answer .en{color:#1a4d8c;margin-bottom:10px}
+.sample-answer .vi{color:#6a4f1a;padding-top:10px;border-top:1px dashed #e0c97a}
+.sample-answer .label-lang{font-weight:700;font-size:11px;display:block;margin-bottom:4px;opacity:0.7}
+.passage{background:#fffef0;padding:16px;border-radius:12px;margin-bottom:16px;font-size:14px;line-height:1.7;color:#444;border-left:4px solid #fa709a}
+.passage-vi{background:#f0f8ff;padding:16px;border-radius:12px;margin-bottom:16px;font-size:13px;line-height:1.7;color:#333;border-left:4px solid #4facfe;display:none}
+.passage-vi.show{display:block}
+.passage-vi::before{content:"🇻🇳 Bản dịch";display:block;font-weight:700;color:#1a4d8c;margin-bottom:8px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+.modal-bg.show{display:flex}
+.modal{background:white;border-radius:16px;padding:24px;max-width:400px;width:100%;text-align:center}
+.modal h2{color:#667eea;margin-bottom:12px}
+.modal .score{font-size:48px;font-weight:bold;color:#ff6b35;margin:16px 0}
+.hint-btn{background:#fff3cd;color:#856404;border:1px solid #ffeaa7;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;margin-top:8px}
+.hidden{display:none !important}
+body.hide-vietnamese .vi-text,body.hide-vietnamese .o-vi-text,body.hide-vietnamese .passage-vi,body.hide-vietnamese .point-vi,body.hide-vietnamese .title-vi{display:none !important}
+@media (max-width:480px){.menu-grid{grid-template-columns:1fr 1fr}header h1{font-size:18px}.container{padding:12px}}
 </style>
 </head>
 <body>
@@ -179,7 +87,6 @@ header p { color: #666; font-size: 14px; margin-top: 4px; }
 <button id="exit-fab" class="exit-fab hidden" onclick="confirmExit()">← Thoát</button>
 
 <div class="container">
-<!-- HOME SCREEN -->
 <div id="home-screen">
   <header>
     <h1>📚 B1 Master</h1>
@@ -191,7 +98,7 @@ header p { color: #666; font-size: 14px; margin-top: 4px; }
   <div class="card">
     <h2>📊 Tiến độ học tập</h2>
     <div class="progress-bar"><div class="progress-fill" id="overall-progress" style="width:0%"></div></div>
-    <div style="text-align:center; font-size:13px; color:#666;" id="progress-text">0% hoàn thành</div>
+    <div style="text-align:center;font-size:13px;color:#666" id="progress-text">0% hoàn thành</div>
     <div class="stats-grid">
       <div class="stat-box"><div class="num" id="stat-correct">0</div><div class="lbl">Đáp đúng</div></div>
       <div class="stat-box"><div class="num" id="stat-total">0</div><div class="lbl">Đã làm</div></div>
@@ -202,659 +109,635 @@ header p { color: #666; font-size: 14px; margin-top: 4px; }
   <div class="card">
     <h2>🎯 Chế độ luyện tập</h2>
     <div class="menu-grid">
-      <button class="menu-item" onclick="startMode('grammar')">
-        <span class="icon">📝</span>Ngữ pháp<div class="desc">50 câu A,B,C,D</div>
-      </button>
-      <button class="menu-item blue" onclick="startMode('transform')">
-        <span class="icon">✍️</span>Viết lại câu<div class="desc">30 câu transformation</div>
-      </button>
-      <button class="menu-item green" onclick="startMode('signs')">
-        <span class="icon">🪧</span>Biển báo<div class="desc">20 câu Signs & Notices</div>
-      </button>
-      <button class="menu-item orange" onclick="startMode('reading')">
-        <span class="icon">📖</span>Đọc hiểu<div class="desc">4 đoạn văn</div>
-      </button>
-      <button class="menu-item red" onclick="startMode('speaking')">
-        <span class="icon">🗣️</span>Speaking<div class="desc">10 chủ đề nói</div>
-      </button>
-      <button class="menu-item purple" onclick="startMode('mocktest')">
-        <span class="icon">🏆</span>Đề thi thử<div class="desc">Full test có tính giờ</div>
-      </button>
+      <button class="menu-item" onclick="startMode('grammar')"><span class="icon">📝</span>Ngữ pháp<div class="desc">50 câu A,B,C,D</div></button>
+      <button class="menu-item blue" onclick="chooseTransformMode()"><span class="icon">✍️</span>Viết lại câu<div class="desc">Tự luận & Trắc nghiệm</div></button>
+      <button class="menu-item green" onclick="startMode('signs')"><span class="icon">🪧</span>Biển báo<div class="desc">20 câu Signs</div></button>
+      <button class="menu-item orange" onclick="startMode('reading')"><span class="icon">📖</span>Đọc hiểu<div class="desc">6 đoạn văn</div></button>
+      <button class="menu-item red" onclick="startMode('speaking')"><span class="icon">🗣️</span>Speaking<div class="desc">10 chủ đề nói</div></button>
+      <button class="menu-item purple" onclick="startMode('mocktest')"><span class="icon">🏆</span>Đề thi thử<div class="desc">60 phút có timer</div></button>
     </div>
   </div>
 
   <div class="card">
     <h2>💡 Lộ trình 7 ngày cấp tốc</h2>
-    <div style="font-size:14px; line-height:1.8; color:#555;">
+    <div style="font-size:14px;line-height:1.8;color:#555">
       <div><strong>Ngày 1-2:</strong> Ngữ pháp + Viết lại câu</div>
       <div><strong>Ngày 3-4:</strong> Đọc hiểu + Biển báo</div>
       <div><strong>Ngày 5:</strong> Học 10 chủ đề Speaking</div>
       <div><strong>Ngày 6:</strong> Làm 1-2 đề thi thử</div>
       <div><strong>Ngày 7:</strong> Ôn lại lỗi sai + Speaking</div>
     </div>
-    <button class="btn btn-secondary" onclick="resetProgress()" style="margin-top:16px; font-size:13px;">🔄 Reset tiến độ</button>
+    <button class="btn btn-secondary" onclick="resetProgress()" style="margin-top:16px;font-size:13px">🔄 Reset tiến độ</button>
   </div>
 </div>
 
-<!-- PRACTICE SCREEN -->
 <div id="practice-screen" class="hidden">
-  <button class="back-btn" onclick="goHome()">← Về trang chủ</button>
+  <div style="display:flex;align-items:center;flex-wrap:wrap">
+    <button class="back-btn" onclick="goHome()">← Về trang chủ</button>
+    <button class="toggle-vi-btn" onclick="toggleVietnamese()">🇻🇳 Ẩn Việt</button>
+  </div>
   <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <h2 id="practice-title">Luyện tập</h2>
-      <span id="practice-counter" style="font-size:13px; color:#888;">1/10</span>
+      <span id="practice-counter" style="font-size:13px;color:#888">1/10</span>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="practice-progress" style="width:0%"></div></div>
   </div>
   <div id="practice-content"></div>
 </div>
 
-<!-- SPEAKING SCREEN -->
 <div id="speaking-screen" class="hidden">
-  <button class="back-btn" onclick="goHome()">← Về trang chủ</button>
-  <div class="card"><h2>🗣️ 10 chủ đề Speaking B1</h2>
-    <p style="font-size:13px; color:#666;">Có bài mẫu song ngữ Anh-Việt. Nhấn "Xem bài mẫu" để học.</p>
+  <div style="display:flex;align-items:center;flex-wrap:wrap">
+    <button class="back-btn" onclick="goHome()">← Về trang chủ</button>
+    <button class="toggle-vi-btn" onclick="toggleVietnamese()">🇻🇳 Ẩn Việt</button>
   </div>
+  <div class="card"><h2>🗣️ 10 chủ đề Speaking B1</h2><p style="font-size:13px;color:#666">Có bài mẫu song ngữ Anh-Việt. Nhấn "Xem bài mẫu" để học.</p></div>
   <div id="speaking-content"></div>
 </div>
 
-<!-- MOCK TEST SCREEN -->
 <div id="mocktest-screen" class="hidden">
-  <button class="back-btn" onclick="confirmExit()">← Thoát</button>
-  <div class="card">
-    <h2>🏆 Đề thi thử B1</h2>
-    <p style="font-size:13px; color:#666;">Thời gian: 60 phút · 50 câu</p>
+  <div style="display:flex;align-items:center;flex-wrap:wrap">
+    <button class="back-btn" onclick="confirmExit()">← Thoát</button>
+    <button class="toggle-vi-btn" onclick="toggleVietnamese()">🇻🇳 Ẩn Việt</button>
   </div>
+  <div class="card"><h2>🏆 Đề thi thử B1</h2><p style="font-size:13px;color:#666">Thời gian: 60 phút · 50 câu</p></div>
   <div id="mocktest-content"></div>
 </div>
-
 </div>
 
-<!-- MODAL -->
-<div class="modal-bg" id="modal">
-  <div class="modal">
-    <h2 id="modal-title">Hoàn thành!</h2>
-    <div class="score" id="modal-score">0/10</div>
-    <p id="modal-text" style="color:#666; font-size:14px;"></p>
-    <button class="btn" onclick="closeModal()">OK</button>
-  </div>
-</div>
+<footer>By Cường Cá 🐟</footer>
+<div class="modal-bg" id="modal"><div class="modal"><h2 id="modal-title"></h2><div class="score" id="modal-score"></div><p id="modal-text" style="color:#666;font-size:14px"></p><button class="btn" onclick="closeModal()">OK</button></div></div>
 
 <script>
-// ============ DATA ============
+// ==================== DATA ====================
 const grammarQuestions = [
-  {q: "The farmer led his herd of cows _____ the field to graze.", vi: "Người nông dân dẫn đàn bò ra đồng để gặm cỏ.", o: ["into","at","in","on"], a: 0, exp: "Lead INTO = dẫn vào (chuyển động hướng vào)"},
-  {q: "I think access to cinemas and theatres is the main _____ of city life.", vi: "Tôi nghĩ việc tiếp cận rạp chiếu phim và nhà hát là điểm hấp dẫn chính của cuộc sống thành thị.", o: ["attraction","amenity","recreation","leisure"], a: 0, exp: "Attraction = điểm hấp dẫn"},
-  {q: "My brother has a great interest in _____, and he hopes to become a scientist one day.", vi: "Anh trai tôi rất thích ___, và anh ấy hy vọng trở thành nhà khoa học một ngày nào đó.", o: ["sports","gardening","cooking","science"], a: 3, exp: "Muốn làm scientist → interest in science"},
-  {q: "I love going to the beach, _____ I don't enjoy the sand getting in my shoes.", vi: "Tôi thích đi biển, ___ tôi không thích cát chui vào giày.", o: ["and","or","but","so"], a: 2, exp: "Hai vế trái nghĩa → BUT"},
-  {q: "The house is a(n) _____ location, very near the shops and public transport.", vi: "Ngôi nhà ở vị trí ___, rất gần các cửa hàng và phương tiện công cộng.", o: ["essential","comfortable","convenient","safe"], a: 2, exp: "Convenient = thuận tiện (gần shops)"},
-  {q: "To promote their product, the company _____ give away free samples.", vi: "Để quảng bá sản phẩm, công ty ___ phát mẫu thử miễn phí.", o: ["going to","goes to","goes","is going to"], a: 3, exp: "Be going to V (kế hoạch tương lai)"},
-  {q: "The woman _____ yesterday is my former teacher.", vi: "Người phụ nữ ___ hôm qua là cô giáo cũ của tôi.", o: ["you met","you met her","what you met","that you met her"], a: 0, exp: "Mệnh đề quan hệ rút gọn (whom)"},
-  {q: "Could you give me _____ water, please? I'm really thirsty.", vi: "Bạn có thể cho tôi ___ nước được không? Tôi rất khát.", o: ["some","any","few","many"], a: 0, exp: "SOME dùng trong câu xin/đề nghị"},
-  {q: "She spends a great _____ of her time in London.", vi: "Cô ấy dành phần lớn thời gian ở London.", o: ["period","deal","quantity","number"], a: 1, exp: "A great DEAL of + uncountable"},
-  {q: "She was reading a book _____ the phone rang.", vi: "Cô ấy đang đọc sách ___ điện thoại reo.", o: ["when","at","with","and"], a: 0, exp: "Past continuous + WHEN + past simple"},
-  {q: "How long _____ you _____ for the bus?", vi: "Bạn đã đợi xe buýt được bao lâu rồi?", o: ["have/waited","are/waiting","have/been waiting","do/wait"], a: 2, exp: "Hành động kéo dài đến hiện tại → present perfect continuous"},
-  {q: "If you wait at the _____, you will catch the next bus very soon.", vi: "Nếu bạn đợi ở ___, bạn sẽ bắt được chuyến buýt tiếp theo ngay.", o: ["departure lounge","ticket office","bus stop","information desk"], a: 2, exp: "Đợi xe bus → BUS STOP"},
-  {q: "The book was _____ I couldn't put it down.", vi: "Cuốn sách ___ tôi không thể đặt nó xuống.", o: ["very good that","so good that","so good than","so good as"], a: 1, exp: "SO + adj + THAT"},
-  {q: "We need a teacher _____ native language is English.", vi: "Chúng tôi cần một giáo viên có ngôn ngữ mẹ đẻ là tiếng Anh.", o: ["who","whose","whom","that"], a: 1, exp: "WHOSE chỉ sở hữu"},
-  {q: "I can remember hearing voices in the _____ of the night.", vi: "Tôi nhớ đã nghe thấy tiếng nói vào ___ đêm.", o: ["middle","late","half","hour"], a: 0, exp: "In the middle of the night = giữa đêm"},
-  {q: "Trains to Ho Chi Minh City leave from _____ number 3.", vi: "Tàu đi Thành phố Hồ Chí Minh khởi hành từ ___ số 3.", o: ["way","path","road","platform"], a: 3, exp: "Platform = sân ga"},
-  {q: "A _____ person is one who cannot see anything.", vi: "Một người ___ là người không thể nhìn thấy gì.", o: ["dump","deaf","blind","limp"], a: 2, exp: "Blind = mù"},
-  {q: "The chemistry book _____ was a little expensive.", vi: "Cuốn sách hóa học ___ hơi đắt một chút.", o: ["I bought","that I bought it","what I bought","I bought that"], a: 0, exp: "Mệnh đề quan hệ rút gọn"},
-  {q: "After the break, we will _____ with chapter five of the book.", vi: "Sau giờ giải lao, chúng ta sẽ ___ với chương 5 của cuốn sách.", o: ["persist","insist","continue","keep"], a: 2, exp: "Continue with = tiếp tục với"},
-  {q: "Did you meet anyone _____ at the party?", vi: "Bạn có gặp ai ___ ở bữa tiệc không?", o: ["interesting","interested","interests","interest"], a: 0, exp: "Tính từ -ING tả vật/người gây cảm xúc"},
-  {q: "Most of the diseases are caused by the unhygienic surroundings _____ people live.", vi: "Hầu hết các bệnh tật là do môi trường mất vệ sinh ___ con người sống gây ra.", o: ["Ø","in where","in that","in which"], a: 3, exp: "IN WHICH = WHERE chỉ nơi chốn"},
-  {q: "We can't wait to _____ the new movie this weekend.", vi: "Chúng tôi không thể chờ đợi để ___ bộ phim mới vào cuối tuần này.", o: ["watch","read","look","observe"], a: 0, exp: "Watch a movie = xem phim"},
-  {q: "Total weight of all ants in the world is _____ than that of all human beings.", vi: "Tổng trọng lượng của tất cả loài kiến trên thế giới ___ tổng trọng lượng của con người.", o: ["more greater","much greater","most great","most greater"], a: 1, exp: "MUCH + comparative"},
-  {q: "Please accept our _____ congratulations!", vi: "Hãy nhận lời chúc mừng ___ của chúng tôi!", o: ["deepest","warmest","dearest","finest"], a: 1, exp: "Warmest congratulations = lời chúc mừng nồng nhiệt nhất"},
-  {q: "The woman _____ was away on vacation.", vi: "Người phụ nữ ___ đang đi nghỉ mát.", o: ["whom I wanted to see yesterday","whose I wanted to see yesterday","which I wanted to see yesterday","whom I have wanted to see yesterday"], a: 0, exp: "WHOM + S + V (quá khứ đơn với yesterday)"},
-  {q: "My mother often asks me to _____ up the vegetables for her.", vi: "Mẹ tôi thường yêu cầu tôi ___ rau cho bà.", o: ["put","make","cut","grind"], a: 2, exp: "Cut up vegetables = cắt rau"},
-  {q: "She wishes she _____ how to play the guitar.", vi: "Cô ấy ước rằng cô ấy biết cách chơi guitar.", o: ["know","would know","will know","knew"], a: 3, exp: "Wish + S + V quá khứ"},
-  {q: "A new hospital _____ in this village next year.", vi: "Một bệnh viện mới ___ ở ngôi làng này vào năm tới.", o: ["is built","will build","will be built","builds"], a: 2, exp: "Bị động tương lai: will be + V3"},
-  {q: "I shouldn't go there at night if I _____ you.", vi: "Tôi sẽ không đi đến đó vào ban đêm nếu tôi là bạn.", o: ["am","be","was","were"], a: 3, exp: "Câu điều kiện loại 2: if I WERE you"},
-  {q: "_____ we were having dinner, they came to visit us.", vi: "___ chúng tôi đang ăn tối, họ đến thăm chúng tôi.", o: ["After","Before","As","While"], a: 3, exp: "WHILE + past continuous"},
-  {q: "Have you _____ been on the school trip?", vi: "Bạn đã từng đi ___ chuyến đi của trường chưa?", o: ["yet","for","before","ever"], a: 3, exp: "Have you EVER + V3 = đã từng chưa"},
-  {q: "There's still _____ wine in the bottle.", vi: "Vẫn còn ___ rượu vang trong chai.", o: ["some","any","few","many"], a: 0, exp: "SOME + uncountable trong câu khẳng định"},
-  {q: "The train will be leaving in five minutes, so you _____ better hurry up.", vi: "Tàu sẽ khởi hành sau 5 phút nữa, vì vậy bạn ___ tốt hơn là nên nhanh lên.", o: ["should","had","will","would"], a: 1, exp: "HAD better = nên (lời khuyên mạnh)"},
-  {q: "My favorite _____ is summer because I love the sea and the sun.", vi: "___ yêu thích của tôi là mùa hè vì tôi yêu biển và mặt trời.", o: ["weather","climate","season","temperature"], a: 2, exp: "Summer là một SEASON (mùa)"},
-  {q: "You will fail the exam _____ you learn harder.", vi: "Bạn sẽ trượt kỳ thi ___ bạn học chăm hơn.", o: ["if","or","where","unless"], a: 3, exp: "UNLESS = if not"},
-  {q: "She wishes she _____ the next exam.", vi: "Cô ấy ước cô ấy sẽ vượt qua kỳ thi tới.", o: ["pass","would pass","will pass","passed"], a: 1, exp: "Wish + would V (ước về tương lai)"},
-  {q: "The light went out while I _____ dinner.", vi: "Đèn tắt trong khi tôi ___ bữa tối.", o: ["am having","had","have","was having"], a: 3, exp: "WHILE + past continuous"},
-  {q: "I stayed _____ really late last night, and now I'm tired.", vi: "Tối qua tôi đã thức rất khuya, và bây giờ tôi mệt.", o: ["up","off","in","on"], a: 0, exp: "Stay up = thức khuya"},
-  {q: "You will become ill _____ you stop working so hard.", vi: "Bạn sẽ bị ốm ___ bạn ngừng làm việc quá vất vả.", o: ["until","when","unless","if"], a: 2, exp: "UNLESS = nếu không"},
-  {q: "In the future, teachers will be _____ rather than knowledge providers.", vi: "Trong tương lai, giáo viên sẽ là ___ hơn là người cung cấp kiến thức.", o: ["facility","facilitators","facilitation","facilitate"], a: 1, exp: "Cần danh từ chỉ người: facilitators"},
-  {q: "We won't lend you any money _____ you promise to give it back on time.", vi: "Chúng tôi sẽ không cho bạn vay tiền ___ bạn hứa trả lại đúng hạn.", o: ["if","in case","unless","so that"], a: 2, exp: "UNLESS = trừ phi"},
-  {q: "John wishes he _____ more time to practise his tennis skills before the big match.", vi: "John ước anh ấy có nhiều thời gian hơn để luyện tập kỹ năng tennis trước trận đấu lớn.", o: ["will have","had","would has","to have"], a: 1, exp: "Wish + S + had (ước hiện tại)"},
-  {q: "The accident was _____ serious that he was kept in hospital for nearly a month.", vi: "Tai nạn ___ nghiêm trọng đến mức anh ấy phải nằm viện gần một tháng.", o: ["so","too","such","very"], a: 0, exp: "SO + adj + THAT"},
-  {q: "Thomas Edison, _____ was American, invented many things, including the light bulb.", vi: "Thomas Edison, ___ là người Mỹ, đã phát minh nhiều thứ, bao gồm bóng đèn.", o: ["which","who","that","what"], a: 1, exp: "WHO chỉ người trong mệnh đề không xác định"},
-  {q: "I hope we are staying _____ a good hotel this time.", vi: "Tôi hy vọng lần này chúng ta sẽ ở ___ một khách sạn tốt.", o: ["at","to","with","on"], a: 0, exp: "Stay AT a hotel"},
-  {q: "I know London quite well because I _____ there.", vi: "Tôi biết London khá rõ vì tôi đã ___ ở đó.", o: ["used live","used to living","was used to live","used to live"], a: 3, exp: "USED TO + V (từng làm)"},
-  {q: "My bike, _____! Call the police!", vi: "Xe đạp của tôi ___! Hãy gọi cảnh sát!", o: ["was being stolen","has been stolen","stole","was stealing"], a: 1, exp: "Hiện tại hoàn thành bị động: HAS BEEN STOLEN"},
-  {q: "I'm tired because I _____ since 8 this morning.", vi: "Tôi mệt vì tôi ___ từ 8 giờ sáng.", o: ["have been working","work","I'm working","had worked"], a: 0, exp: "SINCE + present perfect continuous"},
-  {q: "Do you think I could have _____ water, please?", vi: "Bạn có thể cho tôi ___ nước được không?", o: ["a few","much","few","a little"], a: 3, exp: "A LITTLE + uncountable (water)"},
-  {q: "Is that Paul? He must _____ from Australia.", vi: "Đó có phải là Paul không? Chắc chắn anh ấy đã ___ từ Australia về.", o: ["returned","had returned","have returned","returning"], a: 2, exp: "MUST HAVE + V3 (chắc chắn đã)"},
+  {q:"The farmer led his herd of cows _____ the field to graze.",vi:"Người nông dân dẫn đàn bò ra đồng để gặm cỏ.",o:["into","at","in","on"],a:0,exp:"Lead INTO = dẫn vào"},
+  {q:"I think access to cinemas and theatres is the main _____ of city life.",vi:"Tôi nghĩ việc tiếp cận rạp chiếu phim và nhà hát là điểm hấp dẫn chính của cuộc sống thành thị.",o:["attraction","amenity","recreation","leisure"],a:0,exp:"Attraction = điểm hấp dẫn"},
+  {q:"My brother has a great interest in _____, and he hopes to become a scientist one day.",vi:"Anh trai tôi rất thích ___, và anh ấy hy vọng trở thành nhà khoa học một ngày nào đó.",o:["sports","gardening","cooking","science"],a:3,exp:"Muốn làm scientist → interest in science"},
+  {q:"I love going to the beach, _____ I don't enjoy the sand getting in my shoes.",vi:"Tôi thích đi biển, ___ tôi không thích cát chui vào giày.",o:["and","or","but","so"],a:2,exp:"Hai vế trái nghĩa → BUT"},
+  {q:"The house is a(n) _____ location, very near the shops and public transport.",vi:"Ngôi nhà ở vị trí ___, rất gần các cửa hàng và phương tiện công cộng.",o:["essential","comfortable","convenient","safe"],a:2,exp:"Convenient = thuận tiện"},
+  {q:"To promote their product, the company _____ give away free samples.",vi:"Để quảng bá sản phẩm, công ty ___ phát mẫu thử miễn phí.",o:["going to","goes to","goes","is going to"],a:3,exp:"Be going to V (kế hoạch tương lai)"},
+  {q:"The woman _____ yesterday is my former teacher.",vi:"Người phụ nữ ___ hôm qua là cô giáo cũ của tôi.",o:["you met","you met her","what you met","that you met her"],a:0,exp:"Mệnh đề quan hệ rút gọn (whom)"},
+  {q:"Could you give me _____ water, please? I'm really thirsty.",vi:"Bạn có thể cho tôi ___ nước được không? Tôi rất khát.",o:["some","any","few","many"],a:0,exp:"SOME dùng trong câu xin/đề nghị"},
+  {q:"She spends a great _____ of her time in London.",vi:"Cô ấy dành phần lớn thời gian ở London.",o:["period","deal","quantity","number"],a:1,exp:"A great DEAL of + uncountable"},
+  {q:"She was reading a book _____ the phone rang.",vi:"Cô ấy đang đọc sách ___ điện thoại reo.",o:["when","at","with","and"],a:0,exp:"Past continuous + WHEN + past simple"},
+  {q:"How long _____ you _____ for the bus?",vi:"Bạn đã đợi xe buýt được bao lâu rồi?",o:["have/waited","are/waiting","have/been waiting","do/wait"],a:2,exp:"Hành động kéo dài đến hiện tại → present perfect continuous"},
+  {q:"If you wait at the _____, you will catch the next bus very soon.",vi:"Nếu bạn đợi ở ___, bạn sẽ bắt được chuyến buýt tiếp theo ngay.",o:["departure lounge","ticket office","bus stop","information desk"],a:2,exp:"Đợi xe bus → BUS STOP"},
+  {q:"The book was _____ I couldn't put it down.",vi:"Cuốn sách ___ tôi không thể đặt nó xuống.",o:["very good that","so good that","so good than","so good as"],a:1,exp:"SO + adj + THAT"},
+  {q:"We need a teacher _____ native language is English.",vi:"Chúng tôi cần một giáo viên có ngôn ngữ mẹ đẻ là tiếng Anh.",o:["who","whose","whom","that"],a:1,exp:"WHOSE chỉ sở hữu"},
+  {q:"I can remember hearing voices in the _____ of the night.",vi:"Tôi nhớ đã nghe thấy tiếng nói vào ___ đêm.",o:["middle","late","half","hour"],a:0,exp:"In the middle of the night = giữa đêm"},
+  {q:"Trains to Ho Chi Minh City leave from _____ number 3.",vi:"Tàu đi Thành phố Hồ Chí Minh khởi hành từ ___ số 3.",o:["way","path","road","platform"],a:3,exp:"Platform = sân ga"},
+  {q:"A _____ person is one who cannot see anything.",vi:"Một người ___ là người không thể nhìn thấy gì.",o:["dump","deaf","blind","limp"],a:2,exp:"Blind = mù"},
+  {q:"The chemistry book _____ was a little expensive.",vi:"Cuốn sách hóa học ___ hơi đắt một chút.",o:["I bought","that I bought it","what I bought","I bought that"],a:0,exp:"Mệnh đề quan hệ rút gọn"},
+  {q:"After the break, we will _____ with chapter five of the book.",vi:"Sau giờ giải lao, chúng ta sẽ ___ với chương 5 của cuốn sách.",o:["persist","insist","continue","keep"],a:2,exp:"Continue with = tiếp tục với"},
+  {q:"Did you meet anyone _____ at the party?",vi:"Bạn có gặp ai ___ ở bữa tiệc không?",o:["interesting","interested","interests","interest"],a:0,exp:"Tính từ -ING tả vật/người gây cảm xúc"},
+  {q:"Most of the diseases are caused by the unhygienic surroundings _____ people live.",vi:"Hầu hết các bệnh tật là do môi trường mất vệ sinh ___ con người sống gây ra.",o:["Ø","in where","in that","in which"],a:3,exp:"IN WHICH = WHERE chỉ nơi chốn"},
+  {q:"We can't wait to _____ the new movie this weekend.",vi:"Chúng tôi không thể chờ đợi để ___ bộ phim mới vào cuối tuần này.",o:["watch","read","look","observe"],a:0,exp:"Watch a movie = xem phim"},
+  {q:"Total weight of all ants in the world is _____ than that of all human beings.",vi:"Tổng trọng lượng của tất cả loài kiến trên thế giới ___ tổng trọng lượng của con người.",o:["more greater","much greater","most great","most greater"],a:1,exp:"MUCH + comparative"},
+  {q:"Please accept our _____ congratulations!",vi:"Hãy nhận lời chúc mừng ___ của chúng tôi!",o:["deepest","warmest","dearest","finest"],a:1,exp:"Warmest congratulations = lời chúc mừng nồng nhiệt nhất"},
+  {q:"The woman _____ was away on vacation.",vi:"Người phụ nữ ___ đang đi nghỉ mát.",o:["whom I wanted to see yesterday","whose I wanted to see yesterday","which I wanted to see yesterday","whom I have wanted to see yesterday"],a:0,exp:"WHOM + S + V (quá khứ đơn với yesterday)"},
+  {q:"My mother often asks me to _____ up the vegetables for her.",vi:"Mẹ tôi thường yêu cầu tôi ___ rau cho bà.",o:["put","make","cut","grind"],a:2,exp:"Cut up vegetables = cắt rau"},
+  {q:"She wishes she _____ how to play the guitar.",vi:"Cô ấy ước rằng cô ấy biết cách chơi guitar.",o:["know","would know","will know","knew"],a:3,exp:"Wish + S + V quá khứ"},
+  {q:"A new hospital _____ in this village next year.",vi:"Một bệnh viện mới ___ ở ngôi làng này vào năm tới.",o:["is built","will build","will be built","builds"],a:2,exp:"Bị động tương lai: will be + V3"},
+  {q:"I shouldn't go there at night if I _____ you.",vi:"Tôi sẽ không đi đến đó vào ban đêm nếu tôi là bạn.",o:["am","be","was","were"],a:3,exp:"Câu điều kiện loại 2: if I WERE you"},
+  {q:"_____ we were having dinner, they came to visit us.",vi:"___ chúng tôi đang ăn tối, họ đến thăm chúng tôi.",o:["After","Before","As","While"],a:3,exp:"WHILE + past continuous"},
+  {q:"Have you _____ been on the school trip?",vi:"Bạn đã từng đi ___ chuyến đi của trường chưa?",o:["yet","for","before","ever"],a:3,exp:"Have you EVER + V3 = đã từng chưa"},
+  {q:"There's still _____ wine in the bottle.",vi:"Vẫn còn ___ rượu vang trong chai.",o:["some","any","few","many"],a:0,exp:"SOME + uncountable trong câu khẳng định"},
+  {q:"The train will be leaving in five minutes, so you _____ better hurry up.",vi:"Tàu sẽ khởi hành sau 5 phút nữa, vì vậy bạn ___ tốt hơn là nên nhanh lên.",o:["should","had","will","would"],a:1,exp:"HAD better = nên (lời khuyên mạnh)"},
+  {q:"My favorite _____ is summer because I love the sea and the sun.",vi:"___ yêu thích của tôi là mùa hè vì tôi yêu biển và mặt trời.",o:["weather","climate","season","temperature"],a:2,exp:"Summer là một SEASON (mùa)"},
+  {q:"You will fail the exam _____ you learn harder.",vi:"Bạn sẽ trượt kỳ thi ___ bạn học chăm hơn.",o:["if","or","where","unless"],a:3,exp:"UNLESS = if not"},
+  {q:"She wishes she _____ the next exam.",vi:"Cô ấy ước cô ấy sẽ vượt qua kỳ thi tới.",o:["pass","would pass","will pass","passed"],a:1,exp:"Wish + would V (ước về tương lai)"},
+  {q:"The light went out while I _____ dinner.",vi:"Đèn tắt trong khi tôi ___ bữa tối.",o:["am having","had","have","was having"],a:3,exp:"WHILE + past continuous"},
+  {q:"I stayed _____ really late last night, and now I'm tired.",vi:"Tối qua tôi đã thức rất khuya, và bây giờ tôi mệt.",o:["up","off","in","on"],a:0,exp:"Stay up = thức khuya"},
+  {q:"You will become ill _____ you stop working so hard.",vi:"Bạn sẽ bị ốm ___ bạn ngừng làm việc quá vất vả.",o:["until","when","unless","if"],a:2,exp:"UNLESS = nếu không"},
+  {q:"In the future, teachers will be _____ rather than knowledge providers.",vi:"Trong tương lai, giáo viên sẽ là ___ hơn là người cung cấp kiến thức.",o:["facility","facilitators","facilitation","facilitate"],a:1,exp:"Cần danh từ chỉ người: facilitators"},
+  {q:"We won't lend you any money _____ you promise to give it back on time.",vi:"Chúng tôi sẽ không cho bạn vay tiền ___ bạn hứa trả lại đúng hạn.",o:["if","in case","unless","so that"],a:2,exp:"UNLESS = trừ phi"},
+  {q:"John wishes he _____ more time to practise his tennis skills before the big match.",vi:"John ước anh ấy có nhiều thời gian hơn để luyện tập kỹ năng tennis trước trận đấu lớn.",o:["will have","had","would has","to have"],a:1,exp:"Wish + S + had (ước hiện tại)"},
+  {q:"The accident was _____ serious that he was kept in hospital for nearly a month.",vi:"Tai nạn ___ nghiêm trọng đến mức anh ấy phải nằm viện gần một tháng.",o:["so","too","such","very"],a:0,exp:"SO + adj + THAT"},
+  {q:"Thomas Edison, _____ was American, invented many things, including the light bulb.",vi:"Thomas Edison, ___ là người Mỹ, đã phát minh nhiều thứ, bao gồm bóng đèn.",o:["which","who","that","what"],a:1,exp:"WHO chỉ người trong mệnh đề không xác định"},
+  {q:"I hope we are staying _____ a good hotel this time.",vi:"Tôi hy vọng lần này chúng ta sẽ ở ___ một khách sạn tốt.",o:["at","to","with","on"],a:0,exp:"Stay AT a hotel"},
+  {q:"I know London quite well because I _____ there.",vi:"Tôi biết London khá rõ vì tôi đã ___ ở đó.",o:["used live","used to living","was used to live","used to live"],a:3,exp:"USED TO + V (từng làm)"},
+  {q:"My bike, _____! Call the police!",vi:"Xe đạp của tôi ___! Hãy gọi cảnh sát!",o:["was being stolen","has been stolen","stole","was stealing"],a:1,exp:"Hiện tại hoàn thành bị động: HAS BEEN STOLEN"},
+  {q:"I'm tired because I _____ since 8 this morning.",vi:"Tôi mệt vì tôi ___ từ 8 giờ sáng.",o:["have been working","work","I'm working","had worked"],a:0,exp:"SINCE + present perfect continuous"},
+  {q:"Do you think I could have _____ water, please?",vi:"Bạn có thể cho tôi ___ nước được không?",o:["a few","much","few","a little"],a:3,exp:"A LITTLE + uncountable (water)"},
+  {q:"Is that Paul? He must _____ from Australia.",vi:"Đó có phải là Paul không? Chắc chắn anh ấy đã ___ từ Australia về.",o:["returned","had returned","have returned","returning"],a:2,exp:"MUST HAVE + V3 (chắc chắn đã)"},
 ];
 
 const transformQuestions = [
-  {q: "We last went abroad a long time ago.", vi: "Lần cuối cùng chúng tôi đi nước ngoài là rất lâu rồi.", h: "We", a: ["We haven't gone abroad for a long time.","We haven't been abroad for a long time."], rule: "haven't + V3 + for a long time"},
-  {q: "We will miss the train if we don't leave the house right now.", vi: "Chúng tôi sẽ lỡ tàu nếu không rời khỏi nhà ngay bây giờ.", h: "Unless we", a: ["Unless we leave the house right now, we will miss the train."], rule: "Unless = if not"},
-  {q: "When did they start living in the countryside?", vi: "Họ bắt đầu sống ở vùng quê khi nào?", h: "How long", a: ["How long have they been living in the countryside?","How long have they lived in the countryside?"], rule: "How long + present perfect (continuous)"},
-  {q: "Andrew smokes more than John.", vi: "Andrew hút thuốc nhiều hơn John.", h: "John does not smoke", a: ["John does not smoke as much as Andrew."], rule: "not as much as = ít hơn"},
-  {q: "Barbara is the best tennis-player in the club.", vi: "Barbara là tay vợt giỏi nhất trong câu lạc bộ.", h: "No one", a: ["No one plays tennis as well as Barbara in the club.","No one plays tennis better than Barbara in the club."], rule: "No one + V + as ... as"},
-  {q: "John is too young to make decisions for himself.", vi: "John quá trẻ để có thể tự quyết định.", h: "John is not", a: ["John is not old enough to make decisions for himself."], rule: "too...to = not...enough to"},
-  {q: "Although his English is poor, he managed to pass the entrance exam.", vi: "Mặc dù tiếng Anh của anh ấy kém, anh ấy đã vượt qua kỳ thi đầu vào.", h: "In spite of", a: ["In spite of his poor English, he managed to pass the entrance exam.","In spite of the fact that his English is poor, he managed to pass the entrance exam."], rule: "In spite of + N/V-ing"},
-  {q: "The train journey from London to Bristol takes two hours.", vi: "Hành trình bằng tàu từ London đến Bristol mất 2 giờ.", h: "It is a", a: ["It is a two-hour train journey from London to Bristol."], rule: "It is a [number]-hour journey"},
-  {q: "It isn't necessary for you to finish by Sunday.", vi: "Không cần thiết phải hoàn thành trước Chủ nhật.", h: "You", a: ["You don't need to finish by Sunday.","You needn't finish by Sunday."], rule: "don't need to V"},
-  {q: "It wasn't necessary for Jane to bring her umbrella.", vi: "Không cần thiết phải Jane mang theo ô.", h: "Jane didn't need", a: ["Jane didn't need to bring her umbrella."], rule: "didn't need to V (không cần thiết phải làm - và không làm)"},
-  {q: "We didn't go on holiday because we didn't have enough money.", vi: "Chúng tôi đã không đi nghỉ vì chúng tôi không có đủ tiền.", h: "If we", a: ["If we had had enough money, we would have gone on holiday."], rule: "Câu ĐK loại 3: If + had V3, would have V3"},
-  {q: "This film is so boring that no one wants to see it.", vi: "Bộ phim này chán đến mức không ai muốn xem.", h: "It is such", a: ["It is such a boring film that no one wants to see it."], rule: "such + a/an + adj + N + that"},
-  {q: "They will announce the exam results tomorrow.", vi: "Họ sẽ công bố kết quả thi vào ngày mai.", h: "The exam results", a: ["The exam results will be announced tomorrow."], rule: "Bị động tương lai: will be V3"},
-  {q: "They have been married for 3 years.", vi: "Họ đã kết hôn được 3 năm.", h: "It has been", a: ["It has been 3 years since they got married."], rule: "It has been + time + since + S + V quá khứ"},
-  {q: "This is the first time I have watched this film.", vi: "Đây là lần đầu tiên tôi xem bộ phim này.", h: "I have", a: ["I have never watched this film before."], rule: "First time = never...before"},
-  {q: "He repaired the bicycle in two hours.", vi: "Anh ấy đã sửa xe đạp trong 2 giờ.", h: "It took", a: ["It took him two hours to repair the bicycle."], rule: "It takes/took + sb + time + to V"},
-  {q: "Unless he phones immediately, he won't get information.", vi: "Trừ phi anh ấy gọi điện ngay, anh ấy sẽ không có được thông tin.", h: "If he", a: ["If he doesn't phone immediately, he won't get information."], rule: "Unless = if not"},
-  {q: "Malcolm was originally going to buy a car, but he bought a motor-cycle instead.", vi: "Malcolm ban đầu định mua một chiếc ô tô, nhưng thay vào đó anh ấy đã mua một chiếc xe máy.", h: "Instead of", a: ["Instead of buying a car, Malcolm bought a motor-cycle."], rule: "Instead of + V-ing"},
-  {q: "He couldn't repair the broken vase.", vi: "Anh ấy không thể sửa được chiếc bình bị vỡ.", h: "The broken vase", a: ["The broken vase couldn't be repaired by him.","The broken vase couldn't be repaired."], rule: "Bị động: couldn't be + V3"},
-  {q: "My mother drives more carefully than my brother.", vi: "Mẹ tôi lái xe cẩn thận hơn anh trai tôi.", h: "My brother", a: ["My brother drives less carefully than my mother.","My brother doesn't drive as carefully as my mother."], rule: "less...than / not as...as"},
-  {q: "Reading scientific books is one of my interests.", vi: "Đọc sách khoa học là một trong những sở thích của tôi.", h: "I'm", a: ["I'm interested in reading scientific books."], rule: "Be interested in V-ing"},
-  {q: "We will miss the train if we don't leave the house right now.", vi: "Chúng tôi sẽ lỡ tàu nếu không rời khỏi nhà ngay bây giờ. (Câu trùng số 22 trong đề cương)", h: "Unless we", a: ["Unless we leave the house right now, we will miss the train."], rule: "Unless = if not"},
-  {q: "Someone stole my purse from my handbag.", vi: "Có ai đó đã lấy cắp ví của tôi từ trong túi xách.", h: "My purse", a: ["My purse was stolen from my handbag."], rule: "Bị động: was/were V3"},
-  {q: "She last wrote to me 6 months ago.", vi: "Lần cuối cùng cô ấy viết thư cho tôi là 6 tháng trước.", h: "She hasn't", a: ["She hasn't written to me for 6 months."], rule: "haven't V3 for + time"},
-  {q: "This mountain is so high that we can't climb it.", vi: "Ngọn núi này cao đến mức chúng ta không thể leo được.", h: "This mountain is too", a: ["This mountain is too high for us to climb."], rule: "so...that = too...to"},
-  {q: "\"I love all kinds of ice-creams,\" said Peter.", vi: "Peter nói: \"Tôi yêu tất cả các loại kem.\"", h: "Peter said", a: ["Peter said (that) he loved all kinds of ice-creams.","Peter said that he loved all kinds of ice-creams."], rule: "Câu tường thuật: lùi thì"},
-  {q: "It wasn't necessary for Jane to bring her umbrella.", vi: "Không cần thiết phải Jane mang ô. (Câu trùng số 27 trong đề cương)", h: "Jane didn't need", a: ["Jane didn't need to bring her umbrella."], rule: "didn't need to V"},
-  {q: "\"How many students are there in your class?\" the man asked.", vi: "Người đàn ông hỏi: \"Có bao nhiêu học sinh trong lớp của bạn?\"", h: "The man asked me", a: ["The man asked me how many students there were in my class."], rule: "Wh-question reported: lùi thì + đổi đại từ"},
-  {q: "They will announce the exam results tomorrow.", vi: "Họ sẽ công bố kết quả thi vào ngày mai. (Câu trùng số 29 trong đề cương)", h: "The exam results", a: ["The exam results will be announced tomorrow."], rule: "Bị động tương lai"},
-  {q: "I haven't seen so much rain for a long time.", vi: "Đã rất lâu rồi tôi chưa thấy mưa nhiều như thế này.", h: "It's been a", a: ["It's been a long time since I last saw so much rain.","It's been a long time since I have seen so much rain."], rule: "It's been a long time since + S + V"},
+  {q:"We last went abroad a long time ago.",vi:"Lần cuối cùng chúng tôi đi nước ngoài là rất lâu rồi.",h:"We",a:["We haven't gone abroad for a long time.","We haven't been abroad for a long time."],rule:"haven't + V3 + for a long time"},
+  {q:"We will miss the train if we don't leave the house right now.",vi:"Chúng tôi sẽ lỡ tàu nếu không rời khỏi nhà ngay bây giờ.",h:"Unless we",a:["Unless we leave the house right now, we will miss the train."],rule:"Unless = if not"},
+  {q:"When did they start living in the countryside?",vi:"Họ bắt đầu sống ở vùng quê khi nào?",h:"How long",a:["How long have they been living in the countryside?","How long have they lived in the countryside?"],rule:"How long + present perfect (continuous)"},
+  {q:"Andrew smokes more than John.",vi:"Andrew hút thuốc nhiều hơn John.",h:"John does not smoke",a:["John does not smoke as much as Andrew."],rule:"not as much as = ít hơn"},
+  {q:"Barbara is the best tennis-player in the club.",vi:"Barbara là tay vợt giỏi nhất trong câu lạc bộ.",h:"No one",a:["No one plays tennis as well as Barbara in the club.","No one plays tennis better than Barbara in the club."],rule:"No one + V + as ... as"},
+  {q:"John is too young to make decisions for himself.",vi:"John quá trẻ để có thể tự quyết định.",h:"John is not",a:["John is not old enough to make decisions for himself."],rule:"too...to = not...enough to"},
+  {q:"Although his English is poor, he managed to pass the entrance exam.",vi:"Mặc dù tiếng Anh của anh ấy kém, anh ấy đã vượt qua kỳ thi đầu vào.",h:"In spite of",a:["In spite of his poor English, he managed to pass the entrance exam."],rule:"In spite of + N/V-ing"},
+  {q:"The train journey from London to Bristol takes two hours.",vi:"Hành trình bằng tàu từ London đến Bristol mất 2 giờ.",h:"It is a",a:["It is a two-hour train journey from London to Bristol."],rule:"It is a [number]-hour journey"},
+  {q:"It isn't necessary for you to finish by Sunday.",vi:"Không cần thiết phải hoàn thành trước Chủ nhật.",h:"You",a:["You don't need to finish by Sunday.","You needn't finish by Sunday."],rule:"don't need to V"},
+  {q:"It wasn't necessary for Jane to bring her umbrella.",vi:"Không cần thiết phải Jane mang theo ô.",h:"Jane didn't need",a:["Jane didn't need to bring her umbrella."],rule:"didn't need to V"},
+  {q:"We didn't go on holiday because we didn't have enough money.",vi:"Chúng tôi đã không đi nghỉ vì chúng tôi không có đủ tiền.",h:"If we",a:["If we had had enough money, we would have gone on holiday."],rule:"Câu ĐK loại 3: If + had V3, would have V3"},
+  {q:"This film is so boring that no one wants to see it.",vi:"Bộ phim này chán đến mức không ai muốn xem.",h:"It is such",a:["It is such a boring film that no one wants to see it."],rule:"such + a/an + adj + N + that"},
+  {q:"They will announce the exam results tomorrow.",vi:"Họ sẽ công bố kết quả thi vào ngày mai.",h:"The exam results",a:["The exam results will be announced tomorrow."],rule:"Bị động tương lai: will be V3"},
+  {q:"They have been married for 3 years.",vi:"Họ đã kết hôn được 3 năm.",h:"It has been",a:["It has been 3 years since they got married."],rule:"It has been + time + since + S + V quá khứ"},
+  {q:"This is the first time I have watched this film.",vi:"Đây là lần đầu tiên tôi xem bộ phim này.",h:"I have",a:["I have never watched this film before."],rule:"First time = never...before"},
+  {q:"He repaired the bicycle in two hours.",vi:"Anh ấy đã sửa xe đạp trong 2 giờ.",h:"It took",a:["It took him two hours to repair the bicycle."],rule:"It takes/took + sb + time + to V"},
+  {q:"Unless he phones immediately, he won't get information.",vi:"Trừ phi anh ấy gọi điện ngay, anh ấy sẽ không có được thông tin.",h:"If he",a:["If he doesn't phone immediately, he won't get information."],rule:"Unless = if not"},
+  {q:"Malcolm was originally going to buy a car, but he bought a motor-cycle instead.",vi:"Malcolm ban đầu định mua một chiếc ô tô, nhưng thay vào đó anh ấy đã mua một chiếc xe máy.",h:"Instead of",a:["Instead of buying a car, Malcolm bought a motor-cycle."],rule:"Instead of + V-ing"},
+  {q:"He couldn't repair the broken vase.",vi:"Anh ấy không thể sửa được chiếc bình bị vỡ.",h:"The broken vase",a:["The broken vase couldn't be repaired by him.","The broken vase couldn't be repaired."],rule:"Bị động: couldn't be + V3"},
+  {q:"My mother drives more carefully than my brother.",vi:"Mẹ tôi lái xe cẩn thận hơn anh trai tôi.",h:"My brother",a:["My brother drives less carefully than my mother.","My brother doesn't drive as carefully as my mother."],rule:"less...than / not as...as"},
+  {q:"Reading scientific books is one of my interests.",vi:"Đọc sách khoa học là một trong những sở thích của tôi.",h:"I'm",a:["I'm interested in reading scientific books."],rule:"Be interested in V-ing"},
+  {q:"We will miss the train if we don't leave the house right now.",vi:"Chúng tôi sẽ lỡ tàu nếu không rời khỏi nhà ngay bây giờ.",h:"Unless we",a:["Unless we leave the house right now, we will miss the train."],rule:"Unless = if not"},
+  {q:"Someone stole my purse from my handbag.",vi:"Có ai đó đã lấy cắp ví của tôi từ trong túi xách.",h:"My purse",a:["My purse was stolen from my handbag."],rule:"Bị động: was/were V3"},
+  {q:"She last wrote to me 6 months ago.",vi:"Lần cuối cùng cô ấy viết thư cho tôi là 6 tháng trước.",h:"She hasn't",a:["She hasn't written to me for 6 months."],rule:"haven't V3 for + time"},
+  {q:"This mountain is so high that we can't climb it.",vi:"Ngọn núi này cao đến mức chúng ta không thể leo được.",h:"This mountain is too",a:["This mountain is too high for us to climb."],rule:"so...that = too...to"},
+  {q:"\"I love all kinds of ice-creams,\" said Peter.",vi:"Peter nói: \"Tôi yêu tất cả các loại kem.\"",h:"Peter said",a:["Peter said (that) he loved all kinds of ice-creams.","Peter said that he loved all kinds of ice-creams."],rule:"Câu tường thuật: lùi thì"},
+  {q:"It wasn't necessary for Jane to bring her umbrella.",vi:"Không cần thiết phải Jane mang ô.",h:"Jane didn't need",a:["Jane didn't need to bring her umbrella."],rule:"didn't need to V"},
+  {q:"\"How many students are there in your class?\" the man asked.",vi:"Người đàn ông hỏi: \"Có bao nhiêu học sinh trong lớp của bạn?\"",h:"The man asked me",a:["The man asked me how many students there were in my class."],rule:"Wh-question reported: lùi thì + đổi đại từ"},
+  {q:"They will announce the exam results tomorrow.",vi:"Họ sẽ công bố kết quả thi vào ngày mai.",h:"The exam results",a:["The exam results will be announced tomorrow."],rule:"Bị động tương lai"},
+  {q:"I haven't seen so much rain for a long time.",vi:"Đã rất lâu rồi tôi chưa thấy mưa nhiều như thế này.",h:"It's been a",a:["It's been a long time since I last saw so much rain.","It's been a long time since I have seen so much rain."],rule:"It's been a long time since + S + V"},
+];
+
+const transformMCQQuestions = [
+  {q:"We last went abroad a long time ago.",vi:"Lần cuối cùng chúng tôi đi nước ngoài là rất lâu rồi.",rewritten:"We haven't gone abroad _____ a long time.",choices:["since","for","ago","yet"],a:1,exp:"haven't + V3 + for + khoảng thời gian"},
+  {q:"We will miss the train if we don't leave the house right now.",vi:"Chúng tôi sẽ lỡ tàu nếu không rời khỏi nhà ngay bây giờ.",rewritten:"Unless we _____ the house right now, we will miss the train.",choices:["leave","don't leave","will leave","left"],a:0,exp:"Unless = if not (không chia phủ định sau Unless)"},
+  {q:"Andrew smokes more than John.",vi:"Andrew hút thuốc nhiều hơn John.",rewritten:"John does not smoke as _____ as Andrew.",choices:["much","many","more","less"],a:0,exp:"not as much as = không nhiều bằng"},
+  {q:"Barbara is the best tennis-player in the club.",vi:"Barbara là tay vợt giỏi nhất trong câu lạc bộ.",rewritten:"No one plays tennis as _____ as Barbara in the club.",choices:["well","good","better","best"],a:0,exp:"as well as (trạng từ chỉ cách thức)"},
+  {q:"John is too young to make decisions for himself.",vi:"John quá trẻ để có thể tự quyết định.",rewritten:"John is not old _____ to make decisions for himself.",choices:["enough","too","very","so"],a:0,exp:"not old enough to = không đủ tuổi để"},
+  {q:"Although his English is poor, he managed to pass the entrance exam.",vi:"Mặc dù tiếng Anh của anh ấy kém, anh ấy đã vượt qua kỳ thi đầu vào.",rewritten:"In spite of his _____ English, he managed to pass the entrance exam.",choices:["poor","rich","good","badly"],a:0,exp:"In spite of + tính từ + danh từ"},
+  {q:"The train journey from London to Bristol takes two hours.",vi:"Hành trình bằng tàu từ London đến Bristol mất 2 giờ.",rewritten:"It is a _____ train journey from London to Bristol.",choices:["two-hour","two-hours","two hour","two hours"],a:0,exp:"Tính từ ghép: two-hour (có dấu gạch ngang, không số nhiều)"},
+  {q:"It isn't necessary for you to finish by Sunday.",vi:"Không cần thiết phải hoàn thành trước Chủ nhật.",rewritten:"You don't _____ to finish by Sunday.",choices:["need","must","should","may"],a:0,exp:"don't need to = không cần phải"},
+  {q:"We didn't go on holiday because we didn't have enough money.",vi:"Chúng tôi đã không đi nghỉ vì chúng tôi không có đủ tiền.",rewritten:"If we had _____ enough money, we would have gone on holiday.",choices:["had","have","has","having"],a:0,exp:"Câu điều kiện loại 3: If + had + V3"},
+  {q:"This film is so boring that no one wants to see it.",vi:"Bộ phim này chán đến mức không ai muốn xem.",rewritten:"It is such a boring film _____ no one wants to see it.",choices:["that","than","as","so"],a:0,exp:"such...that = quá...đến nỗi"},
+  {q:"They will announce the exam results tomorrow.",vi:"Họ sẽ công bố kết quả thi vào ngày mai.",rewritten:"The exam results will be _____ tomorrow.",choices:["announced","announce","announcing","announces"],a:0,exp:"Bị động tương lai: will be + V3"},
+  {q:"He repaired the bicycle in two hours.",vi:"Anh ấy đã sửa xe đạp trong 2 giờ.",rewritten:"It _____ him two hours to repair the bicycle.",choices:["took","takes","take","taking"],a:0,exp:"It took + sb + time + to V (quá khứ đơn)"},
+  {q:"This is the first time I have watched this film.",vi:"Đây là lần đầu tiên tôi xem bộ phim này.",rewritten:"I have _____ watched this film before.",choices:["never","ever","often","always"],a:0,exp:"never...before = chưa từng...trước đây"},
+  {q:"Unless he phones immediately, he won't get information.",vi:"Trừ phi anh ấy gọi điện ngay, anh ấy sẽ không có được thông tin.",rewritten:"If he _____ phone immediately, he won't get information.",choices:["doesn't","don't","won't","didn't"],a:0,exp:"If...not = Unless (hiện tại đơn phủ định)"},
+  {q:"My mother drives more carefully than my brother.",vi:"Mẹ tôi lái xe cẩn thận hơn anh trai tôi.",rewritten:"My brother doesn't drive as _____ as my mother.",choices:["carefully","careful","careless","more carefully"],a:0,exp:"not as carefully as = không cẩn thận bằng"},
+  {q:"Reading scientific books is one of my interests.",vi:"Đọc sách khoa học là một trong những sở thích của tôi.",rewritten:"I'm interested in _____ scientific books.",choices:["reading","read","to read","reads"],a:0,exp:"be interested in + V-ing"},
+  {q:"Someone stole my purse from my handbag.",vi:"Có ai đó đã lấy cắp ví của tôi từ trong túi xách.",rewritten:"My purse _____ stolen from my handbag.",choices:["was","were","is","has"],a:0,exp:"Bị động quá khứ đơn: was/were + V3"},
+  {q:"She last wrote to me 6 months ago.",vi:"Lần cuối cùng cô ấy viết thư cho tôi là 6 tháng trước.",rewritten:"She hasn't written to me _____ 6 months.",choices:["for","since","ago","yet"],a:0,exp:"haven't V3 + for + khoảng thời gian"},
+  {q:"This mountain is so high that we can't climb it.",vi:"Ngọn núi này cao đến mức chúng ta không thể leo được.",rewritten:"This mountain is too high for us _____ climb.",choices:["to","for","in","on"],a:0,exp:"too...to = quá...để mà"},
+  {q:"I haven't seen so much rain for a long time.",vi:"Đã rất lâu rồi tôi chưa thấy mưa nhiều như thế này.",rewritten:"It's been a long time since I last _____ so much rain.",choices:["saw","see","seeing","have seen"],a:0,exp:"since + S + V quá khứ"},
 ];
 
 const signsQuestions = [
-  {sign: "Lift out of order\nPlease ask a member of staff if you need assistance with the stairs", vi: "Thang máy hỏng\nXin hỏi nhân viên nếu bạn cần giúp đỡ với cầu thang", o: ["The lift is only for employees.","The lift isn't working.","Ask someone if you need help with the stairs."], oVi: ["Thang máy chỉ dành cho nhân viên.","Thang máy không hoạt động.","Hỏi ai đó nếu bạn cần giúp đỡ với cầu thang."], a: 2, exp: "Out of order = không hoạt động; ask staff for help with stairs"},
-  {sign: "Hey sis,\nI'm running late today. Can you start dinner? Maybe some pasta or whatever's easy.\nBro", vi: "Chào em gái,\nHôm nay anh về muộn. Em chuẩn bị bữa tối được không? Có thể là mì pasta hoặc món gì dễ.\nAnh trai", o: ["The brother wants his sister to buy some pasta for dinner.","The brother wants to know if his sister will come home later.","The brother wants his sister to cook dinner."], oVi: ["Anh trai muốn em gái mua mì pasta cho bữa tối.","Anh trai muốn biết em gái có về muộn không.","Anh trai muốn em gái nấu bữa tối."], a: 2, exp: "Start dinner = bắt đầu nấu bữa tối"},
-  {sign: "Red Dragon Restaurant - Menu - No delivery charge on takeaway orders over $12.", vi: "Nhà hàng Red Dragon - Menu - Miễn phí giao hàng cho đơn mang về trên 12$.", o: ["You have to pay $12 as a service charge for the delivery of orders.","You'll need to pay for delivery on food orders that costs less than $12.","You must spend $12 on food to have your order brought to you."], oVi: ["Bạn phải trả 12$ phí dịch vụ giao hàng.","Bạn phải trả phí giao hàng cho đơn dưới 12$.","Bạn phải mua đồ ăn 12$ để được giao đến."], a: 1, exp: "Free delivery khi mua trên $12, dưới $12 phải trả phí giao"},
-  {sign: "NO DIVING ALLOWED EXCEPT AT THE DEEP END OF THE SWIMMING POOL", vi: "KHÔNG ĐƯỢC NHẢY XUỐNG NƯỚC TRỪ ĐẦU SÂU CỦA BỂ BƠI", o: ["Swimming is not permitted where people are diving.","You must not dive into the pool where the water is shallow.","The water is not deep enough in this pool for you to dive."], oVi: ["Cấm bơi nơi có người đang lặn.","Không được nhảy xuống chỗ bể nông.","Nước trong bể này không đủ sâu để nhảy."], a: 1, exp: "Chỉ được nhảy ở đầu sâu, không được nhảy ở chỗ nông"},
-  {sign: "Welcome to Terminal 1.\nThis terminal is for flights within the US only.\nFor destinations in Europe please follow the yellow signs for Terminal 2", vi: "Chào mừng đến Nhà ga 1.\nNhà ga này chỉ dành cho các chuyến bay trong nước Mỹ.\nĐi Châu Âu vui lòng theo biển vàng đến Nhà ga 2.", o: ["You can fly all over the world from Terminal 1.","Passengers flying to European airports must go to a different location.","Anyone wanting to fly to America should look for the signs."], oVi: ["Bạn có thể bay đi khắp thế giới từ Nhà ga 1.","Hành khách bay đi Châu Âu phải đến địa điểm khác.","Ai muốn bay đi Mỹ phải tìm biển báo."], a: 1, exp: "Bay Châu Âu phải sang Terminal 2"},
-  {sign: "From: David\nTo: Aisha\nI'm really sorry I've lost the book you lent me. Where did you buy it? I'm going into town tomorrow and I'll get you another one.", vi: "Từ: David\nGửi: Aisha\nTớ rất tiếc đã làm mất cuốn sách cậu cho mượn. Cậu mua ở đâu vậy? Tớ sẽ vào thị trấn ngày mai và mua đền cậu cuốn khác.", o: ["go in to town with him.","give him the name of a shop.","lend him a book."], oVi: ["đi vào thị trấn với anh ấy.","cho anh ấy biết tên cửa hàng.","cho anh ấy mượn sách."], a: 1, exp: "David hỏi mua sách ở đâu → muốn biết tên shop"},
-  {sign: "← EXIT", vi: "← LỐI RA", o: ["You go through this way.","You are not allowed to go this way.","You exchange here."], oVi: ["Đi qua đường này.","Không được đi đường này.","Đổi tiền ở đây."], a: 1, exp: "Mũi tên EXIT chỉ ngược lại = không được đi hướng này"},
-  {sign: "QUEUE HERE FOR SIGHTSEEING BUS", vi: "XẾP HÀNG Ở ĐÂY ĐỂ ĐI XE BUÝT THAM QUAN", o: ["The sightseeing bus has left.","The sightseeing bus stops here.","The sightseeing bus is full."], oVi: ["Xe buýt tham quan đã rời đi.","Xe buýt tham quan dừng ở đây.","Xe buýt tham quan đã đầy."], a: 1, exp: "Queue here = xếp hàng ở đây để đi xe bus"},
-  {sign: "LIBRARY IS CLOSED UNTIL FURTHER NOTICE", vi: "THƯ VIỆN ĐÓNG CỬA CHO ĐẾN KHI CÓ THÔNG BÁO MỚI", o: ["There is no further notice about the library.","The library is open now.","The library is closed now."], oVi: ["Không có thông báo gì thêm về thư viện.","Thư viện đang mở cửa.","Thư viện hiện đang đóng cửa."], a: 2, exp: "Until further notice = đến khi có thông báo mới (hiện đang đóng)"},
-  {sign: "PLEASE STAND CLEAR OF THE DOORS", vi: "VUI LÒNG TRÁNH XA CỬA", o: ["Don't wait in front of the doors.","The doors are not in use.","Make a queue in front of the doors."], oVi: ["Không đợi trước cửa.","Cửa không sử dụng.","Xếp hàng trước cửa."], a: 0, exp: "Stand clear of = tránh xa, không đứng trước cửa"},
-  {sign: "NO DOGS ALLOWED INSIDE CAMP", vi: "KHÔNG ĐƯỢC MANG CHÓ VÀO KHU CẮM TRẠI", o: ["Camper's dogs can remain here.","Dogs must not be brought in here.","Dogs must be looked after."], oVi: ["Chó của người cắm trại có thể ở đây.","Không được mang chó vào đây.","Chó phải được trông coi."], a: 1, exp: "No dogs allowed = không được mang chó vào"},
-  {sign: "Hey Maya,\nWe're meeting at John's at 8. Bring drinks if you want. I'll bring some snacks and Emma's bringing a game.\n- Leo", vi: "Chào Maya,\nChúng ta gặp ở nhà John lúc 8 giờ. Mang nước uống nếu cậu muốn. Tớ sẽ mang đồ ăn vặt và Emma mang trò chơi.\n- Leo", o: ["a board game","drinks","snack"], oVi: ["trò chơi board game","đồ uống","đồ ăn vặt"], a: 1, exp: "Leo bring snacks, Emma bring game → Maya bring drinks"},
-  {sign: "LUGGAGE CANNOT BE REMOVED WITHOUT A RECEIPT", vi: "KHÔNG ĐƯỢC LẤY HÀNH LÝ NẾU KHÔNG CÓ HÓA ĐƠN", o: ["When you remove your luggage, you are given a receipt.","You must show a receipt if you want to remove luggage.","You can leave your luggage here without change."], oVi: ["Khi lấy hành lý, bạn được phát hóa đơn.","Bạn phải xuất trình hóa đơn nếu muốn lấy hành lý.","Bạn có thể để hành lý ở đây miễn phí."], a: 1, exp: "Cannot remove without receipt = phải có hóa đơn mới được lấy đồ"},
-  {sign: "HOSPITAL WAITING ROOM\nPLEASE PUT ALL CHILDREN'S TOYS BACK IN THIS ROOM BEFORE YOU LEAVE", vi: "PHÒNG CHỜ BỆNH VIỆN\nVUI LÒNG ĐẶT TẤT CẢ ĐỒ CHƠI CỦA TRẺ EM VỀ PHÒNG NÀY TRƯỚC KHI ĐI", o: ["We leave some toys at the back of this room for children.","Remember to take your children's toys with you when you leave.","Please don't leave any toys outside this room when you go."], oVi: ["Chúng tôi để vài đồ chơi ở cuối phòng cho trẻ em.","Hãy nhớ mang đồ chơi của con bạn về khi rời đi.","Đừng để đồ chơi ngoài phòng này khi bạn rời đi."], a: 2, exp: "Đặt lại đồ chơi vào phòng trước khi đi = không được mang ra ngoài"},
-  {sign: "Hey Mia,\nWe're meeting at Jake's at 7. Bring snacks if you want. I'll bring some drinks and Emma's bringing a game.\n- Leo", vi: "Chào Mia,\nChúng ta gặp ở nhà Jake lúc 7 giờ. Mang đồ ăn vặt nếu cậu muốn. Tớ sẽ mang nước uống và Emma mang trò chơi.\n- Leo", o: ["a board game","drinks","snack"], oVi: ["trò chơi board","đồ uống","đồ ăn vặt"], a: 2, exp: "Leo bring drinks, Emma bring game → Mia bring snacks"},
-  {sign: "Mike,\nGary's phoned twice about the team list for Friday's match. Could you email it to him as soon as you get in? See you later, Beth", vi: "Mike,\nGary đã gọi 2 lần hỏi về danh sách đội cho trận đấu thứ Sáu. Anh email cho anh ấy ngay khi về được không? Hẹn gặp lại, Beth", o: ["Get Gary to play in the football match on Friday.","Phone Gary about the team list for Friday's match.","Let Gary know who's playing football on Friday."], oVi: ["Bảo Gary chơi trận bóng thứ Sáu.","Gọi điện cho Gary về danh sách đội thứ Sáu.","Cho Gary biết ai sẽ chơi bóng vào thứ Sáu."], a: 2, exp: "Email team list cho Gary = cho Gary biết ai đá bóng"},
-  {sign: "Passengers unable to show a ticket must pay an immediate fine of £10!", vi: "Hành khách không xuất trình được vé phải nộp phạt 10£ ngay lập tức!", o: ["If you lose your ticket, a new one will cost you £10.","You are fined £10 at once if you can't show us your ticket.","A £10 fine will be payable later if you travel without a ticket."], oVi: ["Nếu mất vé, vé mới giá 10£.","Bạn bị phạt 10£ ngay nếu không xuất trình được vé.","Phạt 10£ sẽ trả sau nếu đi không có vé."], a: 1, exp: "Immediate fine = phạt ngay lập tức"},
-  {sign: "To enroll on extra courses, please visit the university website", vi: "Để đăng ký các khóa học thêm, vui lòng truy cập website của trường đại học", o: ["You can apply for the website courses at the university.","Visiting the university website is fun.","Extra courses can be registered on the university website."], oVi: ["Bạn có thể đăng ký các khóa học website tại trường.","Truy cập website trường rất thú vị.","Có thể đăng ký các khóa học thêm trên website trường."], a: 2, exp: "Đăng ký khóa học thêm trên website"},
-  {sign: "NO ENTRY EXCEPT WITH A VALID PERMIT WHICH CAN BE BOUGHT FROM THE TOWN HALL", vi: "KHÔNG ĐƯỢC VÀO TRỪ KHI CÓ GIẤY PHÉP HỢP LỆ MUA TỪ TÒA THỊ CHÍNH", o: ["If you want to come in, you must have a permit.","You must go to the Town Hall if you have a permit.","You need a permit if you want to enter the Town Hall."], oVi: ["Muốn vào phải có giấy phép.","Phải đến tòa thị chính nếu có giấy phép.","Cần giấy phép nếu muốn vào tòa thị chính."], a: 0, exp: "Phải có giấy phép mới được vào"},
-  {sign: "To: All students\nFrom: Mrs. Matthews\nWe have just had a delivery of new school sweatshirts. Students wishing to buy one to wear should come to the office at lunchtime.", vi: "Gửi: Tất cả học sinh\nTừ: Cô Matthews\nChúng tôi vừa nhận lô áo nỉ đồng phục mới. Học sinh muốn mua mặc hãy đến văn phòng vào giờ ăn trưa.", o: ["Some new school uniform is available in the office.","Students must wear their new school sweatshirts during lunch break today.","The office is expecting items of new school clothing to be delivered at lunchtime."], oVi: ["Có một số đồng phục mới ở văn phòng.","Học sinh phải mặc áo nỉ mới trong giờ trưa hôm nay.","Văn phòng đang chờ giao đồng phục mới vào giờ trưa."], a: 0, exp: "Đã có áo mới ở văn phòng để mua"},
+  {sign:"Lift out of order\nPlease ask a member of staff if you need assistance with the stairs",vi:"Thang máy hỏng\nXin hỏi nhân viên nếu bạn cần giúp đỡ với cầu thang",o:["The lift is only for employees.","The lift isn't working.","Ask someone if you need help with the stairs."],oVi:["Thang máy chỉ dành cho nhân viên.","Thang máy không hoạt động.","Hỏi ai đó nếu bạn cần giúp đỡ với cầu thang."],a:2,exp:"Out of order = không hoạt động; ask staff for help with stairs"},
+  {sign:"Hey sis,\nI'm running late today. Can you start dinner? Maybe some pasta or whatever's easy.\nBro",vi:"Chào em gái,\nHôm nay anh về muộn. Em chuẩn bị bữa tối được không? Có thể là mì pasta hoặc món gì dễ.\nAnh trai",o:["The brother wants his sister to buy some pasta for dinner.","The brother wants to know if his sister will come home later.","The brother wants his sister to cook dinner."],oVi:["Anh trai muốn em gái mua mì pasta cho bữa tối.","Anh trai muốn biết em gái có về muộn không.","Anh trai muốn em gái nấu bữa tối."],a:2,exp:"Start dinner = bắt đầu nấu bữa tối"},
+  {sign:"Red Dragon Restaurant - Menu - No delivery charge on takeaway orders over $12.",vi:"Nhà hàng Red Dragon - Menu - Miễn phí giao hàng cho đơn mang về trên 12$.",o:["You have to pay $12 as a service charge for the delivery of orders.","You'll need to pay for delivery on food orders that costs less than $12.","You must spend $12 on food to have your order brought to you."],oVi:["Bạn phải trả 12$ phí dịch vụ giao hàng.","Bạn phải trả phí giao hàng cho đơn dưới 12$.","Bạn phải mua đồ ăn 12$ để được giao đến."],a:1,exp:"Free delivery khi mua trên $12"},
+  {sign:"NO DIVING ALLOWED EXCEPT AT THE DEEP END OF THE SWIMMING POOL",vi:"KHÔNG ĐƯỢC NHẢY XUỐNG NƯỚC TRỪ ĐẦU SÂU CỦA BỂ BƠI",o:["Swimming is not permitted where people are diving.","You must not dive into the pool where the water is shallow.","The water is not deep enough in this pool for you to dive."],oVi:["Cấm bơi nơi có người đang lặn.","Không được nhảy xuống chỗ bể nông.","Nước trong bể này không đủ sâu để nhảy."],a:1,exp:"Chỉ được nhảy ở đầu sâu"},
+  {sign:"Welcome to Terminal 1.\nThis terminal is for flights within the US only.\nFor destinations in Europe please follow the yellow signs for Terminal 2",vi:"Chào mừng đến Nhà ga 1.\nNhà ga này chỉ dành cho các chuyến bay trong nước Mỹ.\nĐi Châu Âu vui lòng theo biển vàng đến Nhà ga 2.",o:["You can fly all over the world from Terminal 1.","Passengers flying to European airports must go to a different location.","Anyone wanting to fly to America should look for the signs."],oVi:["Bạn có thể bay đi khắp thế giới từ Nhà ga 1.","Hành khách bay đi Châu Âu phải đến địa điểm khác.","Ai muốn bay đi Mỹ phải tìm biển báo."],a:1,exp:"Bay Châu Âu phải sang Terminal 2"},
+  {sign:"From: David\nTo: Aisha\nI'm really sorry I've lost the book you lent me. Where did you buy it? I'm going into town tomorrow and I'll get you another one.",vi:"Từ: David\nGửi: Aisha\nTớ rất tiếc đã làm mất cuốn sách cậu cho mượn. Cậu mua ở đâu vậy? Tớ sẽ vào thị trấn ngày mai và mua đền cậu cuốn khác.",o:["go in to town with him.","give him the name of a shop.","lend him a book."],oVi:["đi vào thị trấn với anh ấy.","cho anh ấy biết tên cửa hàng.","cho anh ấy mượn sách."],a:1,exp:"David hỏi mua sách ở đâu"},
+  {sign:"← EXIT",vi:"← LỐI RA",o:["You go through this way.","You are not allowed to go this way.","You exchange here."],oVi:["Đi qua đường này.","Không được đi đường này.","Đổi tiền ở đây."],a:1,exp:"Mũi tên EXIT chỉ ngược lại"},
+  {sign:"QUEUE HERE FOR SIGHTSEEING BUS",vi:"XẾP HÀNG Ở ĐÂY ĐỂ ĐI XE BUÝT THAM QUAN",o:["The sightseeing bus has left.","The sightseeing bus stops here.","The sightseeing bus is full."],oVi:["Xe buýt tham quan đã rời đi.","Xe buýt tham quan dừng ở đây.","Xe buýt tham quan đã đầy."],a:1,exp:"Queue here = xếp hàng ở đây"},
+  {sign:"LIBRARY IS CLOSED UNTIL FURTHER NOTICE",vi:"THƯ VIỆN ĐÓNG CỬA CHO ĐẾN KHI CÓ THÔNG BÁO MỚI",o:["There is no further notice about the library.","The library is open now.","The library is closed now."],oVi:["Không có thông báo gì thêm về thư viện.","Thư viện đang mở cửa.","Thư viện hiện đang đóng cửa."],a:2,exp:"Until further notice = đến khi có thông báo mới"},
+  {sign:"PLEASE STAND CLEAR OF THE DOORS",vi:"VUI LÒNG TRÁNH XA CỬA",o:["Don't wait in front of the doors.","The doors are not in use.","Make a queue in front of the doors."],oVi:["Không đợi trước cửa.","Cửa không sử dụng.","Xếp hàng trước cửa."],a:0,exp:"Stand clear of = tránh xa"},
+  {sign:"NO DOGS ALLOWED INSIDE CAMP",vi:"KHÔNG ĐƯỢC MANG CHÓ VÀO KHU CẮM TRẠI",o:["Camper's dogs can remain here.","Dogs must not be brought in here.","Dogs must be looked after."],oVi:["Chó của người cắm trại có thể ở đây.","Không được mang chó vào đây.","Chó phải được trông coi."],a:1,exp:"No dogs allowed = không được mang chó vào"},
+  {sign:"Hey Maya,\nWe're meeting at John's at 8. Bring drinks if you want. I'll bring some snacks and Emma's bringing a game.\n- Leo",vi:"Chào Maya,\nChúng ta gặp ở nhà John lúc 8 giờ. Mang nước uống nếu cậu muốn. Tớ sẽ mang đồ ăn vặt và Emma mang trò chơi.\n- Leo",o:["a board game","drinks","snack"],oVi:["trò chơi board","đồ uống","đồ ăn vặt"],a:1,exp:"Maya bring drinks"},
+  {sign:"LUGGAGE CANNOT BE REMOVED WITHOUT A RECEIPT",vi:"KHÔNG ĐƯỢC LẤY HÀNH LÝ NẾU KHÔNG CÓ HÓA ĐƠN",o:["When you remove your luggage, you are given a receipt.","You must show a receipt if you want to remove luggage.","You can leave your luggage here without change."],oVi:["Khi lấy hành lý, bạn được phát hóa đơn.","Bạn phải xuất trình hóa đơn nếu muốn lấy hành lý.","Bạn có thể để hành lý ở đây miễn phí."],a:1,exp:"Phải có hóa đơn mới được lấy đồ"},
+  {sign:"HOSPITAL WAITING ROOM\nPLEASE PUT ALL CHILDREN'S TOYS BACK IN THIS ROOM BEFORE YOU LEAVE",vi:"PHÒNG CHỜ BỆNH VIỆN\nVUI LÒNG ĐẶT TẤT CẢ ĐỒ CHƠI CỦA TRẺ EM VỀ PHÒNG NÀY TRƯỚC KHI ĐI",o:["We leave some toys at the back of this room for children.","Remember to take your children's toys with you when you leave.","Please don't leave any toys outside this room when you go."],oVi:["Chúng tôi để vài đồ chơi ở cuối phòng cho trẻ em.","Hãy nhớ mang đồ chơi của con bạn về khi rời đi.","Đừng để đồ chơi ngoài phòng này khi bạn rời đi."],a:2,exp:"Đặt lại đồ chơi vào phòng trước khi đi"},
+  {sign:"Hey Mia,\nWe're meeting at Jake's at 7. Bring snacks if you want. I'll bring some drinks and Emma's bringing a game.\n- Leo",vi:"Chào Mia,\nChúng ta gặp ở nhà Jake lúc 7 giờ. Mang đồ ăn vặt nếu cậu muốn. Tớ sẽ mang nước uống và Emma mang trò chơi.\n- Leo",o:["a board game","drinks","snack"],oVi:["trò chơi board","đồ uống","đồ ăn vặt"],a:2,exp:"Mia bring snacks"},
+  {sign:"Mike,\nGary's phoned twice about the team list for Friday's match. Could you email it to him as soon as you get in? See you later, Beth",vi:"Mike,\nGary đã gọi 2 lần hỏi về danh sách đội cho trận đấu thứ Sáu. Anh email cho anh ấy ngay khi về được không? Hẹn gặp lại, Beth",o:["Get Gary to play in the football match on Friday.","Phone Gary about the team list for Friday's match.","Let Gary know who's playing football on Friday."],oVi:["Bảo Gary chơi trận bóng thứ Sáu.","Gọi điện cho Gary về danh sách đội thứ Sáu.","Cho Gary biết ai sẽ chơi bóng vào thứ Sáu."],a:2,exp:"Email team list = cho Gary biết ai đá bóng"},
+  {sign:"Passengers unable to show a ticket must pay an immediate fine of £10!",vi:"Hành khách không xuất trình được vé phải nộp phạt 10£ ngay lập tức!",o:["If you lose your ticket, a new one will cost you £10.","You are fined £10 at once if you can't show us your ticket.","A £10 fine will be payable later if you travel without a ticket."],oVi:["Nếu mất vé, vé mới giá 10£.","Bạn bị phạt 10£ ngay nếu không xuất trình được vé.","Phạt 10£ sẽ trả sau nếu đi không có vé."],a:1,exp:"Immediate fine = phạt ngay"},
+  {sign:"To enroll on extra courses, please visit the university website",vi:"Để đăng ký các khóa học thêm, vui lòng truy cập website của trường đại học",o:["You can apply for the website courses at the university.","Visiting the university website is fun.","Extra courses can be registered on the university website."],oVi:["Bạn có thể đăng ký các khóa học website tại trường.","Truy cập website trường rất thú vị.","Có thể đăng ký các khóa học thêm trên website trường."],a:2,exp:"Đăng ký khóa học thêm trên website"},
+  {sign:"NO ENTRY EXCEPT WITH A VALID PERMIT WHICH CAN BE BOUGHT FROM THE TOWN HALL",vi:"KHÔNG ĐƯỢC VÀO TRỪ KHI CÓ GIẤY PHÉP HỢP LỆ MUA TỪ TÒA THỊ CHÍNH",o:["If you want to come in, you must have a permit.","You must go to the Town Hall if you have a permit.","You need a permit if you want to enter the Town Hall."],oVi:["Muốn vào phải có giấy phép.","Phải đến tòa thị chính nếu có giấy phép.","Cần giấy phép nếu muốn vào tòa thị chính."],a:0,exp:"Phải có giấy phép mới được vào"},
+  {sign:"To: All students\nFrom: Mrs. Matthews\nWe have just had a delivery of new school sweatshirts. Students wishing to buy one to wear should come to the office at lunchtime.",vi:"Gửi: Tất cả học sinh\nTừ: Cô Matthews\nChúng tôi vừa nhận lô áo nỉ đồng phục mới. Học sinh muốn mua mặc hãy đến văn phòng vào giờ ăn trưa.",o:["Some new school uniform is available in the office.","Students must wear their new school sweatshirts during lunch break today.","The office is expecting items of new school clothing to be delivered at lunchtime."],oVi:["Có một số đồng phục mới ở văn phòng.","Học sinh phải mặc áo nỉ mới trong giờ trưa hôm nay.","Văn phòng đang chờ giao đồng phục mới vào giờ trưa."],a:0,exp:"Đã có áo mới ở văn phòng để mua"},
 ];
 
 const readingPassages = [
   {
-    title: "Walt Whitman",
-    text: "Walt Whitman, born in New York in 1819, was one of America's unusual literary figures. He is considered one of the most influential poets in American history. He is often called the father of free verse.\n\nAn individualist, he rambled through the countryside seeing people and places, and making them his own. His experiences in earning a living were varied: at times he was a printer, a teacher, a carpenter, a nurse and a newspaper editor. He was a big-hearted man, open and accepting. He gave freely of his time by caring for the wounded during the Civil War. Though he lived in the city, he often spent time in the country, developing his strong sense of nature, which carried through his poems. In 1855 he collected the verses he had written, and published them in one thin volume, \"Leaves of Grass\", a book which he revised and generally ignored by others, probably because his verse forms were not traditional. He had felt that it was necessary to achieve a new poetic form in order to communicate his views. His reputation didn't grow until after his death, and it reached a high point in the 1920s. Since then, Whitman's style has greatly influenced modern poets.",
-    textVi: "Walt Whitman, sinh năm 1819 tại New York, là một trong những nhân vật văn học khác thường của Mỹ. Ông được coi là một trong những nhà thơ có ảnh hưởng lớn nhất trong lịch sử Mỹ và thường được gọi là cha đẻ của thơ tự do.\n\nLà một người theo chủ nghĩa cá nhân, ông lang thang qua các vùng quê để gặp gỡ con người và khám phá các địa điểm. Kinh nghiệm kiếm sống của ông rất đa dạng: có lúc ông làm thợ in, giáo viên, thợ mộc, y tá và biên tập báo. Ông là một người nhân hậu, cởi mở và bao dung. Ông đã dành thời gian chăm sóc thương binh trong Nội chiến. Mặc dù sống ở thành phố, ông thường về nông thôn, phát triển tình yêu thiên nhiên thể hiện trong các bài thơ. Năm 1855, ông tập hợp các bài thơ đã viết và xuất bản trong một cuốn sách mỏng tên là \"Leaves of Grass\" (Lá cỏ) - cuốn sách bị nhiều người bỏ qua, có lẽ vì thể thơ không truyền thống. Ông cho rằng cần phải tạo ra một hình thức thơ mới để truyền đạt quan điểm của mình. Danh tiếng của ông chỉ nổi lên sau khi qua đời và đạt đỉnh cao vào thập niên 1920. Từ đó đến nay, phong cách của Whitman đã ảnh hưởng lớn đến các nhà thơ hiện đại.",
-    questions: [
-      {q: "The best title for this passage is", vi: "Tiêu đề phù hợp nhất cho đoạn văn này là gì?", o: ["Leaves of Grass","A Country Man","Walt Whitman","Poetry: A New Form"], oVi: ["Lá cỏ","Người đàn ông nông thôn","Walt Whitman","Thơ: Một hình thức mới"], a: 2, exp: "Bài chủ yếu kể về Walt Whitman"},
-      {q: "Whitman's big-heartedness is shown by his", vi: "Sự nhân hậu của Whitman được thể hiện qua việc:", o: ["visiting the countryside.","being an individualist.","rewriting \"Leaves of Grass\".","caring for the wounded during the Civil War."], oVi: ["thăm vùng quê.","là người theo chủ nghĩa cá nhân.","viết lại 'Leaves of Grass'.","chăm sóc thương binh trong Nội chiến."], a: 3, exp: "Chăm sóc thương binh = tốt bụng"},
-      {q: "The passage says that during Whitman's lifetime, other poets", vi: "Đoạn văn nói rằng trong cuộc đời Whitman, các nhà thơ khác:", o: ["accepted him.","laughed at him.","praised him.","communicated with him."], oVi: ["chấp nhận ông.","cười nhạo ông.","ca ngợi ông.","giao tiếp với ông."], a: 1, exp: "Bị bỏ qua/cười nhạo vì viết khác truyền thống"},
-      {q: "We can assume that Whitman was ignored because he", vi: "Chúng ta có thể đoán rằng Whitman bị bỏ qua vì ông:", o: ["wrote in a new form.","rambled through the countryside.","published his poems.","rewrote his book."], oVi: ["viết theo hình thức mới.","đi lang thang qua vùng quê.","xuất bản thơ.","viết lại sách."], a: 0, exp: "Verse forms were not traditional"},
-      {q: "The word \"rambled\" is most similar to the meaning of", vi: "Từ \"rambled\" có nghĩa gần nhất với:", o: ["stopped briefly.","travelled quickly.","walked slowly.","marched excitedly."], oVi: ["dừng lại ngắn.","đi nhanh.","đi chậm.","diễu hành phấn khích."], a: 2, exp: "Ramble = đi lang thang chậm rãi"},
+    title:"Walt Whitman",
+    text:"Walt Whitman, born in New York in 1819, was one of America's unusual literary figures. He is considered one of the most influential poets in American history. He is often called the father of free verse.\n\nAn individualist, he rambled through the countryside seeing people and places, and making them his own. His experiences in earning a living were varied: at times he was a printer, a teacher, a carpenter, a nurse and a newspaper editor. He was a big-hearted man, open and accepting. He gave freely of his time by caring for the wounded during the Civil War. Though he lived in the city, he often spent time in the country, developing his strong sense of nature, which carried through his poems. In 1855 he collected the verses he had written, and published them in one thin volume, \"Leaves of Grass\", a book which he revised and generally ignored by others, probably because his verse forms were not traditional. He had felt that it was necessary to achieve a new poetic form in order to communicate his views. His reputation didn't grow until after his death, and it reached a high point in the 1920s. Since then, Whitman's style has greatly influenced modern poets.",
+    textVi:"Walt Whitman, sinh năm 1819 tại New York, là một trong những nhân vật văn học khác thường của Mỹ. Ông được coi là một trong những nhà thơ có ảnh hưởng lớn nhất trong lịch sử Mỹ và thường được gọi là cha đẻ của thơ tự do.\n\nLà một người theo chủ nghĩa cá nhân, ông lang thang qua các vùng quê để gặp gỡ con người và khám phá các địa điểm. Kinh nghiệm kiếm sống của ông rất đa dạng: có lúc ông làm thợ in, giáo viên, thợ mộc, y tá và biên tập báo. Ông là một người nhân hậu, cởi mở và bao dung. Ông đã dành thời gian chăm sóc thương binh trong Nội chiến. Mặc dù sống ở thành phố, ông thường về nông thôn, phát triển tình yêu thiên nhiên thể hiện trong các bài thơ. Năm 1855, ông tập hợp các bài thơ đã viết và xuất bản trong một cuốn sách mỏng tên là \"Leaves of Grass\" - cuốn sách bị nhiều người bỏ qua, có lẽ vì thể thơ không truyền thống. Ông cho rằng cần phải tạo ra một hình thức thơ mới để truyền đạt quan điểm. Danh tiếng của ông chỉ nổi lên sau khi qua đời và đạt đỉnh cao vào thập niên 1920. Từ đó đến nay, phong cách của Whitman đã ảnh hưởng lớn đến các nhà thơ hiện đại.",
+    questions:[
+      {q:"The best title for this passage is",vi:"Tiêu đề phù hợp nhất cho đoạn văn này là gì?",o:["Leaves of Grass","A Country Man","Walt Whitman","Poetry: A New Form"],oVi:["Lá cỏ","Người đàn ông nông thôn","Walt Whitman","Thơ: Một hình thức mới"],a:2,exp:"Bài chủ yếu kể về Walt Whitman"},
+      {q:"Whitman's big-heartedness is shown by his",vi:"Sự nhân hậu của Whitman được thể hiện qua việc:",o:["visiting the countryside.","being an individualist.","rewriting \"Leaves of Grass\".","caring for the wounded during the Civil War."],oVi:["thăm vùng quê.","là người theo chủ nghĩa cá nhân.","viết lại 'Leaves of Grass'.","chăm sóc thương binh trong Nội chiến."],a:3,exp:"Chăm sóc thương binh = tốt bụng"},
+      {q:"The passage says that during Whitman's lifetime, other poets",vi:"Trong cuộc đời Whitman, các nhà thơ khác:",o:["accepted him.","laughed at him.","praised him.","communicated with him."],oVi:["chấp nhận ông.","cười nhạo ông.","ca ngợi ông.","giao tiếp với ông."],a:1,exp:"Bị bỏ qua/cười nhạo"},
+      {q:"We can assume that Whitman was ignored because he",vi:"Có thể đoán rằng Whitman bị bỏ qua vì ông:",o:["wrote in a new form.","rambled through the countryside.","published his poems.","rewrote his book."],oVi:["viết theo hình thức mới.","đi lang thang qua vùng quê.","xuất bản thơ.","viết lại sách."],a:0,exp:"Verse forms were not traditional"},
+      {q:"The word \"rambled\" is most similar to the meaning of",vi:"Từ \"rambled\" có nghĩa gần nhất với:",o:["stopped briefly.","travelled quickly.","walked slowly.","marched excitedly."],oVi:["dừng lại ngắn.","đi nhanh.","đi chậm.","diễu hành phấn khích."],a:2,exp:"Ramble = đi lang thang chậm rãi"},
     ]
   },
   {
-    title: "The Life of Nelson Mandela",
-    text: "Nelson Mandela was one of the most important leaders in modern history. Born in 1918 in a small village in South Africa, Mandela became known around the world for his fight against apartheid, a system of racial separation that gave more rights to white people than to black people.\n\nMandela studied law at university and became a lawyer. In the 1940s, he joined the African National Congress (ANC), a political group that worked to improve rights for black South Africans. He believed in peaceful protest, but over time, he also supported stronger actions when peaceful methods didn't work.\n\nIn 1962, Mandela was arrested and spent 27 years in prison. Even while in prison, he continued to inspire people all over the world. Many believed he would never be free again, but in 1990, the South African government released him.\n\nJust four years later, in 1994, South Africa held its first democratic elections, and Nelson Mandela became the country's first black president. He served until 1999 and helped lead the country through a difficult period of change. Even after leaving office, he continued to work for peace and human rights.\n\nMandela passed away in 2013 at the age of 95. Today, he is remembered as a symbol of courage, forgiveness, and hope.",
-    textVi: "Nelson Mandela là một trong những nhà lãnh đạo quan trọng nhất trong lịch sử hiện đại. Sinh năm 1918 tại một ngôi làng nhỏ ở Nam Phi, Mandela được cả thế giới biết đến vì cuộc đấu tranh chống lại chế độ apartheid - hệ thống phân biệt chủng tộc trao nhiều quyền lợi cho người da trắng hơn người da đen.\n\nMandela học luật tại đại học và trở thành luật sư. Vào những năm 1940, ông tham gia Đảng Đại hội Dân tộc Phi (ANC), một nhóm chính trị đấu tranh cải thiện quyền lợi cho người Nam Phi da đen. Ông tin vào biểu tình hòa bình, nhưng theo thời gian, ông cũng ủng hộ các hành động mạnh mẽ hơn khi phương pháp hòa bình không hiệu quả.\n\nNăm 1962, Mandela bị bắt và phải ngồi tù 27 năm. Ngay cả khi ở trong tù, ông vẫn tiếp tục truyền cảm hứng cho người dân khắp thế giới. Nhiều người tin rằng ông sẽ không bao giờ được tự do nữa, nhưng năm 1990, chính phủ Nam Phi đã trả tự do cho ông.\n\nChỉ 4 năm sau, năm 1994, Nam Phi tổ chức cuộc bầu cử dân chủ đầu tiên, và Nelson Mandela trở thành tổng thống da đen đầu tiên của đất nước. Ông phục vụ đến năm 1999 và giúp dẫn dắt đất nước vượt qua giai đoạn thay đổi khó khăn. Ngay cả sau khi rời khỏi chức vụ, ông vẫn tiếp tục làm việc vì hòa bình và quyền con người.\n\nMandela qua đời năm 2013 ở tuổi 95. Ngày nay, ông được nhớ đến như biểu tượng của lòng dũng cảm, sự tha thứ và hy vọng.",
-    questions: [
-      {q: "What was apartheid?", vi: "Apartheid là gì?", o: ["A holiday in South Africa","A type of music","A system of racial separation","A political party"], oVi: ["Một kỳ nghỉ ở Nam Phi","Một loại nhạc","Hệ thống phân biệt chủng tộc","Một đảng chính trị"], a: 2, exp: "Apartheid = hệ thống phân biệt chủng tộc"},
-      {q: "What did Mandela study at university?", vi: "Mandela học gì ở đại học?", o: ["Law","Medicine","Politics","History"], oVi: ["Luật","Y","Chính trị","Lịch sử"], a: 0, exp: "Studied law and became a lawyer"},
-      {q: "How long was Mandela in prison?", vi: "Mandela ở tù bao lâu?", o: ["20 years","27 years","15 years","10 years"], oVi: ["20 năm","27 năm","15 năm","10 năm"], a: 1, exp: "Spent 27 years in prison"},
-      {q: "What happened in 1994?", vi: "Điều gì đã xảy ra vào năm 1994?", o: ["Mandela was arrested and sent to prison.","Apartheid started in South Africa.","Mandela was released from prison.","Mandela became president of his country."], oVi: ["Mandela bị bắt và bỏ tù.","Apartheid bắt đầu ở Nam Phi.","Mandela được thả khỏi tù.","Mandela trở thành tổng thống."], a: 3, exp: "1994 - first democratic elections, became president"},
-      {q: "How is Mandela remembered today?", vi: "Mandela được nhớ đến như thế nào ngày nay?", o: ["As a famous businessman to help develop South Africa.","As a science leader who contributed to improve scientific research.","As a symbol of courage, forgiveness, and hope.","As a teacher in a small village."], oVi: ["Là doanh nhân nổi tiếng giúp phát triển Nam Phi.","Là nhà khoa học góp phần cải tiến nghiên cứu khoa học.","Là biểu tượng của lòng dũng cảm, sự tha thứ và hy vọng.","Là giáo viên ở ngôi làng nhỏ."], a: 2, exp: "Symbol of courage, forgiveness, and hope"},
+    title:"The Life of Nelson Mandela",
+    text:"Nelson Mandela was one of the most important leaders in modern history. Born in 1918 in a small village in South Africa, Mandela became known around the world for his fight against apartheid, a system of racial separation that gave more rights to white people than to black people.\n\nMandela studied law at university and became a lawyer. In the 1940s, he joined the African National Congress (ANC), a political group that worked to improve rights for black South Africans. He believed in peaceful protest, but over time, he also supported stronger actions when peaceful methods didn't work.\n\nIn 1962, Mandela was arrested and spent 27 years in prison. Even while in prison, he continued to inspire people all over the world. Many believed he would never be free again, but in 1990, the South African government released him.\n\nJust four years later, in 1994, South Africa held its first democratic elections, and Nelson Mandela became the country's first black president. He served until 1999 and helped lead the country through a difficult period of change. Even after leaving office, he continued to work for peace and human rights.\n\nMandela passed away in 2013 at the age of 95. Today, he is remembered as a symbol of courage, forgiveness, and hope.",
+    textVi:"Nelson Mandela là một trong những nhà lãnh đạo quan trọng nhất trong lịch sử hiện đại. Sinh năm 1918 tại một ngôi làng nhỏ ở Nam Phi, Mandela được cả thế giới biết đến vì cuộc đấu tranh chống lại chế độ apartheid - hệ thống phân biệt chủng tộc trao nhiều quyền lợi cho người da trắng hơn người da đen.\n\nMandela học luật tại đại học và trở thành luật sư. Vào những năm 1940, ông tham gia Đảng Đại hội Dân tộc Phi (ANC), một nhóm chính trị đấu tranh cải thiện quyền lợi cho người Nam Phi da đen. Ông tin vào biểu tình hòa bình, nhưng theo thời gian, ông cũng ủng hộ các hành động mạnh mẽ hơn khi phương pháp hòa bình không hiệu quả.\n\nNăm 1962, Mandela bị bắt và phải ngồi tù 27 năm. Ngay cả khi ở trong tù, ông vẫn tiếp tục truyền cảm hứng cho người dân khắp thế giới. Nhiều người tin rằng ông sẽ không bao giờ được tự do nữa, nhưng năm 1990, chính phủ Nam Phi đã trả tự do cho ông.\n\nChỉ 4 năm sau, năm 1994, Nam Phi tổ chức cuộc bầu cử dân chủ đầu tiên, và Nelson Mandela trở thành tổng thống da đen đầu tiên của đất nước. Ông phục vụ đến năm 1999 và giúp dẫn dắt đất nước vượt qua giai đoạn thay đổi khó khăn. Ngay cả sau khi rời khỏi chức vụ, ông vẫn tiếp tục làm việc vì hòa bình và quyền con người.\n\nMandela qua đời năm 2013 ở tuổi 95. Ngày nay, ông được nhớ đến như biểu tượng của lòng dũng cảm, sự tha thứ và hy vọng.",
+    questions:[
+      {q:"What was apartheid?",vi:"Apartheid là gì?",o:["A holiday in South Africa","A type of music","A system of racial separation","A political party"],oVi:["Một kỳ nghỉ ở Nam Phi","Một loại nhạc","Hệ thống phân biệt chủng tộc","Một đảng chính trị"],a:2,exp:"Apartheid = hệ thống phân biệt chủng tộc"},
+      {q:"What did Mandela study at university?",vi:"Mandela học gì ở đại học?",o:["Law","Medicine","Politics","History"],oVi:["Luật","Y","Chính trị","Lịch sử"],a:0,exp:"Studied law and became a lawyer"},
+      {q:"How long was Mandela in prison?",vi:"Mandela ở tù bao lâu?",o:["20 years","27 years","15 years","10 years"],oVi:["20 năm","27 năm","15 năm","10 năm"],a:1,exp:"Spent 27 years in prison"},
+      {q:"What happened in 1994?",vi:"Điều gì đã xảy ra vào năm 1994?",o:["Mandela was arrested and sent to prison.","Apartheid started in South Africa.","Mandela was released from prison.","Mandela became president of his country."],oVi:["Mandela bị bắt và bỏ tù.","Apartheid bắt đầu ở Nam Phi.","Mandela được thả khỏi tù.","Mandela trở thành tổng thống."],a:3,exp:"1994 - first democratic elections"},
+      {q:"How is Mandela remembered today?",vi:"Mandela được nhớ đến như thế nào ngày nay?",o:["As a famous businessman to help develop South Africa.","As a science leader who contributed to improve scientific research.","As a symbol of courage, forgiveness, and hope.","As a teacher in a small village."],oVi:["Là doanh nhân nổi tiếng giúp phát triển Nam Phi.","Là nhà khoa học góp phần cải tiến nghiên cứu.","Là biểu tượng của lòng dũng cảm, sự tha thứ và hy vọng.","Là giáo viên ở ngôi làng nhỏ."],a:2,exp:"Symbol of courage, forgiveness, and hope"},
     ]
   },
   {
-    title: "Winter Driving",
-    text: "Winter driving is dangerous because it's hard to predict what might happen, and accidents can occur very easily. Fog could suddenly appear over the top of a hill, hiding visibility, or ice might be hidden beneath the melting snow, ready to cause you to lose control. Even worse, a car coming toward you might suddenly slide across the road. These are just a few of the risks you face when driving in winter weather.\n\nRule Number One for driving on icy roads is to drive smoothly. Quick, uneven movements can make a car extremely difficult to control. Every time you turn the wheel, touch the brakes, or increase your speed, you need to do it slowly and gently. Imagine you have a full cup of hot coffee sitting on the passenger seat next to you. Drive in a way that you wouldn't spill it. This will help you stay in control and avoid accidents.\n\nRule Number Two is to always be aware of what might happen next. The more ice on the road, the further down the road you need to look. Before driving, test how long it takes to stop by gently braking. You might be driving faster than you realize, so give yourself extra time to react. As a general rule, allow double the normal stopping distance when roads are wet, three times this distance on snow, and even more on ice.",
-    textVi: "Lái xe vào mùa đông rất nguy hiểm vì khó dự đoán điều gì có thể xảy ra, và tai nạn có thể xảy ra rất dễ dàng. Sương mù có thể đột ngột xuất hiện trên đỉnh đồi che khuất tầm nhìn, hoặc băng có thể ẩn dưới lớp tuyết tan, sẵn sàng làm bạn mất lái. Tệ hơn, một chiếc xe đi ngược chiều có thể đột ngột trượt qua đường. Đó chỉ là một vài rủi ro bạn gặp phải khi lái xe trong thời tiết mùa đông.\n\nQuy tắc số 1 khi lái xe trên đường băng là lái xe nhẹ nhàng. Những chuyển động nhanh, không đều có thể làm xe cực kỳ khó kiểm soát. Mỗi lần bạn xoay vô lăng, đạp phanh hay tăng tốc, đều phải làm chậm và nhẹ nhàng. Hãy tưởng tượng có một cốc cà phê đầy đang đặt trên ghế hành khách bên cạnh. Lái xe sao cho không làm đổ cốc cà phê đó. Điều này sẽ giúp bạn kiểm soát xe và tránh tai nạn.\n\nQuy tắc số 2 là luôn ý thức về những gì có thể xảy ra tiếp theo. Càng nhiều băng trên đường, bạn càng phải nhìn xa hơn về phía trước. Trước khi lái, hãy thử xem mất bao lâu để dừng xe bằng cách phanh nhẹ. Bạn có thể đang lái nhanh hơn bạn nghĩ, nên hãy cho mình thêm thời gian để phản ứng. Theo nguyên tắc chung, hãy giữ khoảng cách dừng gấp đôi bình thường khi đường ướt, gấp 3 lần khi có tuyết, và còn xa hơn nữa khi có băng.",
-    questions: [
-      {q: "What is the main danger when driving in winter?", vi: "Mối nguy chính khi lái xe vào mùa đông là gì?", o: ["It is difficult to see other cars.","Ice and snow can cause accidents easily.","Roads are always blocked.","The car's engine might not start."], oVi: ["Khó nhìn thấy xe khác.","Băng và tuyết dễ gây tai nạn.","Đường luôn bị chặn.","Động cơ xe có thể không khởi động."], a: 1, exp: "Ice và snow gây tai nạn"},
-      {q: "What should you do when driving on icy roads?", vi: "Bạn nên làm gì khi lái xe trên đường băng?", o: ["Drive as fast as possible","Use quick, sharp movements","Drive smoothly and gently","Only focus on the road ahead"], oVi: ["Lái càng nhanh càng tốt","Dùng động tác nhanh, gắt","Lái nhẹ nhàng và êm","Chỉ tập trung phía trước"], a: 2, exp: "Rule One: drive smoothly"},
-      {q: "What is the purpose of imagining a full cup of coffee on the passenger seat?", vi: "Mục đích tưởng tượng cốc cà phê đầy trên ghế là gì?", o: ["To help you avoid distractions","To remind you to drive faster","To help you keep your car clean","To make sure you don't spill your drink"], oVi: ["Để tránh xao nhãng","Nhắc nhở lái nhanh hơn","Giúp giữ xe sạch","Đảm bảo không đổ đồ uống"], a: 0, exp: "Tránh xao nhãng → lái êm"},
-      {q: "What should you do to test your stopping distance?", vi: "Bạn nên làm gì để kiểm tra khoảng cách dừng?", o: ["Increase your speed","Brake suddenly","Drive in a straight line","Gently brake and see how long it takes to stop"], oVi: ["Tăng tốc","Phanh gấp","Lái thẳng","Phanh nhẹ và xem mất bao lâu để dừng"], a: 3, exp: "Test by gently braking"},
-      {q: "How much extra stopping distance should you allow on icy roads?", vi: "Bạn cần để khoảng cách dừng thêm bao nhiêu trên đường băng?", o: ["Half the normal distance.","Double the normal distance.","Three times the normal distance.","No extra distance is needed."], oVi: ["Một nửa bình thường.","Gấp đôi bình thường.","Gấp 3 lần bình thường.","Không cần khoảng cách thêm."], a: 2, exp: "Double on wet, triple on snow, even more on ice → minimum 3x"},
+    title:"Winter Driving",
+    text:"Winter driving is dangerous because it's hard to predict what might happen, and accidents can occur very easily. Fog could suddenly appear over the top of a hill, hiding visibility, or ice might be hidden beneath the melting snow, ready to cause you to lose control. Even worse, a car coming toward you might suddenly slide across the road. These are just a few of the risks you face when driving in winter weather.\n\nRule Number One for driving on icy roads is to drive smoothly. Quick, uneven movements can make a car extremely difficult to control. Every time you turn the wheel, touch the brakes, or increase your speed, you need to do it slowly and gently. Imagine you have a full cup of hot coffee sitting on the passenger seat next to you. Drive in a way that you wouldn't spill it. This will help you stay in control and avoid accidents.\n\nRule Number Two is to always be aware of what might happen next. The more ice on the road, the further down the road you need to look. Before driving, test how long it takes to stop by gently braking. You might be driving faster than you realize, so give yourself extra time to react. As a general rule, allow double the normal stopping distance when roads are wet, three times this distance on snow, and even more on ice.",
+    textVi:"Lái xe vào mùa đông rất nguy hiểm vì khó dự đoán điều gì có thể xảy ra, và tai nạn có thể xảy ra rất dễ dàng. Sương mù có thể đột ngột xuất hiện trên đỉnh đồi che khuất tầm nhìn, hoặc băng có thể ẩn dưới lớp tuyết tan, sẵn sàng làm bạn mất lái. Tệ hơn, một chiếc xe đi ngược chiều có thể đột ngột trượt qua đường. Đó chỉ là một vài rủi ro bạn gặp phải khi lái xe trong thời tiết mùa đông.\n\nQuy tắc số 1 khi lái xe trên đường băng là lái xe nhẹ nhàng. Những chuyển động nhanh, không đều có thể làm xe cực kỳ khó kiểm soát. Mỗi lần bạn xoay vô lăng, đạp phanh hay tăng tốc, đều phải làm chậm và nhẹ nhàng. Hãy tưởng tượng có một cốc cà phê đầy đang đặt trên ghế hành khách bên cạnh. Lái xe sao cho không làm đổ cốc cà phê đó. Điều này sẽ giúp bạn kiểm soát xe và tránh tai nạn.\n\nQuy tắc số 2 là luôn ý thức về những gì có thể xảy ra tiếp theo. Càng nhiều băng trên đường, bạn càng phải nhìn xa hơn về phía trước. Trước khi lái, hãy thử xem mất bao lâu để dừng xe bằng cách phanh nhẹ. Bạn có thể đang lái nhanh hơn bạn nghĩ, nên hãy cho mình thêm thời gian để phản ứng. Theo nguyên tắc chung, hãy giữ khoảng cách dừng gấp đôi bình thường khi đường ướt, gấp 3 lần khi có tuyết, và còn xa hơn nữa khi có băng.",
+    questions:[
+      {q:"What is the main danger when driving in winter?",vi:"Mối nguy chính khi lái xe vào mùa đông là gì?",o:["It is difficult to see other cars.","Ice and snow can cause accidents easily.","Roads are always blocked.","The car's engine might not start."],oVi:["Khó nhìn thấy xe khác.","Băng và tuyết dễ gây tai nạn.","Đường luôn bị chặn.","Động cơ xe có thể không khởi động."],a:1,exp:"Ice và snow gây tai nạn"},
+      {q:"What should you do when driving on icy roads?",vi:"Bạn nên làm gì khi lái xe trên đường băng?",o:["Drive as fast as possible","Use quick, sharp movements","Drive smoothly and gently","Only focus on the road ahead"],oVi:["Lái càng nhanh càng tốt","Dùng động tác nhanh, gắt","Lái nhẹ nhàng và êm","Chỉ tập trung phía trước"],a:2,exp:"Rule One: drive smoothly"},
+      {q:"What is the purpose of imagining a full cup of coffee on the passenger seat?",vi:"Mục đích tưởng tượng cốc cà phê đầy trên ghế là gì?",o:["To help you avoid distractions","To remind you to drive faster","To help you keep your car clean","To make sure you don't spill your drink"],oVi:["Để tránh xao nhãng","Nhắc nhở lái nhanh hơn","Giúp giữ xe sạch","Đảm bảo không đổ đồ uống"],a:0,exp:"Tránh xao nhãng → lái êm"},
+      {q:"What should you do to test your stopping distance?",vi:"Bạn nên làm gì để kiểm tra khoảng cách dừng?",o:["Increase your speed","Brake suddenly","Drive in a straight line","Gently brake and see how long it takes to stop"],oVi:["Tăng tốc","Phanh gấp","Lái thẳng","Phanh nhẹ và xem mất bao lâu để dừng"],a:3,exp:"Test by gently braking"},
+      {q:"How much extra stopping distance should you allow on icy roads?",vi:"Cần để khoảng cách dừng thêm bao nhiêu trên đường băng?",o:["Half the normal distance.","Double the normal distance.","Three times the normal distance.","No extra distance is needed."],oVi:["Một nửa bình thường.","Gấp đôi bình thường.","Gấp 3 lần bình thường.","Không cần khoảng cách thêm."],a:2,exp:"Triple on snow, even more on ice"},
     ]
   },
   {
-    title: "Harry Parnell: Photographer of the Stars",
-    text: "I've always been interested in photography. When I was a child, I used to borrow my parents' camera. This annoyed them, so when I was about ten years old, they bought me my own camera. After that, I spent my free time going around taking pictures. I enjoyed taking pictures of flowers, trees and animals, but most of all, I liked taking pictures of people. I still have my childhood photo albums. Most pictures weren't that great, but I like looking at them. They remind me of what I first felt when I started taking pictures.\n\nWhen I finished school, I did a photography course and then I got a job working for my local paper. I liked the people I worked with, but I found it quite boring after a while. I used to have to take dull pictures of local buildings and new types of cars, that kind of thing. After a couple of years, I trained in digital photography and portraits with another photographer. Then, I moved to a national newspaper and that was more interesting, but I finally decided to work for myself taking pictures of famous people. I like exploring how settings and people interact. Many famous people got to know me and liked my artistic talent. I have been working as a portrait photographer for many years now.\n\nWhen I tell people what I do for a living, they imagine that I'm an unpleasant person who follows famous people, takes embarrassing pictures of them and makes a lot of money. Actually, I don't do that. Usually the people I photograph want me to photograph them. We create an atmosphere in their own garden or outdoors where they can feel comfortable.",
-    textVi: "Tôi luôn thích nhiếp ảnh. Khi còn nhỏ, tôi thường mượn máy ảnh của bố mẹ. Điều này khiến họ khó chịu, nên khi tôi khoảng 10 tuổi, họ mua cho tôi một chiếc máy ảnh riêng. Sau đó, tôi dành thời gian rảnh đi chụp ảnh khắp nơi. Tôi thích chụp hoa, cây và động vật, nhưng hơn cả là tôi thích chụp ảnh con người. Tôi vẫn còn giữ các album ảnh thời thơ ấu. Hầu hết ảnh không đẹp lắm, nhưng tôi thích nhìn chúng. Chúng nhắc tôi nhớ về cảm giác đầu tiên khi mới bắt đầu chụp ảnh.\n\nKhi học xong, tôi học khóa nhiếp ảnh rồi xin việc tại tờ báo địa phương. Tôi thích các đồng nghiệp ở đó, nhưng sau một thời gian thấy chán. Tôi phải chụp những bức ảnh tẻ nhạt về các tòa nhà địa phương, các loại xe mới, đại loại như vậy. Sau vài năm, tôi học thêm về nhiếp ảnh kỹ thuật số và chụp chân dung với một nhiếp ảnh gia khác. Sau đó tôi chuyển sang tờ báo quốc gia, công việc thú vị hơn, nhưng cuối cùng tôi quyết định làm tự do chụp ảnh người nổi tiếng. Tôi thích khám phá cách bối cảnh và con người tương tác. Nhiều người nổi tiếng biết đến tôi và thích tài năng nghệ thuật của tôi. Tôi đã làm nhiếp ảnh gia chân dung nhiều năm rồi.\n\nKhi tôi nói với mọi người về công việc của mình, họ tưởng tượng rằng tôi là một người khó chịu chuyên đi theo người nổi tiếng, chụp ảnh xấu hổ của họ và kiếm nhiều tiền. Thực ra tôi không làm thế. Thường thì những người tôi chụp đều muốn tôi chụp ảnh họ. Chúng tôi tạo không khí trong vườn nhà họ hoặc ngoài trời, nơi họ cảm thấy thoải mái.",
-    questions: [
-      {q: "What does the writer say about his childhood?", vi: "Tác giả nói gì về thời thơ ấu của mình?", o: ["He liked taking pictures of his parents.","He never had his own camera.","He disliked taking photos of nature.","He discovered he enjoyed taking pictures of people best."], oVi: ["Ông thích chụp ảnh bố mẹ.","Ông chưa bao giờ có máy ảnh riêng.","Ông không thích chụp ảnh thiên nhiên.","Ông phát hiện thích chụp ảnh con người nhất."], a: 3, exp: "Most of all, I liked taking pictures of people"},
-      {q: "What did the writer do in his first job?", vi: "Tác giả đã làm gì ở công việc đầu tiên?", o: ["He took pictures of ordinary people.","He photographed uninteresting things.","He travelled around the country a lot.","He stayed in the office most of the time."], oVi: ["Chụp ảnh người bình thường.","Chụp những thứ không thú vị.","Đi khắp đất nước nhiều.","Ở văn phòng phần lớn thời gian."], a: 1, exp: "Dull pictures of buildings/cars = boring/uninteresting"},
-      {q: "What does the writer think people believe about him?", vi: "Tác giả nghĩ mọi người tin gì về mình?", o: ["He doesn't earn much money.","He has an embarrassing job.","He isn't a nice person.","He will probably be famous one day."], oVi: ["Ông không kiếm được nhiều tiền.","Ông có công việc đáng xấu hổ.","Ông không phải người tốt.","Có lẽ một ngày nào đó ông sẽ nổi tiếng."], a: 2, exp: "Imagine I'm an unpleasant person"},
-      {q: "When talking about the people he photographs now, the writer says", vi: "Khi nói về người ông chụp hiện tại, tác giả nói:", o: ["they are usually happy to be photographed.","they're often unpleasant.","nobody ever upsets him.","they sometimes forget to pay him."], oVi: ["họ thường vui khi được chụp.","họ thường khó chịu.","không ai làm ông buồn.","họ đôi khi quên trả tiền."], a: 0, exp: "Usually they want me to photograph them"},
-      {q: "Which is the best description of the writer?", vi: "Câu nào mô tả tác giả đúng nhất?", o: ["The talented photographer who has worked in different places but has always enjoyed his career.","The photographer who likes working for himself and enjoys his work most of the time.","The photographer who has taken pictures for many years and has always wanted to be famous.","The photographer who prefers taking pictures of people and enjoys embarrassing the rich and famous."], oVi: ["Nhiếp ảnh gia tài năng làm ở nhiều nơi và luôn yêu nghề.","Nhiếp ảnh gia thích làm tự do và thường thích công việc của mình.","Nhiếp ảnh gia chụp ảnh nhiều năm và luôn muốn nổi tiếng.","Nhiếp ảnh gia thích chụp ảnh người và thích làm xấu hổ người giàu, nổi tiếng."], a: 1, exp: "Likes working for himself, enjoys work most of the time"},
+    title:"Harry Parnell: Photographer of the Stars",
+    text:"I've always been interested in photography. When I was a child, I used to borrow my parents' camera. This annoyed them, so when I was about ten years old, they bought me my own camera. After that, I spent my free time going around taking pictures. I enjoyed taking pictures of flowers, trees and animals, but most of all, I liked taking pictures of people. I still have my childhood photo albums. Most pictures weren't that great, but I like looking at them. They remind me of what I first felt when I started taking pictures.\n\nWhen I finished school, I did a photography course and then I got a job working for my local paper. I liked the people I worked with, but I found it quite boring after a while. I used to have to take dull pictures of local buildings and new types of cars, that kind of thing. After a couple of years, I trained in digital photography and portraits with another photographer. Then, I moved to a national newspaper and that was more interesting, but I finally decided to work for myself taking pictures of famous people. I like exploring how settings and people interact. Many famous people got to know me and liked my artistic talent. I have been working as a portrait photographer for many years now.\n\nWhen I tell people what I do for a living, they imagine that I'm an unpleasant person who follows famous people, takes embarrassing pictures of them and makes a lot of money. Actually, I don't do that. Usually the people I photograph want me to photograph them. We create an atmosphere in their own garden or outdoors where they can feel comfortable.",
+    textVi:"Tôi luôn thích nhiếp ảnh. Khi còn nhỏ, tôi thường mượn máy ảnh của bố mẹ. Điều này khiến họ khó chịu, nên khi tôi khoảng 10 tuổi, họ mua cho tôi một chiếc máy ảnh riêng. Sau đó, tôi dành thời gian rảnh đi chụp ảnh khắp nơi. Tôi thích chụp hoa, cây và động vật, nhưng hơn cả là tôi thích chụp ảnh con người. Tôi vẫn còn giữ các album ảnh thời thơ ấu. Hầu hết ảnh không đẹp lắm, nhưng tôi thích nhìn chúng. Chúng nhắc tôi nhớ về cảm giác đầu tiên khi mới bắt đầu chụp ảnh.\n\nKhi học xong, tôi học khóa nhiếp ảnh rồi xin việc tại tờ báo địa phương. Tôi thích các đồng nghiệp ở đó, nhưng sau một thời gian thấy chán. Tôi phải chụp những bức ảnh tẻ nhạt về các tòa nhà địa phương, các loại xe mới, đại loại như vậy. Sau vài năm, tôi học thêm về nhiếp ảnh kỹ thuật số và chụp chân dung với một nhiếp ảnh gia khác. Sau đó tôi chuyển sang tờ báo quốc gia, công việc thú vị hơn, nhưng cuối cùng tôi quyết định làm tự do chụp ảnh người nổi tiếng. Tôi thích khám phá cách bối cảnh và con người tương tác. Nhiều người nổi tiếng biết đến tôi và thích tài năng nghệ thuật của tôi. Tôi đã làm nhiếp ảnh gia chân dung nhiều năm rồi.\n\nKhi tôi nói với mọi người về công việc của mình, họ tưởng tượng rằng tôi là một người khó chịu chuyên đi theo người nổi tiếng, chụp ảnh xấu hổ của họ và kiếm nhiều tiền. Thực ra tôi không làm thế. Thường thì những người tôi chụp đều muốn tôi chụp ảnh họ. Chúng tôi tạo không khí trong vườn nhà họ hoặc ngoài trời, nơi họ cảm thấy thoải mái.",
+    questions:[
+      {q:"What does the writer say about his childhood?",vi:"Tác giả nói gì về thời thơ ấu của mình?",o:["He liked taking pictures of his parents.","He never had his own camera.","He disliked taking photos of nature.","He discovered he enjoyed taking pictures of people best."],oVi:["Ông thích chụp ảnh bố mẹ.","Ông chưa bao giờ có máy ảnh riêng.","Ông không thích chụp ảnh thiên nhiên.","Ông phát hiện thích chụp ảnh con người nhất."],a:3,exp:"Most of all, I liked taking pictures of people"},
+      {q:"What did the writer do in his first job?",vi:"Tác giả đã làm gì ở công việc đầu tiên?",o:["He took pictures of ordinary people.","He photographed uninteresting things.","He travelled around the country a lot.","He stayed in the office most of the time."],oVi:["Chụp ảnh người bình thường.","Chụp những thứ không thú vị.","Đi khắp đất nước nhiều.","Ở văn phòng phần lớn thời gian."],a:1,exp:"Dull pictures = boring/uninteresting"},
+      {q:"What does the writer think people believe about him?",vi:"Tác giả nghĩ mọi người tin gì về mình?",o:["He doesn't earn much money.","He has an embarrassing job.","He isn't a nice person.","He will probably be famous one day."],oVi:["Ông không kiếm được nhiều tiền.","Ông có công việc đáng xấu hổ.","Ông không phải người tốt.","Có lẽ một ngày nào đó ông sẽ nổi tiếng."],a:2,exp:"Imagine I'm an unpleasant person"},
+      {q:"When talking about the people he photographs now, the writer says",vi:"Khi nói về người ông chụp hiện tại, tác giả nói:",o:["they are usually happy to be photographed.","they're often unpleasant.","nobody ever upsets him.","they sometimes forget to pay him."],oVi:["họ thường vui khi được chụp.","họ thường khó chịu.","không ai làm ông buồn.","họ đôi khi quên trả tiền."],a:0,exp:"Usually they want me to photograph them"},
+      {q:"Which is the best description of the writer?",vi:"Câu nào mô tả tác giả đúng nhất?",o:["The talented photographer who has worked in different places but has always enjoyed his career.","The photographer who likes working for himself and enjoys his work most of the time.","The photographer who has taken pictures for many years and has always wanted to be famous.","The photographer who prefers taking pictures of people and enjoys embarrassing the rich and famous."],oVi:["Nhiếp ảnh gia tài năng làm ở nhiều nơi và luôn yêu nghề.","Nhiếp ảnh gia thích làm tự do và thường thích công việc.","Nhiếp ảnh gia chụp ảnh nhiều năm và luôn muốn nổi tiếng.","Nhiếp ảnh gia thích chụp ảnh người và thích làm xấu hổ người giàu, nổi tiếng."],a:1,exp:"Likes working for himself, enjoys work most of the time"},
+    ]
+  },
+  {
+    title:"Life Without the Box",
+    text:"Could we live without a TV for one year? What would you do with all that spare time? Philippa Carling wanted to see if it was possible and persuaded her family to give theirs up for one whole year. \"I live with my husband and our two children,\" explains Philippa, \"and I realized just how much time we spent sitting in front of the TV. The children switched it on first thing in the morning and again when they got back from school. My husband and I were no better. We'd spend the evening together talking about very little other than what program was on at the time. But then the family decided, after lots of arguments that we would try to do without it for one year. We had the Internet and everyone was allowed to watch some of the recorded programs if they had a good reason for doing so.\" And so, on 24th July last year, the Carling family sold their TV. Eleven months have now gone by and Philippa believes the experiment has been a great success. As she explains: \"We were all surprised at how easy it was. The immediate result was we all started to read a lot more, including the children. We spend time together after dinner playing board games around the table and the children finish their homework a lot quicker than before. We talk about what will happen when the year comes to an end and the children have always said they want the TV back. But they've also admitted that life has been good without it.\" So will the TV return when the year comes to an end next month? \"We're not sure,\" says Philippa. \"We might decide to buy a new one or we might not. The important thing is we've all learnt that life can carry on without one. It can even be fun!\"",
+    textVi:"Liệu chúng ta có thể sống thiếu TV trong một năm? Bạn sẽ làm gì với tất cả thời gian rảnh đó? Philippa Carling muốn biết điều đó có khả thi không và đã thuyết phục gia đình cô từ bỏ TV trong suốt một năm. \"Tôi sống với chồng và hai đứa con,\" Philippa giải thích, \"và tôi nhận ra chúng tôi đã dành bao nhiêu thời gian ngồi trước TV. Bọn trẻ bật TV ngay khi thức dậy buổi sáng và một lần nữa khi đi học về. Vợ chồng tôi cũng không khá hơn. Chúng tôi dành buổi tối bên nhau nói chuyện, nhưng hầu như chẳng nói gì ngoài chương trình gì đang chiếu lúc đó. Nhưng sau đó, sau nhiều cuộc tranh luận, gia đình quyết định thử sống không TV trong một năm. Chúng tôi có Internet và mọi người được phép xem một số chương trình ghi sẵn nếu có lý do chính đáng.\" Và thế là, ngày 24/7 năm ngoái, gia đình Carling đã bán TV của họ. Mười một tháng đã trôi qua và Philippa tin rằng thử nghiệm đã thành công tốt đẹp. Cô giải thích: \"Tất cả chúng tôi đều ngạc nhiên về việc nó dễ dàng như thế nào. Kết quả ngay lập tức là tất cả chúng tôi bắt đầu đọc nhiều hơn, kể cả bọn trẻ. Chúng tôi dành thời gian bên nhau sau bữa tối, chơi các trò chơi board game quanh bàn và bọn trẻ hoàn thành bài tập nhanh hơn trước rất nhiều. Chúng tôi nói về chuyện gì sẽ xảy ra khi năm thử nghiệm kết thúc và bọn trẻ luôn nói rằng chúng muốn có TV trở lại. Nhưng chúng cũng thừa nhận rằng cuộc sống không có TV vẫn rất tốt.\" Vậy TV có quay trở lại khi năm thử nghiệm kết thúc vào tháng tới không? \"Chúng tôi không chắc chắn,\" Philippa nói. \"Chúng tôi có thể sẽ mua một chiếc mới hoặc không. Điều quan trọng là tất cả chúng tôi đã học được rằng cuộc sống vẫn có thể tiếp diễn mà không cần TV. Cuộc sống thậm chí còn vui vẻ!\"",
+    questions:[
+      {q:"What is the writer trying to do in this text?",vi:"Tác giả đang cố gắng làm gì trong bài viết này?",o:["explain how a family live without a TV.","warn parents about the dangers of TV.","persuade readers to give up their TV for a year.","argue that TV programs are boring."],oVi:["Giải thích cách một gia đình sống không có TV.","Cảnh báo cha mẹ về sự nguy hiểm của TV.","Thuyết phục độc giả từ bỏ TV trong một năm.","Lập luận rằng các chương trình TV rất nhàm chán."],a:0,exp:"Bài viết kể về thử nghiệm của gia đình Philippa sống không TV"},
+      {q:"What do we learn about Philippa's family?",vi:"Chúng ta biết được gì về gia đình Philippa?",o:["They argued which programs to watch.","She and her husband didn't watch much TV.","They all agreed to try the experiment.","Their TV was on all day."],oVi:["Họ tranh luận nên xem chương trình gì.","Cô và chồng không xem TV nhiều.","Tất cả đều đồng ý thử nghiệm.","TV của họ bật suốt ngày."],a:2,exp:"Gia đình đã quyết định cùng thử sau nhiều tranh luận → đồng ý tham gia"},
+      {q:"The family used the Internet",vi:"Gia đình đã sử dụng Internet để",o:["to watch TV programs.","to communicate with others who were doing the same experiment.","to find a good reason for not having a TV.","to find out which programs they were missing."],oVi:["xem các chương trình TV.","giao tiếp với những người cùng thử nghiệm.","tìm lý do chính đáng để không có TV.","tìm xem họ đã bỏ lỡ chương trình gì."],a:0,exp:"Mọi người được phép xem một số chương trình ghi sẵn qua Internet"},
+      {q:"What does Philippa say about the experiment?",vi:"Philippa nói gì về thử nghiệm?",o:["She was surprised at how much free time they had.","It wasn't as difficult to live without a TV as she had thought.","The children's schoolwork has improved.","The children now read more than her and her husband."],oVi:["Cô ngạc nhiên về thời gian rảnh họ có.","Sống không TV không khó như cô đã nghĩ.","Bài tập của bọn trẻ đã cải thiện.","Bọn trẻ bây giờ đọc nhiều hơn vợ chồng cô."],a:1,exp:"We were all surprised at how easy it was = không khó như tưởng"},
+      {q:"What might Philippa say about the TV?",vi:"Philippa có thể sẽ nói gì về TV?",o:["Parents should stop children watching TV in the morning.","It's best to watch TV when you have spare time.","Life doesn't come to an end without a TV.","Children find it too hard to live without TV."],oVi:["Cha mẹ nên cấm trẻ xem TV vào buổi sáng.","Tốt nhất nên xem TV khi có thời gian rảnh.","Cuộc sống không kết thúc nếu thiếu TV.","Trẻ em thấy quá khó để sống thiếu TV."],a:2,exp:"Life can carry on without one = cuộc sống vẫn tiếp diễn không cần TV"},
+    ]
+  },
+  {
+    title:"Columbus",
+    text:"Columbus crossed the Atlantic Ocean three times. His first voyage brought him fame and popularity - he discovered a new continent. But he had enemies who wanted to get rid of him. On his second voyage the Government of the country that Columbus himself discovered threw him into prison.\n\nHe was sent back to Spain as a prisoner. But Columbus succeeded in proving that the lies his enemies spread about him were untrue, and the Spanish Government gave him four ships to start on a new voyage. But this third voyage was unfortunate from the beginning. The ships were met by terrible storms and the time he reached the shores of Haiti, Columbus lost three of them. The remaining ship was about to go down when Columbus reached the island.\n\nIt took Columbus almost a year to return to Spain. He was unhappy, disappointed and broken in health. Worst of all, everyone forgot his achievements. He died in poverty in 1506 without knowing that he discovered a new world. Before Columbus died, another traveller named Amerigo Vespucci returned to Spain. He travelled along the coast of the land that Columbus discovered, and he proved that it was not the coast of India, as Columbus thought, but unknown continent.\n\nFor a long time, the new continent was called the New World. But at last, they decided to name it America, in honour of Amerigo, whose voyage showed it was not India. America was discovered by Columbus in 1492. It was named America in 1506, the year in which Columbus died.",
+    textVi:"Columbus đã vượt Đại Tây Dương ba lần. Chuyến đi đầu tiên mang lại cho ông danh tiếng và sự nổi tiếng - ông đã khám phá ra một lục địa mới. Nhưng ông có những kẻ thù muốn tiêu diệt ông. Trong chuyến đi thứ hai, chính quyền của quốc gia mà Columbus khám phá ra đã bắt ông bỏ tù.\n\nÔng bị gửi về Tây Ban Nha như một tù nhân. Nhưng Columbus đã chứng minh được rằng những lời nói dối mà kẻ thù lan truyền về ông là sai, và Chính phủ Tây Ban Nha đã cấp cho ông bốn con tàu để bắt đầu một chuyến đi mới. Nhưng chuyến đi thứ ba này không may mắn ngay từ đầu. Những con tàu gặp những cơn bão khủng khiếp và khi đến bờ biển Haiti, Columbus đã mất ba con tàu. Con tàu còn lại sắp chìm khi Columbus đến được hòn đảo.\n\nColumbus mất gần một năm để trở về Tây Ban Nha. Ông không vui, thất vọng và sức khỏe suy sụp. Tệ nhất là, mọi người đã quên hết những thành tựu của ông. Ông chết trong nghèo khó năm 1506 mà không biết rằng mình đã khám phá ra một thế giới mới. Trước khi Columbus chết, một nhà thám hiểm khác tên Amerigo Vespucci trở về Tây Ban Nha. Ông đã đi dọc theo bờ biển của vùng đất mà Columbus khám phá, và ông chứng minh rằng đó không phải là bờ biển Ấn Độ như Columbus nghĩ, mà là một lục địa chưa được biết đến.\n\nTrong một thời gian dài, lục địa mới được gọi là Tân Thế Giới. Nhưng cuối cùng, họ quyết định đặt tên nó là America, để tôn vinh Amerigo, người có chuyến đi đã cho thấy đó không phải là Ấn Độ. Châu Mỹ được Columbus khám phá năm 1492. Nó được đặt tên là America năm 1506, năm mà Columbus qua đời.",
+    questions:[
+      {q:"Columbus was famous and popular for",vi:"Columbus nổi tiếng và được yêu thích vì",o:["his three voyages.","being thrown into prison.","having many enemies.","discovering a new world."],oVi:["ba chuyến hải hành của ông.","bị tống vào tù.","có nhiều kẻ thù.","khám phá ra một thế giới mới."],a:3,exp:"His first voyage brought him fame and popularity - he discovered a new continent"},
+      {q:"When he returned to Spain, Columbus lived",vi:"Khi trở về Tây Ban Nha, Columbus sống",o:["very happily.","in good health.","in poverty.","a better life."],oVi:["rất hạnh phúc.","với sức khỏe tốt.","trong nghèo khó.","một cuộc sống tốt đẹp hơn."],a:2,exp:"He died in poverty in 1506"},
+      {q:"Columbus died in 1506 without knowing that he himself",vi:"Columbus chết năm 1506 mà không biết rằng chính ông",o:["had reached a new continent.","had discovered the coast India.","showed the world the unknown continent.","proved the new land to be America."],oVi:["đã đến một lục địa mới.","đã khám phá ra bờ biển Ấn Độ.","cho thế giới thấy lục địa chưa biết.","chứng minh vùng đất mới là Châu Mỹ."],a:0,exp:"Không biết rằng mình đã khám phá ra một thế giới mới / lục địa mới"},
+      {q:"Which of the following is NOT true according to the passage?",vi:"Điều nào sau đây KHÔNG đúng theo đoạn văn?",o:["Columbus thought he had come to the coast of India.","The new continent was discovered by Amerigo.","People did not recognize Columbus' achievement.","The new continent was named after Amerigo."],oVi:["Columbus nghĩ ông đã đến bờ biển Ấn Độ.","Lục địa mới được khám phá bởi Amerigo.","Mọi người không công nhận thành tựu của Columbus.","Lục địa mới được đặt theo tên Amerigo."],a:1,exp:"Châu Mỹ do Columbus khám phá, Amerigo chỉ chứng minh đó không phải Ấn Độ"},
+      {q:"The phrase \"in honour of\" used in the last paragraph mostly means",vi:"Cụm từ \"in honour of\" dùng trong đoạn cuối có nghĩa gần nhất là",o:["in terms of someone's honour.","in order for something to be done.","on account of someone's honour.","in order to show admiration for."],oVi:["về mặt danh dự của ai đó.","để điều gì đó được thực hiện.","vì danh dự của ai đó.","để thể hiện sự ngưỡng mộ đối với."],a:3,exp:"In honour of = để tôn vinh, thể hiện sự ngưỡng mộ"},
     ]
   },
 ];
 
 const speakingTopics = [
-  {
-    title: "Talk about a best friend of yours",
-    titleVi: "Nói về người bạn thân nhất của bạn",
-    points: ["Who he/she is","How long have you known him/her","What you like best about him/her","Why you consider him/her your best friend"],
-    pointsVi: ["Người đó là ai","Bạn đã biết người ấy bao lâu","Điều bạn thích nhất ở người ấy","Tại sao bạn coi người ấy là bạn thân nhất"],
-    sample: "I'd like to tell you about my best friend, Minh. He is 25 years old and works as an engineer in Hanoi. We have known each other for over 10 years, since we were classmates in high school. What I like best about Minh is his kindness and sense of humor - he always knows how to make me laugh when I feel down. I consider him my best friend because he is always there for me whenever I need support. We share many interests such as playing football and watching movies. Even though we are busy with work now, we still meet up every weekend. He is truly like a brother to me.",
-    sampleVi: "Tôi muốn kể về người bạn thân nhất của mình, tên Minh. Anh ấy 25 tuổi và làm kỹ sư ở Hà Nội. Chúng tôi quen nhau hơn 10 năm, từ khi còn học cấp 3. Điều tôi thích nhất ở Minh là sự tốt bụng và khiếu hài hước - anh ấy luôn biết cách làm tôi cười khi tôi buồn. Tôi coi anh ấy là bạn thân nhất vì anh ấy luôn ở bên khi tôi cần. Chúng tôi có nhiều sở thích chung như đá bóng và xem phim. Dù bây giờ bận công việc, chúng tôi vẫn gặp nhau cuối tuần. Anh ấy thực sự như một người anh em với tôi."
-  },
-  {
-    title: "Talk about your plans in the future",
-    titleVi: "Nói về kế hoạch tương lai của bạn",
-    points: ["What you are going to do","When you are going to do","Why you are going to do that"],
-    pointsVi: ["Bạn sẽ làm gì","Khi nào bạn sẽ làm","Tại sao bạn sẽ làm điều đó"],
-    sample: "In the near future, I'm planning to pursue a Master's degree in my field. I'm going to start the program next September after I pass the entrance exam. The reason I want to do this is to improve my professional knowledge and skills, which will help me get a better job and higher salary. Besides studying, I also plan to learn a new language - Japanese, because I'd like to work for a Japanese company someday. In the long term, I hope to start my own business in five years. I believe that with hard work and dedication, I can achieve all these goals.",
-    sampleVi: "Trong tương lai gần, tôi dự định học thạc sĩ trong lĩnh vực của mình. Tôi sẽ bắt đầu chương trình vào tháng 9 tới sau khi vượt qua kỳ thi đầu vào. Lý do tôi muốn làm điều này là để nâng cao kiến thức chuyên môn và kỹ năng, giúp tôi có công việc tốt hơn và lương cao hơn. Bên cạnh việc học, tôi cũng dự định học một ngôn ngữ mới - tiếng Nhật, vì tôi muốn làm việc cho một công ty Nhật Bản. Về lâu dài, tôi hy vọng sẽ mở doanh nghiệp riêng trong 5 năm tới. Tôi tin rằng với sự chăm chỉ và tận tâm, tôi có thể đạt được tất cả các mục tiêu này."
-  },
-  {
-    title: "Talk about your hobby",
-    titleVi: "Nói về sở thích của bạn",
-    points: ["What your hobby is","How often you do it","Who you do with","Why you like it"],
-    pointsVi: ["Sở thích của bạn là gì","Bạn làm thường xuyên không","Bạn làm cùng ai","Tại sao bạn thích"],
-    sample: "My favorite hobby is reading books. I usually read for about one hour every evening before going to bed, and I read more on weekends. I mostly read alone, but sometimes I discuss books with my friends in a small book club we have. I really enjoy reading because it helps me relax after a stressful day at work. Books also expand my knowledge and improve my vocabulary. My favorite genres are novels and self-help books. Reading takes me to different worlds and helps me understand life better. It's truly the best way for me to spend my free time.",
-    sampleVi: "Sở thích yêu thích của tôi là đọc sách. Tôi thường đọc khoảng một giờ mỗi tối trước khi đi ngủ, và đọc nhiều hơn vào cuối tuần. Tôi chủ yếu đọc một mình, nhưng đôi khi tôi thảo luận sách với bạn bè trong câu lạc bộ sách nhỏ. Tôi thực sự thích đọc vì nó giúp tôi thư giãn sau một ngày làm việc căng thẳng. Sách cũng mở rộng kiến thức và cải thiện vốn từ vựng của tôi. Thể loại yêu thích của tôi là tiểu thuyết và sách self-help. Đọc sách đưa tôi đến những thế giới khác và giúp tôi hiểu cuộc sống hơn. Đó thực sự là cách tốt nhất để tôi dành thời gian rảnh."
-  },
-  {
-    title: "Talk about your favourite teacher",
-    titleVi: "Nói về giáo viên yêu thích của bạn",
-    points: ["Who your favourite teacher is","What subject he/she taught you","How he/she taught it","Why he/she is your favourite teacher"],
-    pointsVi: ["Giáo viên yêu thích là ai","Dạy môn gì","Dạy như thế nào","Tại sao là giáo viên yêu thích"],
-    sample: "My favorite teacher is Mrs. Hoa, my English teacher in high school. She taught me English for three years from grade 10 to 12. What made her teaching special was her creative methods - she often used games, songs, and movies to help us learn. She never made us feel afraid of making mistakes. Mrs. Hoa is my favorite teacher because she didn't only teach English but also taught us important life lessons. She always encouraged us to follow our dreams. Thanks to her, I developed a passion for English and now I'm preparing for my Master's exam. I will always be grateful to her.",
-    sampleVi: "Giáo viên yêu thích của tôi là cô Hoa, giáo viên tiếng Anh của tôi ở cấp 3. Cô đã dạy tôi tiếng Anh trong 3 năm từ lớp 10 đến lớp 12. Điều đặc biệt trong cách dạy của cô là phương pháp sáng tạo - cô thường dùng trò chơi, bài hát và phim để giúp chúng tôi học. Cô không bao giờ làm chúng tôi sợ mắc lỗi. Cô Hoa là giáo viên yêu thích của tôi vì cô không chỉ dạy tiếng Anh mà còn dạy chúng tôi những bài học quan trọng về cuộc sống. Cô luôn khuyến khích chúng tôi theo đuổi ước mơ. Nhờ cô, tôi đã có niềm đam mê với tiếng Anh và bây giờ đang chuẩn bị cho kỳ thi thạc sĩ. Tôi sẽ luôn biết ơn cô."
-  },
-  {
-    title: "Talk about your house",
-    titleVi: "Nói về ngôi nhà của bạn",
-    points: ["How your house looks like","How many rooms there are","Which your favourite room is","What changes you would like to make"],
-    pointsVi: ["Ngôi nhà trông thế nào","Có bao nhiêu phòng","Phòng yêu thích là phòng nào","Bạn muốn thay đổi gì"],
-    sample: "I live in a three-story house in the suburbs of Hanoi. The house has a small garden in front with some flowers and a tree. There are six rooms in total: a living room, a kitchen, three bedrooms, and two bathrooms. My favorite room is my bedroom on the second floor because it's where I can relax and study. It has a big window with a nice view. If I could make any changes, I would like to expand the kitchen and add a balcony to my bedroom. I'd also love to have a small home office. Overall, I really love my house because it's where my family lives together happily.",
-    sampleVi: "Tôi sống trong một ngôi nhà 3 tầng ở ngoại ô Hà Nội. Ngôi nhà có một khu vườn nhỏ phía trước với vài bông hoa và một cái cây. Có tổng cộng 6 phòng: một phòng khách, một bếp, ba phòng ngủ và hai phòng tắm. Phòng yêu thích của tôi là phòng ngủ ở tầng 2 vì đó là nơi tôi có thể thư giãn và học tập. Phòng có cửa sổ lớn với view đẹp. Nếu có thể thay đổi, tôi muốn mở rộng bếp và thêm ban công cho phòng ngủ. Tôi cũng thích có một văn phòng nhỏ tại nhà. Nhìn chung, tôi rất yêu ngôi nhà của mình vì đó là nơi gia đình tôi sống hạnh phúc cùng nhau."
-  },
-  {
-    title: "Talk about your daily routines",
-    titleVi: "Nói về thói quen hàng ngày của bạn",
-    points: ["What you usually do on weekdays","What you usually do on the weekend","What your typical weekday is like","Whether you have any free time"],
-    pointsVi: ["Ngày thường bạn làm gì","Cuối tuần bạn làm gì","Một ngày thường của bạn ra sao","Bạn có thời gian rảnh không"],
-    sample: "On weekdays, I usually wake up at 6:30 AM and have breakfast with my family. Then I go to work at 8 AM and work until 5 PM. After work, I often go to the gym or have dinner with friends. A typical weekday is quite busy for me, but I always try to find some time to relax. On weekends, my routine is different - I sleep in until 8 AM, then I usually meet friends, go shopping, or visit my grandparents. I do have some free time during the week, mainly in the evenings. I use that time to read books, watch movies, or learn English. I try to balance work and personal life.",
-    sampleVi: "Vào các ngày trong tuần, tôi thường thức dậy lúc 6h30 sáng và ăn sáng với gia đình. Sau đó tôi đi làm lúc 8h và làm đến 5h chiều. Sau giờ làm, tôi thường đi gym hoặc ăn tối với bạn bè. Một ngày thường khá bận rộn với tôi, nhưng tôi luôn cố gắng tìm thời gian để thư giãn. Vào cuối tuần, lịch sinh hoạt khác - tôi ngủ đến 8h sáng, rồi gặp bạn bè, đi mua sắm, hoặc thăm ông bà. Tôi có thời gian rảnh trong tuần, chủ yếu vào buổi tối. Tôi dùng thời gian đó để đọc sách, xem phim hoặc học tiếng Anh. Tôi cố gắng cân bằng công việc và cuộc sống cá nhân."
-  },
-  {
-    title: "Talk about your hometown",
-    titleVi: "Nói về quê hương của bạn",
-    points: ["Where your hometown is","What it is famous for","What the people are like","How often you visit"],
-    pointsVi: ["Quê bạn ở đâu","Nổi tiếng vì điều gì","Người dân ra sao","Bạn về thăm thường xuyên không"],
-    sample: "My hometown is Nam Dinh, a small province in the north of Vietnam, about 90 kilometers from Hanoi. It takes about two hours by bus to get there. Nam Dinh is famous for traditional textile industry and delicious food, especially \"pho bo\" - the original beef noodle soup. The people in my hometown are very friendly, hardworking, and hospitable. They always welcome visitors warmly. Although I live in Hanoi now for work, I try to visit my hometown at least once a month to see my parents. During Tet holiday and family events, I always go back. I love my hometown because it has all my childhood memories and the people I love most.",
-    sampleVi: "Quê tôi là Nam Định, một tỉnh nhỏ ở miền Bắc Việt Nam, cách Hà Nội khoảng 90 km. Mất khoảng 2 giờ đi xe buýt để đến đó. Nam Định nổi tiếng về ngành dệt may truyền thống và đồ ăn ngon, đặc biệt là \"phở bò\" - món phở bò gốc. Người dân quê tôi rất thân thiện, chăm chỉ và hiếu khách. Họ luôn chào đón du khách nồng nhiệt. Mặc dù bây giờ tôi sống ở Hà Nội để làm việc, tôi cố gắng về quê ít nhất mỗi tháng một lần để thăm bố mẹ. Vào dịp Tết và các sự kiện gia đình, tôi luôn về. Tôi yêu quê hương vì đó là nơi có tất cả ký ức tuổi thơ và những người tôi yêu thương nhất."
-  },
-  {
-    title: "Talk about your favourite movie",
-    titleVi: "Nói về bộ phim yêu thích của bạn",
-    points: ["The name of the movie","What it is about","Who the main characters are","Why you like this film"],
-    pointsVi: ["Tên phim","Phim nói về điều gì","Nhân vật chính là ai","Tại sao bạn thích phim này"],
-    sample: "My favorite movie is \"The Pursuit of Happyness\", an American film released in 2006. The movie is based on a true story about a man who struggles to provide for his young son after losing everything. The main character is Chris Gardner, played by Will Smith, and his real-life son Jaden Smith plays his son in the film. I love this movie for many reasons. First, the acting is incredible - both father and son deliver emotional performances. Second, the story is very inspiring and shows that with hard work and determination, anyone can overcome difficulties. Whenever I feel discouraged, I watch this film to motivate myself. It's truly a masterpiece.",
-    sampleVi: "Bộ phim yêu thích của tôi là \"The Pursuit of Happyness\" (Mưu cầu hạnh phúc), phim Mỹ phát hành năm 2006. Phim dựa trên câu chuyện có thật về một người đàn ông phải nỗ lực nuôi đứa con trai nhỏ sau khi mất tất cả. Nhân vật chính là Chris Gardner, do Will Smith đóng, và con trai ngoài đời thật của anh - Jaden Smith - đóng vai con trai trong phim. Tôi thích bộ phim này vì nhiều lý do. Thứ nhất, diễn xuất tuyệt vời - cả bố và con đều có những màn diễn đầy cảm xúc. Thứ hai, câu chuyện rất truyền cảm hứng và cho thấy với sự chăm chỉ và quyết tâm, ai cũng có thể vượt qua khó khăn. Mỗi khi tôi cảm thấy nản lòng, tôi xem bộ phim này để tự động viên mình. Đó thực sự là một kiệt tác."
-  },
-  {
-    title: "Talk about your last holiday",
-    titleVi: "Nói về kỳ nghỉ gần nhất của bạn",
-    points: ["Where you went to","How you went there","Who you went with","And explain why you wanted to go to this place"],
-    pointsVi: ["Bạn đã đi đâu","Đi bằng phương tiện gì","Đi cùng ai","Tại sao bạn muốn đến nơi đó"],
-    sample: "Last summer, I went on a wonderful holiday to Da Nang, a beautiful coastal city in central Vietnam. I traveled there by plane, which took about an hour and a half from Hanoi. I went with my family - my parents, my younger sister, and me. We spent five days exploring the city. I wanted to go to Da Nang because I had heard so much about its beautiful beaches and delicious seafood. We visited Ba Na Hills, swam at My Khe beach, and tried many local dishes. The Golden Bridge was especially impressive. It was a perfect family vacation, and we made many great memories together. I definitely want to return there again soon.",
-    sampleVi: "Mùa hè năm ngoái, tôi đã có một kỳ nghỉ tuyệt vời ở Đà Nẵng, một thành phố ven biển xinh đẹp ở miền Trung Việt Nam. Tôi đi máy bay đến đó, mất khoảng một tiếng rưỡi từ Hà Nội. Tôi đi cùng gia đình - bố mẹ, em gái và tôi. Chúng tôi đã dành 5 ngày khám phá thành phố. Tôi muốn đến Đà Nẵng vì đã nghe rất nhiều về bãi biển đẹp và hải sản ngon ở đây. Chúng tôi đã thăm Bà Nà Hills, tắm biển Mỹ Khê và thử nhiều món ăn địa phương. Cầu Vàng đặc biệt ấn tượng. Đó là một kỳ nghỉ gia đình hoàn hảo và chúng tôi đã có nhiều kỷ niệm đẹp cùng nhau. Tôi chắc chắn muốn quay lại đó lần nữa sớm."
-  },
-  {
-    title: "Talk about your eating habit",
-    titleVi: "Nói về thói quen ăn uống của bạn",
-    points: ["What your favourite food and drink are","Whether you prefer eating at home or in a restaurant","What kinds of food you choose to eat that are good for your health"],
-    pointsVi: ["Đồ ăn và đồ uống yêu thích","Bạn thích ăn nhà hay nhà hàng","Bạn chọn đồ ăn nào tốt cho sức khỏe"],
-    sample: "My favorite food is \"pho\", a traditional Vietnamese noodle soup. I also love bun cha and spring rolls. As for drinks, I prefer green tea and fresh fruit juice. I generally prefer eating at home because home-cooked meals are healthier and cheaper. My mother is an excellent cook. However, on special occasions, I enjoy going to restaurants with my family or friends. Regarding healthy eating, I try to eat plenty of vegetables and fruits every day. I also include lean meat, fish, and brown rice in my meals. I avoid fast food and sugary drinks as much as possible. I believe that eating well is the foundation of a healthy life.",
-    sampleVi: "Món ăn yêu thích của tôi là \"phở\", món phở truyền thống của Việt Nam. Tôi cũng thích bún chả và nem cuốn. Về đồ uống, tôi thích trà xanh và nước ép trái cây tươi. Tôi nói chung thích ăn ở nhà hơn vì các bữa ăn nấu tại nhà tốt cho sức khỏe hơn và rẻ hơn. Mẹ tôi nấu ăn rất giỏi. Tuy nhiên, vào những dịp đặc biệt, tôi thích đi nhà hàng với gia đình hoặc bạn bè. Về việc ăn uống lành mạnh, tôi cố gắng ăn nhiều rau và trái cây mỗi ngày. Tôi cũng ăn thịt nạc, cá và gạo lứt. Tôi tránh đồ ăn nhanh và đồ uống có đường nhiều nhất có thể. Tôi tin rằng ăn uống tốt là nền tảng của cuộc sống khỏe mạnh."
-  },
+  {title:"Talk about a best friend of yours",titleVi:"Nói về người bạn thân nhất của bạn",points:["Who he/she is","How long have you known him/her","What you like best about him/her","Why you consider him/her your best friend"],pointsVi:["Người đó là ai","Bạn đã biết người ấy bao lâu","Điều bạn thích nhất ở người ấy","Tại sao bạn coi người ấy là bạn thân nhất"],
+    sample:"I'd like to tell you about my best friend, Minh. He is 25 years old and works as an engineer in Hanoi. We have known each other for over 10 years, since we were classmates in high school. What I like best about Minh is his kindness and sense of humor - he always knows how to make me laugh when I feel down. I consider him my best friend because he is always there for me whenever I need support. We share many interests such as playing football and watching movies. Even though we are busy with work now, we still meet up every weekend. He is truly like a brother to me.",
+    sampleVi:"Tôi muốn kể về người bạn thân nhất của mình, tên Minh. Anh ấy 25 tuổi và làm kỹ sư ở Hà Nội. Chúng tôi quen nhau hơn 10 năm, từ khi còn học cấp 3. Điều tôi thích nhất ở Minh là sự tốt bụng và khiếu hài hước - anh ấy luôn biết cách làm tôi cười khi tôi buồn. Tôi coi anh ấy là bạn thân nhất vì anh ấy luôn ở bên khi tôi cần. Chúng tôi có nhiều sở thích chung như đá bóng và xem phim. Dù bây giờ bận công việc, chúng tôi vẫn gặp nhau cuối tuần. Anh ấy thực sự như một người anh em với tôi."},
+  {title:"Talk about your plans in the future",titleVi:"Nói về kế hoạch tương lai của bạn",points:["What you are going to do","When you are going to do","Why you are going to do that"],pointsVi:["Bạn sẽ làm gì","Khi nào bạn sẽ làm","Tại sao bạn sẽ làm điều đó"],
+    sample:"In the near future, I'm planning to pursue a Master's degree in my field. I'm going to start the program next September after I pass the entrance exam. The reason I want to do this is to improve my professional knowledge and skills, which will help me get a better job and higher salary. Besides studying, I also plan to learn a new language - Japanese, because I'd like to work for a Japanese company someday. In the long term, I hope to start my own business in five years. I believe that with hard work and dedication, I can achieve all these goals.",
+    sampleVi:"Trong tương lai gần, tôi dự định học thạc sĩ trong lĩnh vực của mình. Tôi sẽ bắt đầu chương trình vào tháng 9 tới sau khi vượt qua kỳ thi đầu vào. Lý do tôi muốn làm điều này là để nâng cao kiến thức chuyên môn và kỹ năng, giúp tôi có công việc tốt hơn và lương cao hơn. Bên cạnh việc học, tôi cũng dự định học một ngôn ngữ mới - tiếng Nhật, vì tôi muốn làm việc cho một công ty Nhật Bản. Về lâu dài, tôi hy vọng sẽ mở doanh nghiệp riêng trong 5 năm tới. Tôi tin rằng với sự chăm chỉ và tận tâm, tôi có thể đạt được tất cả các mục tiêu này."},
+  {title:"Talk about your hobby",titleVi:"Nói về sở thích của bạn",points:["What your hobby is","How often you do it","Who you do with","Why you like it"],pointsVi:["Sở thích của bạn là gì","Bạn làm thường xuyên không","Bạn làm cùng ai","Tại sao bạn thích"],
+    sample:"My favorite hobby is reading books. I usually read for about one hour every evening before going to bed, and I read more on weekends. I mostly read alone, but sometimes I discuss books with my friends in a small book club we have. I really enjoy reading because it helps me relax after a stressful day at work. Books also expand my knowledge and improve my vocabulary. My favorite genres are novels and self-help books. Reading takes me to different worlds and helps me understand life better.",
+    sampleVi:"Sở thích yêu thích của tôi là đọc sách. Tôi thường đọc khoảng một giờ mỗi tối trước khi đi ngủ, và đọc nhiều hơn vào cuối tuần. Tôi chủ yếu đọc một mình, nhưng đôi khi tôi thảo luận sách với bạn bè trong câu lạc bộ sách nhỏ. Tôi thực sự thích đọc vì nó giúp tôi thư giãn sau một ngày làm việc căng thẳng. Sách cũng mở rộng kiến thức và cải thiện vốn từ vựng của tôi. Thể loại yêu thích của tôi là tiểu thuyết và sách self-help. Đọc sách đưa tôi đến những thế giới khác và giúp tôi hiểu cuộc sống hơn."},
+  {title:"Talk about your favourite teacher",titleVi:"Nói về giáo viên yêu thích của bạn",points:["Who your favourite teacher is","What subject he/she taught you","How he/she taught it","Why he/she is your favourite teacher"],pointsVi:["Giáo viên yêu thích là ai","Dạy môn gì","Dạy như thế nào","Tại sao là giáo viên yêu thích"],
+    sample:"My favorite teacher is Mrs. Hoa, my English teacher in high school. She taught me English for three years from grade 10 to 12. What made her teaching special was her creative methods - she often used games, songs, and movies to help us learn. She never made us feel afraid of making mistakes. Mrs. Hoa is my favorite teacher because she didn't only teach English but also taught us important life lessons. She always encouraged us to follow our dreams. Thanks to her, I developed a passion for English and now I'm preparing for my Master's exam.",
+    sampleVi:"Giáo viên yêu thích của tôi là cô Hoa, giáo viên tiếng Anh của tôi ở cấp 3. Cô đã dạy tôi tiếng Anh trong 3 năm từ lớp 10 đến lớp 12. Điều đặc biệt trong cách dạy của cô là phương pháp sáng tạo - cô thường dùng trò chơi, bài hát và phim để giúp chúng tôi học. Cô không bao giờ làm chúng tôi sợ mắc lỗi. Cô Hoa là giáo viên yêu thích của tôi vì cô không chỉ dạy tiếng Anh mà còn dạy chúng tôi những bài học quan trọng về cuộc sống. Cô luôn khuyến khích chúng tôi theo đuổi ước mơ. Nhờ cô, tôi đã có niềm đam mê với tiếng Anh và bây giờ đang chuẩn bị cho kỳ thi thạc sĩ."},
+  {title:"Talk about your house",titleVi:"Nói về ngôi nhà của bạn",points:["How your house looks like","How many rooms there are","Which your favourite room is","What changes you would like to make"],pointsVi:["Ngôi nhà trông thế nào","Có bao nhiêu phòng","Phòng yêu thích là phòng nào","Bạn muốn thay đổi gì"],
+    sample:"I live in a three-story house in the suburbs of Hanoi. The house has a small garden in front with some flowers and a tree. There are six rooms in total: a living room, a kitchen, three bedrooms, and two bathrooms. My favorite room is my bedroom on the second floor because it's where I can relax and study. It has a big window with a nice view. If I could make any changes, I would like to expand the kitchen and add a balcony to my bedroom. Overall, I really love my house because it's where my family lives together happily.",
+    sampleVi:"Tôi sống trong một ngôi nhà 3 tầng ở ngoại ô Hà Nội. Ngôi nhà có một khu vườn nhỏ phía trước với vài bông hoa và một cái cây. Có tổng cộng 6 phòng: một phòng khách, một bếp, ba phòng ngủ và hai phòng tắm. Phòng yêu thích của tôi là phòng ngủ ở tầng 2 vì đó là nơi tôi có thể thư giãn và học tập. Phòng có cửa sổ lớn với view đẹp. Nếu có thể thay đổi, tôi muốn mở rộng bếp và thêm ban công cho phòng ngủ. Nhìn chung, tôi rất yêu ngôi nhà của mình vì đó là nơi gia đình tôi sống hạnh phúc cùng nhau."},
+  {title:"Talk about your daily routines",titleVi:"Nói về thói quen hàng ngày của bạn",points:["What you usually do on weekdays","What you usually do on the weekend","What your typical weekday is like","Whether you have any free time"],pointsVi:["Ngày thường bạn làm gì","Cuối tuần bạn làm gì","Một ngày thường của bạn ra sao","Bạn có thời gian rảnh không"],
+    sample:"On weekdays, I usually wake up at 6:30 AM and have breakfast with my family. Then I go to work at 8 AM and work until 5 PM. After work, I often go to the gym or have dinner with friends. A typical weekday is quite busy for me, but I always try to find some time to relax. On weekends, my routine is different - I sleep in until 8 AM, then I usually meet friends, go shopping, or visit my grandparents. I do have some free time during the week, mainly in the evenings. I use that time to read books, watch movies, or learn English.",
+    sampleVi:"Vào các ngày trong tuần, tôi thường thức dậy lúc 6h30 sáng và ăn sáng với gia đình. Sau đó tôi đi làm lúc 8h và làm đến 5h chiều. Sau giờ làm, tôi thường đi gym hoặc ăn tối với bạn bè. Một ngày thường khá bận rộn với tôi, nhưng tôi luôn cố gắng tìm thời gian để thư giãn. Vào cuối tuần, lịch sinh hoạt khác - tôi ngủ đến 8h sáng, rồi gặp bạn bè, đi mua sắm, hoặc thăm ông bà. Tôi có thời gian rảnh trong tuần, chủ yếu vào buổi tối. Tôi dùng thời gian đó để đọc sách, xem phim hoặc học tiếng Anh."},
+  {title:"Talk about your hometown",titleVi:"Nói về quê hương của bạn",points:["Where your hometown is","What it is famous for","What the people are like","How often you visit"],pointsVi:["Quê bạn ở đâu","Nổi tiếng vì điều gì","Người dân ra sao","Bạn về thăm thường xuyên không"],
+    sample:"My hometown is Nam Dinh, a small province in the north of Vietnam, about 90 kilometers from Hanoi. It takes about two hours by bus to get there. Nam Dinh is famous for traditional textile industry and delicious food, especially \"pho bo\" - the original beef noodle soup. The people in my hometown are very friendly, hardworking, and hospitable. They always welcome visitors warmly. Although I live in Hanoi now for work, I try to visit my hometown at least once a month to see my parents. During Tet holiday and family events, I always go back.",
+    sampleVi:"Quê tôi là Nam Định, một tỉnh nhỏ ở miền Bắc Việt Nam, cách Hà Nội khoảng 90 km. Mất khoảng 2 giờ đi xe buýt để đến đó. Nam Định nổi tiếng về ngành dệt may truyền thống và đồ ăn ngon, đặc biệt là \"phở bò\" - món phở bò gốc. Người dân quê tôi rất thân thiện, chăm chỉ và hiếu khách. Họ luôn chào đón du khách nồng nhiệt. Mặc dù bây giờ tôi sống ở Hà Nội để làm việc, tôi cố gắng về quê ít nhất mỗi tháng một lần để thăm bố mẹ. Vào dịp Tết và các sự kiện gia đình, tôi luôn về."},
+  {title:"Talk about your favourite movie",titleVi:"Nói về bộ phim yêu thích của bạn",points:["The name of the movie","What it is about","Who the main characters are","Why you like this film"],pointsVi:["Tên phim","Phim nói về điều gì","Nhân vật chính là ai","Tại sao bạn thích phim này"],
+    sample:"My favorite movie is \"The Pursuit of Happyness\", an American film released in 2006. The movie is based on a true story about a man who struggles to provide for his young son after losing everything. The main character is Chris Gardner, played by Will Smith, and his real-life son Jaden Smith plays his son in the film. I love this movie for many reasons. First, the acting is incredible - both father and son deliver emotional performances. Second, the story is very inspiring and shows that with hard work and determination, anyone can overcome difficulties.",
+    sampleVi:"Bộ phim yêu thích của tôi là \"The Pursuit of Happyness\" (Mưu cầu hạnh phúc), phim Mỹ phát hành năm 2006. Phim dựa trên câu chuyện có thật về một người đàn ông phải nỗ lực nuôi đứa con trai nhỏ sau khi mất tất cả. Nhân vật chính là Chris Gardner, do Will Smith đóng, và con trai ngoài đời thật của anh - Jaden Smith - đóng vai con trai trong phim. Tôi thích bộ phim này vì nhiều lý do. Thứ nhất, diễn xuất tuyệt vời - cả bố và con đều có những màn diễn đầy cảm xúc. Thứ hai, câu chuyện rất truyền cảm hứng và cho thấy với sự chăm chỉ và quyết tâm, ai cũng có thể vượt qua khó khăn."},
+  {title:"Talk about your last holiday",titleVi:"Nói về kỳ nghỉ gần nhất của bạn",points:["Where you went to","How you went there","Who you went with","And explain why you wanted to go to this place"],pointsVi:["Bạn đã đi đâu","Đi bằng phương tiện gì","Đi cùng ai","Tại sao bạn muốn đến nơi đó"],
+    sample:"Last summer, I went on a wonderful holiday to Da Nang, a beautiful coastal city in central Vietnam. I traveled there by plane, which took about an hour and a half from Hanoi. I went with my family - my parents, my younger sister, and me. We spent five days exploring the city. I wanted to go to Da Nang because I had heard so much about its beautiful beaches and delicious seafood. We visited Ba Na Hills, swam at My Khe beach, and tried many local dishes. The Golden Bridge was especially impressive.",
+    sampleVi:"Mùa hè năm ngoái, tôi đã có một kỳ nghỉ tuyệt vời ở Đà Nẵng, một thành phố ven biển xinh đẹp ở miền Trung Việt Nam. Tôi đi máy bay đến đó, mất khoảng một tiếng rưỡi từ Hà Nội. Tôi đi cùng gia đình - bố mẹ, em gái và tôi. Chúng tôi đã dành 5 ngày khám phá thành phố. Tôi muốn đến Đà Nẵng vì đã nghe rất nhiều về bãi biển đẹp và hải sản ngon ở đây. Chúng tôi đã thăm Bà Nà Hills, tắm biển Mỹ Khê và thử nhiều món ăn địa phương. Cầu Vàng đặc biệt ấn tượng."},
+  {title:"Talk about your eating habit",titleVi:"Nói về thói quen ăn uống của bạn",points:["What your favourite food and drink are","Whether you prefer eating at home or in a restaurant","What kinds of food you choose to eat that are good for your health"],pointsVi:["Đồ ăn và đồ uống yêu thích","Bạn thích ăn nhà hay nhà hàng","Bạn chọn đồ ăn nào tốt cho sức khỏe"],
+    sample:"My favorite food is \"pho\", a traditional Vietnamese noodle soup. I also love bun cha and spring rolls. As for drinks, I prefer green tea and fresh fruit juice. I generally prefer eating at home because home-cooked meals are healthier and cheaper. My mother is an excellent cook. However, on special occasions, I enjoy going to restaurants with my family or friends. Regarding healthy eating, I try to eat plenty of vegetables and fruits every day. I also include lean meat, fish, and brown rice in my meals. I avoid fast food and sugary drinks as much as possible.",
+    sampleVi:"Món ăn yêu thích của tôi là \"phở\", món phở truyền thống của Việt Nam. Tôi cũng thích bún chả và nem cuốn. Về đồ uống, tôi thích trà xanh và nước ép trái cây tươi. Tôi nói chung thích ăn ở nhà hơn vì các bữa ăn nấu tại nhà tốt cho sức khỏe hơn và rẻ hơn. Mẹ tôi nấu ăn rất giỏi. Tuy nhiên, vào những dịp đặc biệt, tôi thích đi nhà hàng với gia đình hoặc bạn bè. Về việc ăn uống lành mạnh, tôi cố gắng ăn nhiều rau và trái cây mỗi ngày. Tôi cũng ăn thịt nạc, cá và gạo lứt. Tôi tránh đồ ăn nhanh và đồ uống có đường nhiều nhất có thể."},
 ];
 
-// ============ STATE ============
+// ==================== STATE & LOGIC ====================
 let state = {
-  currentMode: null,
-  currentQuestions: [],
-  currentIndex: 0,
-  correctCount: 0,
-  answered: false,
-  testStartTime: null,
-  testTimer: null,
+  currentMode: null, currentQuestions: [], currentIndex: 0, correctCount: 0, answered: false,
+  testStartTime: null, testTimer: null, currentPassage: null, currentShuffledOptions: null, currentCorrectShuffledIndex: -1,
   progress: JSON.parse(localStorage.getItem('b1_progress') || '{"correct":0,"total":0,"streak":0,"lastDate":null}'),
 };
+let transformLoopType = '', transformLoopPackages = [];
 
-// ============ FUNCTIONS ============
-function $(id) { return document.getElementById(id); }
-function show(id) { $(id).classList.remove('hidden'); }
-function hide(id) { $(id).classList.add('hidden'); }
-function escHtml(s) { return (s||'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function $(id){return document.getElementById(id);}
+function show(id){$(id).classList.remove('hidden');}
+function hide(id){$(id).classList.add('hidden');}
+function escHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
 function updateStreak() {
-  const today = new Date().toDateString();
-  const last = state.progress.lastDate;
+  const today = new Date().toDateString(), last = state.progress.lastDate;
   if (last !== today) {
-    if (last) {
-      const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-      if (last === yesterday.toDateString()) state.progress.streak++;
-      else state.progress.streak = 1;
-    } else state.progress.streak = 1;
-    state.progress.lastDate = today;
-    saveProgress();
+    if (last) { const y = new Date(); y.setDate(y.getDate()-1); state.progress.streak = (last === y.toDateString()) ? state.progress.streak+1 : 1; }
+    else state.progress.streak = 1;
+    state.progress.lastDate = today; saveProgress();
   }
 }
-
-function saveProgress() { localStorage.setItem('b1_progress', JSON.stringify(state.progress)); }
-
+function saveProgress(){localStorage.setItem('b1_progress', JSON.stringify(state.progress));}
 function updateHomeStats() {
   $('streak-display').textContent = '🔥 Streak: ' + state.progress.streak + ' ngày';
   $('stat-correct').textContent = state.progress.correct;
   $('stat-total').textContent = state.progress.total;
-  const acc = state.progress.total ? Math.round(state.progress.correct/state.progress.total*100) : 0;
+  let acc = state.progress.total ? Math.round(state.progress.correct/state.progress.total*100) : 0;
   $('stat-accuracy').textContent = acc + '%';
-  const totalQuestions = grammarQuestions.length + transformQuestions.length + signsQuestions.length +
-    readingPassages.reduce((s,p)=>s+p.questions.length,0);
-  const overall = Math.min(100, Math.round(state.progress.total/totalQuestions*100));
-  $('overall-progress').style.width = overall + '%';
-  $('progress-text').textContent = overall + '% hoàn thành (' + state.progress.total + '/' + totalQuestions + ' câu)';
+  let totalQ = grammarQuestions.length + transformQuestions.length + transformMCQQuestions.length + signsQuestions.length + readingPassages.reduce((s,p)=>s+p.questions.length,0);
+  let pct = Math.min(100, Math.round(state.progress.total/totalQ*100));
+  $('overall-progress').style.width = pct + '%';
+  $('progress-text').textContent = pct + '% hoàn thành (' + state.progress.total + '/' + totalQ + ' câu)';
 }
-
 function goHome() {
-  hide('practice-screen'); hide('speaking-screen'); hide('mocktest-screen');
-  show('home-screen');
-  if (state.testTimer) { clearInterval(state.testTimer); state.testTimer = null; }
-  $('timer').classList.add('hidden');
-  $('exit-fab').classList.add('hidden');
-  state.currentMode = null;
-  updateHomeStats();
+  hide('practice-screen'); hide('speaking-screen'); hide('mocktest-screen'); show('home-screen');
+  if(state.testTimer){clearInterval(state.testTimer); state.testTimer=null;}
+  $('timer').classList.add('hidden'); $('exit-fab').classList.add('hidden');
+  state.currentMode = null; updateHomeStats();
 }
-
 function confirmExit() {
-  if (state.currentMode === 'mocktest') {
-    if (confirm('⚠️ Bạn có chắc muốn thoát đề thi? Tiến độ làm bài sẽ mất.')) {
-      if (state.testTimer) clearInterval(state.testTimer);
-      goHome();
-    }
+  if(state.currentMode === 'mocktest') {
+    if(confirm('⚠️ Thoát đề thi? Tiến độ sẽ mất.')) { if(state.testTimer) clearInterval(state.testTimer); goHome(); }
   } else {
-    if (confirm('Thoát luyện tập? Kết quả buổi này sẽ không được tổng kết.')) {
-      goHome();
-    }
+    if(confirm('Thoát luyện tập?')) goHome();
   }
 }
-
 function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
+  let a = [...arr];
+  for(let i=a.length-1; i>0; i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
+}
+function toggleVietnamese() {
+  document.body.classList.toggle('hide-vietnamese');
+  let btns = document.querySelectorAll('.toggle-vi-btn');
+  btns.forEach(b=>b.textContent = document.body.classList.contains('hide-vietnamese') ? '🇻🇳 Hiện Việt' : '🇻🇳 Ẩn Việt');
 }
 
 function startMode(mode) {
   updateStreak();
-  state.currentMode = mode;
-  state.currentIndex = 0;
-  state.correctCount = 0;
-  state.answered = false;
+  state.currentMode = mode; state.currentIndex = 0; state.correctCount = 0; state.answered = false;
+  if(mode === 'speaking'){ showSpeaking(); return; }
+  if(mode === 'mocktest'){ startMockTest(); return; }
+  if(mode === 'reading'){ showReadingList(); return; }
+  let title = '', questions = [];
+  if(mode === 'grammar'){ questions = shuffle(grammarQuestions); title = '📝 Ngữ pháp - 50 câu'; }
+  else if(mode === 'signs'){ questions = shuffle(signsQuestions); title = '🪧 Biển báo - 20 câu'; }
+  state.currentQuestions = questions;
+  hide('home-screen'); show('practice-screen'); $('exit-fab').classList.remove('hidden');
+  $('practice-title').textContent = title; renderQuestion();
+}
 
-  if (mode === 'speaking') { showSpeaking(); return; }
-  if (mode === 'mocktest') { startMockTest(); return; }
+function chooseTransformMode() {
+  state.currentMode = 'transform-menu';
+  hide('home-screen'); show('practice-screen'); $('exit-fab').classList.remove('hidden');
+  $('practice-title').textContent = '✍️ Chọn kiểu Viết lại câu';
+  $('practice-counter').textContent = '';
+  $('practice-progress').style.width = '0%';
+  $('practice-content').innerHTML = `
+    <div class="card"><h3>Chọn chế độ:</h3></div>
+    <div class="topic-card" onclick="selectTransformLoop('written')"><strong>📝 Tự luận</strong><div style="font-size:13px;color:#666;margin-top:4px">Tự gõ câu trả lời, kiểm tra thông minh</div></div>
+    <div class="topic-card" onclick="selectTransformLoop('mcq')"><strong>🔤 Trắc nghiệm điền từ</strong><div style="font-size:13px;color:#666;margin-top:4px">Chọn từ điền vào chỗ trống của câu viết lại</div></div>
+    <button class="btn btn-secondary" onclick="goHome()">← Về trang chủ</button>`;
+}
 
-  let title = '';
-  if (mode === 'grammar') { state.currentQuestions = shuffle(grammarQuestions); title = '📝 Ngữ pháp - 50 câu'; }
-  else if (mode === 'transform') { state.currentQuestions = shuffle(transformQuestions); title = '✍️ Viết lại câu - 30 câu'; }
-  else if (mode === 'signs') { state.currentQuestions = shuffle(signsQuestions); title = '🪧 Biển báo & Tin nhắn - 20 câu'; }
-  else if (mode === 'reading') {
-    const passage = readingPassages[Math.floor(Math.random() * readingPassages.length)];
-    state.currentPassage = passage;
-    state.currentQuestions = passage.questions;
-    title = '📖 ' + passage.title;
-  }
+function selectTransformLoop(type) {
+  transformLoopType = type;
+  let questions = type === 'written' ? transformQuestions : transformMCQQuestions;
+  let packages = [];
+  for(let i=0; i<questions.length; i+=3) packages.push({start:i, end:Math.min(i+3, questions.length), label:`Gói ${i+1}-${Math.min(i+3, questions.length)}`});
+  transformLoopPackages = packages;
+  let html = `<div class="card"><h3>Chọn gói câu hỏi (${type==='written'?'Tự luận':'Trắc nghiệm'}):</h3><p style="font-size:13px;color:#666">Chia theo gói 3 câu, học lặp đi lặp lại để nhớ chắc.</p></div>`;
+  packages.forEach((pkg,idx) => {
+    html += `<div class="topic-card" onclick="selectLoopCount(${idx})"><strong>${pkg.label}</strong><div style="font-size:13px;color:#666;margin-top:4px">${pkg.end-pkg.start} câu</div></div>`;
+  });
+  html += '<button class="btn btn-secondary" onclick="chooseTransformMode()">← Quay lại</button>';
+  $('practice-content').innerHTML = html;
+}
 
-  hide('home-screen');
-  show('practice-screen');
-  $('exit-fab').classList.remove('hidden');
-  $('practice-title').textContent = title;
+function selectLoopCount(pkgIndex) {
+  let html = `<div class="card"><h3>Chọn số lần lặp - ${transformLoopPackages[pkgIndex].label}:</h3><p style="font-size:13px;color:#666">Lặp lại nhiều lần để nhớ chắc cấu trúc.</p></div>`;
+  [3,5,10,15].forEach(times => {
+    html += `<div class="topic-card" onclick="startTransformPackage(${pkgIndex},${times})"><strong>🔁 Lặp ${times} lần</strong><div style="font-size:13px;color:#666;margin-top:4px">${times*3} câu tổng cộng</div></div>`;
+  });
+  html += '<button class="btn btn-secondary" onclick="selectTransformLoop(transformLoopType)">← Chọn gói khác</button>';
+  $('practice-content').innerHTML = html;
+}
+
+function startTransformPackage(pkgIndex, times) {
+  let pkg = transformLoopPackages[pkgIndex];
+  let source = transformLoopType === 'written' ? transformQuestions : transformMCQQuestions;
+  let selected = source.slice(pkg.start, pkg.end);
+  let looped = [];
+  for(let i=0; i<times; i++) looped.push(...shuffle([...selected]));
+  state.currentMode = transformLoopType === 'written' ? 'transform' : 'transformMCQ';
+  state.currentQuestions = looped;
+  state.currentIndex = 0; state.correctCount = 0; state.answered = false;
+  $('practice-title').textContent = `✍️ ${transformLoopType==='written'?'Tự luận':'Trắc nghiệm'} - ${pkg.label} x${times}`;
+  renderQuestion();
+}
+
+function showReadingList() {
+  hide('home-screen'); show('practice-screen'); $('exit-fab').classList.remove('hidden');
+  $('practice-title').textContent = '📖 Chọn bài đọc'; $('practice-counter').textContent = '';
+  $('practice-progress').style.width = '0%';
+  let html = '<div class="card"><h3>Chọn một bài đọc:</h3><p style="font-size:13px;color:#666">Mỗi bài có 5 câu hỏi và bản dịch tiếng Việt.</p></div>';
+  readingPassages.forEach((p,i) => {
+    html += `<div class="topic-card" onclick="startReadingPassage(${i})"><strong>${i+1}. ${escHtml(p.title)}</strong><div style="font-size:13px;color:#666;margin-top:4px">${p.questions.length} câu hỏi</div></div>`;
+  });
+  html += '<button class="btn btn-secondary" onclick="goHome()">← Về trang chủ</button>';
+  $('practice-content').innerHTML = html;
+}
+
+function startReadingPassage(idx) {
+  state.currentMode = 'reading'; state.currentIndex = 0; state.correctCount = 0; state.answered = false;
+  state.currentPassage = readingPassages[idx]; state.currentQuestions = readingPassages[idx].questions;
+  $('practice-title').textContent = '📖 ' + state.currentPassage.title;
   renderQuestion();
 }
 
 function renderQuestion() {
-  const q = state.currentQuestions[state.currentIndex];
-  $('practice-counter').textContent = (state.currentIndex+1) + '/' + state.currentQuestions.length;
+  let q = state.currentQuestions[state.currentIndex];
+  $('practice-counter').textContent = `${state.currentIndex+1}/${state.currentQuestions.length}`;
   $('practice-progress').style.width = ((state.currentIndex+1)/state.currentQuestions.length*100) + '%';
-
-  const c = $('practice-content');
   let html = '';
 
-  if (state.currentMode === 'reading' && state.currentIndex === 0) {
-    html += '<div class="passage">' + escHtml(state.currentPassage.text).replace(/\n/g, '<br><br>') + '</div>';
-    html += '<button class="hint-btn" onclick="document.getElementById(\'p-vi\').classList.toggle(\'show\')">🇻🇳 Hiện/ẩn bản dịch</button>';
-    html += '<div id="p-vi" class="passage-vi">' + escHtml(state.currentPassage.textVi).replace(/\n/g, '<br><br>') + '</div>';
-  } else if (state.currentMode === 'reading') {
-    html += '<details style="margin-bottom:12px;"><summary style="cursor:pointer; color:#667eea; font-weight:600;">📖 Xem lại đoạn văn</summary>';
-    html += '<div class="passage" style="margin-top:8px;">' + escHtml(state.currentPassage.text).replace(/\n/g, '<br><br>') + '</div>';
-    html += '<div class="passage-vi show" style="margin-top:8px;">' + escHtml(state.currentPassage.textVi).replace(/\n/g, '<br><br>') + '</div></details>';
+  if(state.currentMode === 'reading' && state.currentIndex === 0) {
+    html += `<div class="passage">${escHtml(state.currentPassage.text).replace(/\n/g,'<br><br>')}</div>
+      <button class="hint-btn" onclick="document.getElementById('p-vi').classList.toggle('show')">🇻🇳 Hiện/ẩn bản dịch</button>
+      <div id="p-vi" class="passage-vi">${escHtml(state.currentPassage.textVi).replace(/\n/g,'<br><br>')}</div>`;
+  } else if(state.currentMode === 'reading') {
+    html += `<details style="margin-bottom:12px"><summary style="cursor:pointer;color:#667eea;font-weight:600">📖 Xem lại đoạn văn</summary>
+      <div class="passage" style="margin-top:8px">${escHtml(state.currentPassage.text).replace(/\n/g,'<br><br>')}</div>
+      <div class="passage-vi show">${escHtml(state.currentPassage.textVi).replace(/\n/g,'<br><br>')}</div></details>`;
   }
 
-  if (state.currentMode === 'transform') {
-    html += '<div class="card"><div class="qnum">Câu ' + (state.currentIndex+1) + '</div>';
-    html += '<div class="qtxt"><strong>' + escHtml(q.q) + '</strong></div>';
-    if (q.vi) html += '<div class="vi-text">' + escHtml(q.vi) + '</div>';
-    html += '<div style="margin:12px 0; color:#888; font-size:13px;">Hãy viết lại câu bắt đầu bằng:</div>';
-    html += '<div style="font-style:italic; font-weight:600; margin-bottom:8px;">' + escHtml(q.h) + '</div>';
-    html += '<textarea class="input-answer" id="user-answer" placeholder="Gõ câu trả lời của bạn..."></textarea>';
-    html += '<button class="btn" onclick="checkTransform()">Kiểm tra</button>';
-    html += '<button class="hint-btn" onclick="this.nextElementSibling.classList.toggle(\'show\')">💡 Hint: Quy tắc ngữ pháp</button>';
-    html += '<div class="sample-answer">' + escHtml(q.rule) + '</div>';
-    html += '<div id="feedback" class="feedback"></div></div>';
-  } else if (state.currentMode === 'signs') {
-    html += '<div class="card"><div class="qnum">Câu ' + (state.currentIndex+1) + '</div>';
-    html += '<div style="background:#fff8e1; padding:14px; border-radius:10px; margin-bottom:12px; font-weight:600; white-space:pre-line; border:2px dashed #ffa726;">' + escHtml(q.sign) + '</div>';
-    if (q.vi) html += '<div class="vi-text" style="white-space:pre-line;">' + escHtml(q.vi) + '</div>';
-    html += '<div style="font-size:14px; color:#666; margin:12px 0 8px;">Chọn câu có nghĩa tương đương:</div>';
-    q.o.forEach((opt, i) => {
-      const optVi = (q.oVi && q.oVi[i]) ? '<div style="font-size:12px; color:#888; margin-top:4px;">🇻🇳 ' + escHtml(q.oVi[i]) + '</div>' : '';
-      html += '<div class="option" data-i="' + i + '" onclick="selectOption(' + i + ')"><span class="label">' + String.fromCharCode(65+i) + '.</span>' + escHtml(opt) + optVi + '</div>';
-    });
-    html += '<div id="feedback" class="feedback"></div>';
-    html += '<button class="btn hidden" id="next-btn" onclick="nextQuestion()">Câu tiếp theo →</button></div>';
+  if(state.currentMode === 'transform') {
+    html += `<div class="card"><div class="qnum">Câu ${state.currentIndex+1}</div><div class="qtxt"><strong>${escHtml(q.q)}</strong></div>`;
+    if(q.vi) html += `<div class="vi-text">${escHtml(q.vi)}</div>`;
+    html += `<div style="margin:12px 0;color:#888;font-size:13px">Hãy viết lại câu bắt đầu bằng:</div>
+      <div style="font-style:italic;font-weight:600;margin-bottom:8px">${escHtml(q.h)}</div>
+      <textarea class="input-answer" id="user-answer" placeholder="Gõ câu trả lời của bạn..."></textarea>
+      <button class="btn" onclick="checkTransform()">Kiểm tra</button>
+      <button class="hint-btn" onclick="this.nextElementSibling.classList.toggle('show')">💡 Hint: Quy tắc ngữ pháp</button>
+      <div class="sample-answer">${escHtml(q.rule)}</div>
+      <div id="feedback" class="feedback"></div></div>`;
+  } else if(state.currentMode === 'transformMCQ') {
+    let shuffled = shuffle([...q.choices]);
+    let correctIdx = shuffled.indexOf(q.choices[q.a]);
+    state.currentShuffledOptions = shuffled; state.currentCorrectShuffledIndex = correctIdx;
+    html += `<div class="card"><div class="qnum">Câu ${state.currentIndex+1}</div>
+      <div class="qtxt">Câu gốc: <strong>${escHtml(q.q)}</strong></div>`;
+    if(q.vi) html += `<div class="vi-text">${escHtml(q.vi)}</div>`;
+    html += `<div style="background:#f0f4ff;padding:14px;border-radius:10px;margin:16px 0;border:2px dashed #667eea"><strong>Viết lại:</strong> ${escHtml(q.rewritten)}</div>
+      <div style="font-size:14px;color:#666;margin:12px 0 8px">Chọn từ/cụm từ điền vào chỗ trống:</div>`;
+    shuffled.forEach((opt,i) => html += `<div class="option" data-i="${i}" onclick="selectMCQOption(${i})"><span class="label">${String.fromCharCode(65+i)}.</span>${escHtml(opt)}</div>`);
+    html += `<div id="feedback" class="feedback"></div><button class="btn hidden" id="next-btn" onclick="nextQuestion()">Câu tiếp theo →</button></div>`;
   } else {
-    html += '<div class="card"><div class="qnum">Câu ' + (state.currentIndex+1) + '</div>';
-    html += '<div class="qtxt">' + escHtml(q.q) + '</div>';
-    if (q.vi) html += '<div class="vi-text">' + escHtml(q.vi) + '</div>';
-    html += '<div style="margin-top:12px;"></div>';
-    q.o.forEach((opt, i) => {
-      const optVi = (q.oVi && q.oVi[i]) ? '<div style="font-size:12px; color:#888; margin-top:4px;">🇻🇳 ' + escHtml(q.oVi[i]) + '</div>' : '';
-      html += '<div class="option" data-i="' + i + '" onclick="selectOption(' + i + ')"><span class="label">' + String.fromCharCode(65+i) + '.</span>' + escHtml(opt) + optVi + '</div>';
+    let orig = q.o;
+    let shuffled = shuffle([...orig]);
+    let correctIdx = shuffled.indexOf(orig[q.a]);
+    state.currentShuffledOptions = shuffled; state.currentCorrectShuffledIndex = correctIdx;
+    html += `<div class="card"><div class="qnum">Câu ${state.currentIndex+1}</div>`;
+    if(state.currentMode === 'signs') {
+      html += `<div style="background:#fff8e1;padding:14px;border-radius:10px;margin-bottom:12px;font-weight:600;white-space:pre-line;border:2px dashed #ffa726">${escHtml(q.sign)}</div>`;
+    } else {
+      html += `<div class="qtxt">${escHtml(q.q)}</div>`;
+    }
+    if(q.vi) html += `<div class="vi-text" style="white-space:pre-line">${escHtml(q.vi)}</div>`;
+    if(state.currentMode === 'signs') html += '<div style="font-size:14px;color:#666;margin:12px 0 8px">Chọn câu có nghĩa tương đương:</div>';
+    shuffled.forEach((opt,i) => {
+      let origIdx = orig.indexOf(opt);
+      let optVi = (q.oVi && q.oVi[origIdx]) ? `<div class="o-vi-text" style="font-size:12px;color:#888;margin-top:4px">🇻🇳 ${escHtml(q.oVi[origIdx])}</div>` : '';
+      html += `<div class="option" data-i="${i}" onclick="selectMCQOption(${i})"><span class="label">${String.fromCharCode(65+i)}.</span>${escHtml(opt)}${optVi}</div>`;
     });
-    html += '<div id="feedback" class="feedback"></div>';
-    html += '<button class="btn hidden" id="next-btn" onclick="nextQuestion()">Câu tiếp theo →</button></div>';
+    html += `<div id="feedback" class="feedback"></div><button class="btn hidden" id="next-btn" onclick="nextQuestion()">Câu tiếp theo →</button></div>`;
   }
-
-  c.innerHTML = html;
+  $('practice-content').innerHTML = html;
   state.answered = false;
 }
 
-function selectOption(i) {
-  if (state.answered) return;
+function selectMCQOption(i) {
+  if(state.answered) return;
   state.answered = true;
-  const q = state.currentQuestions[state.currentIndex];
-  const opts = document.querySelectorAll('.option');
-  opts.forEach((el, idx) => {
-    if (idx === q.a) el.classList.add('correct');
-    else if (idx === i) el.classList.add('wrong');
+  let isCorrect = i === state.currentCorrectShuffledIndex;
+  document.querySelectorAll('.option').forEach((el,idx) => {
+    if(idx === state.currentCorrectShuffledIndex) el.classList.add('correct');
+    else if(idx === i) el.classList.add('wrong');
   });
-  const isCorrect = i === q.a;
-  if (isCorrect) state.correctCount++;
-  state.progress.total++;
-  if (isCorrect) state.progress.correct++;
-  saveProgress();
-
-  const fb = $('feedback');
+  if(isCorrect) state.correctCount++;
+  state.progress.total++; if(isCorrect) state.progress.correct++; saveProgress();
+  let q = state.currentQuestions[state.currentIndex];
+  let fb = $('feedback');
   fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
-  fb.innerHTML = '<strong>' + (isCorrect ? '✅ Chính xác!' : '❌ Sai rồi!') + '</strong>' +
-    (q.exp ? '<div style="margin-top:6px;">💡 ' + escHtml(q.exp) + '</div>' : '');
+  fb.innerHTML = `<strong>${isCorrect ? '✅ Chính xác!' : '❌ Sai rồi!'}</strong>${q.exp ? '<div style="margin-top:6px">💡 '+escHtml(q.exp)+'</div>' : ''}`;
   $('next-btn').classList.remove('hidden');
 }
 
 function checkTransform() {
-  if (state.answered) return;
-  const q = state.currentQuestions[state.currentIndex];
-  const userAns = $('user-answer').value.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[.,!?;:]/g, '');
-  if (!userAns) { alert('Vui lòng nhập câu trả lời!'); return; }
-  state.answered = true;
-  state.progress.total++;
-
-  const correctAnswers = q.a.map(a => a.toLowerCase().replace(/\s+/g, ' ').replace(/[.,!?;:]/g, ''));
-  let isCorrect = correctAnswers.some(ca => {
-    if (userAns === ca) return true;
-    const userWords = userAns.split(' ');
-    const corrWords = ca.split(' ');
-    const matches = userWords.filter(w => corrWords.includes(w)).length;
-    return matches / Math.max(userWords.length, corrWords.length) >= 0.85;
+  if(state.answered) return;
+  let q = state.currentQuestions[state.currentIndex];
+  let user = $('user-answer').value.trim().toLowerCase().replace(/\s+/g,' ').replace(/[.,!?;:]/g,'');
+  if(!user){ alert('Vui lòng nhập câu trả lời!'); return; }
+  state.answered = true; state.progress.total++;
+  let corrects = q.a.map(a=>a.toLowerCase().replace(/\s+/g,' ').replace(/[.,!?;:]/g,''));
+  let isCorrect = corrects.some(ca => {
+    if(user === ca) return true;
+    let uw = user.split(' '), cw = ca.split(' ');
+    return uw.filter(w=>cw.includes(w)).length / Math.max(uw.length,cw.length) >= 0.85;
   });
-
-  if (isCorrect) state.progress.correct++;
-  state.correctCount += isCorrect ? 1 : 0;
+  if(isCorrect){ state.correctCount++; state.progress.correct++; }
   saveProgress();
-
-  const fb = $('feedback');
+  let fb = $('feedback');
   fb.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
-  fb.innerHTML = '<strong>' + (isCorrect ? '✅ Chính xác!' : '❌ Chưa đúng') + '</strong>' +
-    '<div style="margin-top:6px;"><b>Đáp án:</b> ' + escHtml(q.a[0]) + '</div>' +
-    '<div style="margin-top:4px;"><b>Quy tắc:</b> ' + escHtml(q.rule) + '</div>' +
-    '<button class="btn" onclick="nextQuestion()" style="margin-top:12px;">Câu tiếp theo →</button>';
+  fb.innerHTML = `<strong>${isCorrect ? '✅ Chính xác!' : '❌ Chưa đúng'}</strong>
+    <div style="margin-top:6px"><b>Đáp án:</b> ${escHtml(q.a[0])}</div>
+    <div style="margin-top:4px"><b>Quy tắc:</b> ${escHtml(q.rule)}</div>
+    <button class="btn" onclick="nextQuestion()" style="margin-top:12px">Câu tiếp theo →</button>`;
 }
 
 function nextQuestion() {
   state.currentIndex++;
-  if (state.currentIndex >= state.currentQuestions.length) {
-    showResult();
-  } else {
-    renderQuestion();
-  }
+  if(state.currentIndex >= state.currentQuestions.length) showResult();
+  else renderQuestion();
 }
 
 function showResult() {
-  const score = state.correctCount;
-  const total = state.currentQuestions.length;
-  const pct = Math.round(score/total*100);
+  let score = state.correctCount, total = state.currentQuestions.length, pct = Math.round(score/total*100);
   $('modal-title').textContent = pct >= 80 ? '🎉 Xuất sắc!' : pct >= 60 ? '👍 Khá tốt!' : '💪 Cần cố gắng thêm!';
   $('modal-score').textContent = score + '/' + total;
-  $('modal-text').textContent = pct >= 80 ? 'Bạn đã nắm vững phần này. Tiếp tục phát huy nhé!' :
-    pct >= 60 ? 'Tiến bộ rồi! Hãy luyện thêm để chắc hơn.' :
-    'Đừng nản! Đọc kỹ giải thích và làm lại nhé.';
+  $('modal-text').textContent = pct >= 80 ? 'Bạn đã nắm vững phần này. Tiếp tục phát huy nhé!' : pct >= 60 ? 'Tiến bộ rồi! Hãy luyện thêm để chắc hơn.' : 'Đừng nản! Đọc kỹ giải thích và làm lại nhé.';
   $('modal').classList.add('show');
 }
 
-function closeModal() {
-  $('modal').classList.remove('show');
-  goHome();
-}
+function closeModal(){ $('modal').classList.remove('show'); goHome(); }
 
 function showSpeaking() {
-  hide('home-screen');
-  show('speaking-screen');
-  $('exit-fab').classList.remove('hidden');
+  hide('home-screen'); show('speaking-screen'); $('exit-fab').classList.remove('hidden');
   let html = '';
-  speakingTopics.forEach((t, i) => {
-    html += '<div class="topic-card"><h3>' + (i+1) + '. ' + escHtml(t.title) + '</h3>';
-    html += '<div style="font-size:13px; color:#f5576c; font-style:italic; margin-bottom:8px;">🇻🇳 ' + escHtml(t.titleVi) + '</div>';
-    html += '<div style="font-size:13px; color:#888; margin:6px 0;">You should say:</div><ul>';
-    t.points.forEach((p, idx) => {
-      html += '<li>' + escHtml(p) + '<div style="font-size:12px; color:#888;">→ ' + escHtml(t.pointsVi[idx] || '') + '</div></li>';
+  speakingTopics.forEach((t,i) => {
+    html += `<div class="topic-card" style="cursor:default"><h3>${i+1}. ${escHtml(t.title)}</h3>
+      <div class="title-vi" style="font-size:13px;color:#f5576c;font-style:italic;margin-bottom:8px">🇻🇳 ${escHtml(t.titleVi)}</div>
+      <div style="font-size:13px;color:#888;margin:6px 0">You should say:</div><ul>`;
+    t.points.forEach((p,idx) => {
+      html += `<li>${escHtml(p)}<div class="point-vi" style="font-size:12px;color:#888">→ ${escHtml(t.pointsVi[idx]||'')}</div></li>`;
     });
-    html += '</ul>';
-    html += '<button class="hint-btn" onclick="toggleSample(this)">📄 Xem bài mẫu (song ngữ)</button>';
-    html += '<div class="sample-answer">';
-    html += '<div class="en"><span class="label-lang">🇬🇧 ENGLISH</span>' + escHtml(t.sample) + '</div>';
-    html += '<div class="vi"><span class="label-lang">🇻🇳 TIẾNG VIỆT</span>' + escHtml(t.sampleVi) + '</div>';
-    html += '</div></div>';
+    html += `</ul>
+      <button class="hint-btn" onclick="toggleSample(this)">📄 Xem bài mẫu (song ngữ)</button>
+      <div class="sample-answer">
+        <div class="en"><span class="label-lang">🇬🇧 ENGLISH</span>${escHtml(t.sample)}</div>
+        <div class="vi"><span class="label-lang">🇻🇳 TIẾNG VIỆT</span>${escHtml(t.sampleVi)}</div>
+      </div></div>`;
   });
   $('speaking-content').innerHTML = html;
 }
 
 function toggleSample(btn) {
-  const sample = btn.nextElementSibling;
+  let sample = btn.nextElementSibling;
   sample.classList.toggle('show');
   btn.textContent = sample.classList.contains('show') ? '🔼 Ẩn bài mẫu' : '📄 Xem bài mẫu (song ngữ)';
 }
 
 function startMockTest() {
-  hide('home-screen');
-  show('mocktest-screen');
-  $('timer').classList.remove('hidden');
-  $('exit-fab').classList.remove('hidden');
+  hide('home-screen'); show('mocktest-screen');
+  $('timer').classList.remove('hidden'); $('exit-fab').classList.remove('hidden');
   state.testStartTime = Date.now();
-  state.testAnswers = {};
   state.testQuestions = [
-    ...shuffle(grammarQuestions).slice(0, 25).map(q=>({...q, type:'grammar'})),
-    ...shuffle(signsQuestions).slice(0, 10).map(q=>({...q, type:'signs'})),
-    ...shuffle(transformQuestions).slice(0, 10).map(q=>({...q, type:'transform'})),
+    ...shuffle(grammarQuestions).slice(0,25).map(q=>({...q,type:'grammar'})),
+    ...shuffle(signsQuestions).slice(0,10).map(q=>({...q,type:'signs'})),
+    ...shuffle(transformQuestions).slice(0,10).map(q=>({...q,type:'transform'})),
   ];
-  const p = readingPassages[Math.floor(Math.random()*readingPassages.length)];
+  let p = readingPassages[Math.floor(Math.random()*readingPassages.length)];
   state.testPassage = p;
-  p.questions.forEach(q => state.testQuestions.push({...q, type:'reading'}));
-
-  startTimer(60);
-  renderMockTest();
+  p.questions.forEach(q => state.testQuestions.push({...q,type:'reading'}));
+  startTimer(60); renderMockTest();
 }
 
-function startTimer(minutes) {
-  let seconds = minutes * 60;
-  const update = () => {
-    if (seconds <= 0) {
-      clearInterval(state.testTimer);
-      submitMockTest(true);
-      return;
-    }
-    const m = Math.floor(seconds/60), s = seconds%60;
+function startTimer(mins) {
+  let secs = mins * 60;
+  let upd = () => {
+    if(secs <= 0){ clearInterval(state.testTimer); submitMockTest(true); return; }
+    let m = Math.floor(secs/60), s = secs % 60;
     $('timer').textContent = '⏱ ' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-    if (seconds <= 60) $('timer').style.background = '#ff3838';
-    seconds--;
+    if(secs <= 60) $('timer').style.background = '#ff3838';
+    secs--;
   };
-  update();
-  state.testTimer = setInterval(update, 1000);
+  upd();
+  state.testTimer = setInterval(upd, 1000);
 }
 
 function renderMockTest() {
-  const c = $('mocktest-content');
+  let c = $('mocktest-content');
   let html = '<div class="card"><h2>Phần 1: Grammar (Câu 1-25)</h2></div>';
   let qNum = 0;
-  state.testQuestions.forEach((q, idx) => {
+  state.testQuestions.forEach((q,idx) => {
     qNum++;
-    if (qNum === 26) html += '<div class="card"><h2>Phần 2: Signs & Notices (Câu 26-35)</h2></div>';
-    if (qNum === 36) html += '<div class="card"><h2>Phần 3: Sentence Transformation (Câu 36-45)</h2></div>';
-    if (qNum === 46) html += '<div class="card"><h2>Phần 4: Reading - ' + escHtml(state.testPassage.title) + '</h2><div class="passage">' + escHtml(state.testPassage.text).replace(/\n/g,'<br><br>') + '</div></div>';
-
-    html += '<div class="card"><div class="qnum">Câu ' + qNum + '</div>';
-    if (q.type === 'signs') {
-      html += '<div style="background:#fff8e1; padding:12px; border-radius:8px; margin-bottom:10px; font-weight:600; white-space:pre-line;">' + escHtml(q.sign) + '</div>';
+    if(qNum === 26) html += '<div class="card"><h2>Phần 2: Signs & Notices (Câu 26-35)</h2></div>';
+    if(qNum === 36) html += '<div class="card"><h2>Phần 3: Sentence Transformation (Câu 36-45)</h2></div>';
+    if(qNum === 46) html += `<div class="card"><h2>Phần 4: Reading - ${escHtml(state.testPassage.title)}</h2><div class="passage">${escHtml(state.testPassage.text).replace(/\n/g,'<br><br>')}</div></div>`;
+    html += `<div class="card"><div class="qnum">Câu ${qNum}</div>`;
+    if(q.type === 'signs') html += `<div style="background:#fff8e1;padding:12px;border-radius:8px;margin-bottom:10px;font-weight:600;white-space:pre-line">${escHtml(q.sign)}</div>`;
+    else html += `<div class="qtxt">${escHtml(q.q)}</div>`;
+    if(q.type === 'transform') {
+      html += `<div style="margin:8px 0;color:#888;font-size:13px">Bắt đầu bằng:</div>
+        <div style="font-style:italic;font-weight:600;margin-bottom:8px">${escHtml(q.h)}</div>
+        <textarea class="input-answer" id="test-q-${idx}" placeholder="Câu trả lời..."></textarea>`;
     } else {
-      html += '<div class="qtxt">' + escHtml(q.q) + '</div>';
-    }
-
-    if (q.type === 'transform') {
-      html += '<div style="margin:8px 0; color:#888; font-size:13px;">Bắt đầu bằng:</div>';
-      html += '<div style="font-style:italic; font-weight:600; margin-bottom:8px;">' + escHtml(q.h) + '</div>';
-      html += '<textarea class="input-answer" id="test-q-' + idx + '" placeholder="Câu trả lời..."></textarea>';
-    } else {
-      q.o.forEach((opt, i) => {
-        html += '<label class="option" style="display:block;"><input type="radio" name="test-q-' + idx + '" value="' + i + '" style="margin-right:8px;"><span class="label">' + String.fromCharCode(65+i) + '.</span>' + escHtml(opt) + '</label>';
+      q.o.forEach((opt,i) => {
+        html += `<label class="option" style="display:block"><input type="radio" name="test-q-${idx}" value="${i}" style="margin-right:8px"><span class="label">${String.fromCharCode(65+i)}.</span>${escHtml(opt)}</label>`;
       });
     }
     html += '</div>';
@@ -864,55 +747,42 @@ function renderMockTest() {
 }
 
 function submitMockTest(timeUp) {
-  if (state.testTimer) clearInterval(state.testTimer);
+  if(state.testTimer) clearInterval(state.testTimer);
   let correct = 0;
-  state.testQuestions.forEach((q, idx) => {
-    if (q.type === 'transform') {
-      const ta = document.getElementById('test-q-' + idx);
-      if (ta) {
-        const userAns = ta.value.trim().toLowerCase().replace(/\s+/g, ' ').replace(/[.,!?;:]/g, '');
-        const correctAnswers = q.a.map(a => a.toLowerCase().replace(/\s+/g, ' ').replace(/[.,!?;:]/g, ''));
-        if (correctAnswers.some(ca => {
-          if (userAns === ca) return true;
-          const userWords = userAns.split(' ');
-          const corrWords = ca.split(' ');
-          const matches = userWords.filter(w => corrWords.includes(w)).length;
-          return matches / Math.max(userWords.length, corrWords.length) >= 0.85;
+  state.testQuestions.forEach((q,idx) => {
+    if(q.type === 'transform') {
+      let ta = document.getElementById('test-q-'+idx);
+      if(ta) {
+        let user = ta.value.trim().toLowerCase().replace(/\s+/g,' ').replace(/[.,!?;:]/g,'');
+        let corrects = q.a.map(a=>a.toLowerCase().replace(/\s+/g,' ').replace(/[.,!?;:]/g,''));
+        if(corrects.some(ca => {
+          if(user === ca) return true;
+          let uw = user.split(' '), cw = ca.split(' ');
+          return uw.filter(w=>cw.includes(w)).length / Math.max(uw.length,cw.length) >= 0.85;
         })) correct++;
       }
     } else {
-      const sel = document.querySelector('input[name="test-q-' + idx + '"]:checked');
-      if (sel && parseInt(sel.value) === q.a) correct++;
+      let sel = document.querySelector(`input[name="test-q-${idx}"]:checked`);
+      if(sel && parseInt(sel.value) === q.a) correct++;
     }
   });
-
-  const total = state.testQuestions.length;
-  const pct = Math.round(correct/total*100);
-  state.progress.total += total;
-  state.progress.correct += correct;
-  saveProgress();
-
-  $('timer').classList.add('hidden');
-  $('exit-fab').classList.add('hidden');
-  $('modal-title').textContent = timeUp ? '⏱ Hết giờ!' : '🏆 Hoàn thành đề thi!';
+  let total = state.testQuestions.length, pct = Math.round(correct/total*100);
+  state.progress.total += total; state.progress.correct += correct; saveProgress();
+  $('timer').classList.add('hidden'); $('exit-fab').classList.add('hidden');
+  $('modal-title').textContent = timeUp ? '⏱ Hết giờ!' : '🏆 Hoàn thành!';
   $('modal-score').textContent = correct + '/' + total + ' (' + pct + '%)';
-  $('modal-text').innerHTML = pct >= 70 ? '🎉 Xuất sắc! Bạn đã sẵn sàng cho kỳ thi!' :
-    pct >= 50 ? '👍 Khá tốt! Cần luyện thêm phần yếu.' :
-    '💪 Cần ôn tập thêm. Đừng nản, hãy xem lại các phần luyện tập!';
+  $('modal-text').innerHTML = pct >= 70 ? '🎉 Xuất sắc! Bạn đã sẵn sàng cho kỳ thi!' : pct >= 50 ? '👍 Khá tốt! Cần luyện thêm phần yếu.' : '💪 Cần ôn tập thêm. Đừng nản!';
   $('modal').classList.add('show');
 }
 
 function resetProgress() {
-  if (confirm('Reset toàn bộ tiến độ? Streak và điểm số sẽ về 0.')) {
-    state.progress = {correct:0, total:0, streak:0, lastDate:null};
-    saveProgress();
-    updateHomeStats();
+  if(confirm('Reset toàn bộ tiến độ? Streak và điểm số sẽ về 0.')) {
+    state.progress = {correct:0,total:0,streak:0,lastDate:null};
+    saveProgress(); updateHomeStats();
   }
 }
 
-// Init
-updateStreak();
-updateHomeStats();
+updateStreak(); updateHomeStats();
 </script>
 </body>
 </html>
